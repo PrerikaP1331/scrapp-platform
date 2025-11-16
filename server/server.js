@@ -3,19 +3,21 @@ const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 
-// Load env vars
-dotenv.config();
+// Route files
+const authRoutes = require('./routes/authRoutes');
+const pickupRoutes = require('./routes/pickupRoutes');
 
-// Connect to database
+dotenv.config();
 connectDB();
 
 const app = express();
 
-// A simple test route
-app.get('/', (req, res) => {
-    res.send('API is running...');
-});
+// Body parser middleware
+app.use(express.json());
+
+// Mount routers
+app.use('/api/auth', authRoutes);
+app.use('/api/pickups', pickupRoutes); 
 
 const PORT = process.env.PORT || 5001;
-
 app.listen(PORT, console.log(`Server running in development mode on port ${PORT}`));

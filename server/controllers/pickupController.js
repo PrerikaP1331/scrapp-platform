@@ -34,3 +34,17 @@ exports.createPickup = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+
+exports.getMyPickups = async (req, res) => {
+    try {
+        // Find all pickups where the 'user' field matches the logged-in user's ID
+        // Sort by createdAt in descending order (-1) to get newest first
+        const pickups = await Pickup.find({ user: req.user.id }).sort({ createdAt: -1 });
+        
+        res.json(pickups);
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
