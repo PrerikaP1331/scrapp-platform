@@ -12,6 +12,7 @@ import LoginPage from './pages/LoginPage/LoginPage';
 import SelectRolePage from './pages/SelectRolePage/SelectRolePage';
 import IndividualSignUpPage from './pages/IndividualSignUpPage/IndividualSignUpPage';
 import CommunitySignUpPage from './pages/CommunitySignUpPage/CommunitySignUpPage';
+import CorporateSignUpPage from './pages/CorporateSignUpPage/CorporateSignUpPage'; 
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
               <Route path="signup/select-role" element={<SelectRolePage />} />
               <Route path="signup/individual" element={<IndividualSignUpPage />} />
               <Route path="signup/community" element={<CommunitySignUpPage />} />
+              <Route path="signup/corporate" element={<CorporateSignUpPage />} />
             </Route>
             
             <Route path="/dashboard" element={<h1>Welcome! You are logged in.</h1>} />
