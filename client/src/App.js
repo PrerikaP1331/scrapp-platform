@@ -10,6 +10,7 @@ import PublicLayout from './layouts/PublicLayout';
 import LoginPage from './pages/LoginPage/LoginPage';
 import SelectRolePage from './pages/SelectRolePage/SelectRolePage';
 import IndividualSignUpPage from './pages/IndividualSignUpPage/IndividualSignUpPage';
+import LandingPage from './pages/LandingPage/LandingPage';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/" element={<PublicLayout />}>
           <Route index element={<h1>Homepage Placeholder</h1>} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="landing" element={<LandingPage />} />
           
           {/* 2. Add this new route for redirection */}
           <Route path="signup" element={<Navigate to="/signup/select-role" replace />} />

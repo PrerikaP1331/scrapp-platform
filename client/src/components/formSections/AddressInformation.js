@@ -1,5 +1,6 @@
 import React from 'react';
 import { Grid, TextInput, Title } from '@mantine/core';
+import { IconHome, IconMapPin, IconHash } from '@tabler/icons-react';
 
 function AddressInformation({ form, title = "Pickup Location" }) {
   return (
@@ -13,6 +14,8 @@ function AddressInformation({ form, title = "Pickup Location" }) {
           placeholder="123 Main St"
           {...form.getInputProps('addressLine1')}
           required
+          leftSection={<IconHome size={16} />}
+          leftSectionWidth={36}
         />
       </Grid.Col>
       <Grid.Col span={12}>
@@ -20,6 +23,8 @@ function AddressInformation({ form, title = "Pickup Location" }) {
           label="Address Line 2 (Apartment, suite, etc.)"
           placeholder="Apt 4B"
           {...form.getInputProps('addressLine2')}
+          leftSection={<IconHome size={16} />}
+          leftSectionWidth={36}
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 4 }}>
@@ -28,6 +33,8 @@ function AddressInformation({ form, title = "Pickup Location" }) {
           placeholder="Mumbai"
           {...form.getInputProps('city')}
           required
+          leftSection={<IconMapPin size={16} />}
+          leftSectionWidth={36}
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 4 }}>
@@ -36,6 +43,8 @@ function AddressInformation({ form, title = "Pickup Location" }) {
           placeholder="400001"
           {...form.getInputProps('postalCode')}
           required
+          leftSection={<IconHash size={16} />}
+          leftSectionWidth={36}
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 4 }}>
@@ -44,6 +53,8 @@ function AddressInformation({ form, title = "Pickup Location" }) {
           placeholder="Maharashtra"
           {...form.getInputProps('state')}
           required
+          leftSection={<IconMapPin size={16} />}
+          leftSectionWidth={36}
         />
       </Grid.Col>
     </>

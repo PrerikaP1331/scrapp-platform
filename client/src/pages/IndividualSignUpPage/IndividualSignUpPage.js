@@ -1,21 +1,20 @@
-// /client/src/pages/IndividualSignUpPage/IndividualSignUpPage.js (Complete Code)
-
 import React, { useContext } from 'react';
-import { Button, Title, Checkbox, Grid, Box } from '@mantine/core';
+import { Button, Title, Text, Checkbox, Grid, Box, Paper, TextInput, PasswordInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { AuthContext } from '../../context/AuthContext';
-import { IconUser } from '@tabler/icons-react';
+import { IconUser, IconMail, IconPhone, IconMapPin, IconLock, IconSparkles, IconCheck, IconRecycle } from '@tabler/icons-react';
 import apiClient from '../../api/axios';
-//import styles from './IndividualSignUpPage.module.css';
+import styles from './IndividualSignUpPage.module.css';
 
-// Import our new layout and reusable components
-import RegistrationLayout from '../../layouts/RegistrationLayout/RegistrationLayout';
-import RoleBenefitCard from '../../components/RoleBenefitCard/RoleBenefitCard';
-import PersonalInformation from '../../components/formSections/PersonalInformation';
-import AddressInformation from '../../components/formSections/AddressInformation';
-import AccountSecurity from '../../components/formSections/AccountSecurity';
+const palette = {
+  linen: '#dad7cd',
+  sage: '#a3b18a',
+  fern: '#588157',
+  pine: '#3a5a40',
+  forest: '#344e41',
+};
 
 function IndividualSignUpPage() {
   const navigate = useNavigate();
@@ -55,7 +54,7 @@ function IndividualSignUpPage() {
       email: values.email,
       password: values.password,
       phone: values.phone,
-      role: 'individual', // Set role automatically for this form
+      role: 'individual',
       address: {
         addressLine1: values.addressLine1,
         addressLine2: values.addressLine2,
@@ -69,7 +68,6 @@ function IndividualSignUpPage() {
       const response = await apiClient.post('/auth/register', payload);
       const { token } = response.data;
       
-      // Use login function from context to set token and navigate
       login(null, token);
 
       notifications.show({
@@ -90,55 +88,242 @@ function IndividualSignUpPage() {
     }
   };
 
-  // Define the content for the left-side benefit card
-  const benefitCard = (
-    <RoleBenefitCard
-      icon={<IconUser size={48} color="#a3b18a" />}
-      title="Individual Account"
-      description="For personal and household recycling, right from your doorstep."
-      features={[
-        "Schedule pickups at your convenience",
-        "Track your environmental impact in real-time",
-        "Earn rewards and coupons for recycling",
-        "Join your local community hub to share and connect"
-      ]}
-    />
-  );
-
-  // Define the content for the right-side form
-  const registrationForm = (
-    <Box p={30}>
-      <Title order={3} style={{ color: '#3a5a40' }}>Signup</Title>
-      <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Grid mt="xl" gutter="md">
-          {/* Use the reusable components */}
-          <PersonalInformation form={form} />
-          <AddressInformation form={form} title="Default Pickup Address" />
-          <AccountSecurity form={form} />
-
-          {/* Final Step */}
-          <Grid.Col span={12}>
-            <Checkbox
-              mt="md"
-              label="I agree to the Scrapp Terms of Service and Privacy Policy."
-              {...form.getInputProps('terms', { type: 'checkbox' })}
-            />
-          </Grid.Col>
-          <Grid.Col span={12}>
-            <Button fullWidth mt="xl" type="submit" style={{ backgroundColor: '#588157' }}>
-              Create Account
-            </Button>
-          </Grid.Col>
-        </Grid>
-      </form>
-    </Box>
-  );
+  const benefits = [
+    "Schedule pickups at your convenience",
+    "Track your environmental impact in real-time",
+    "Earn rewards and coupons for recycling",
+    "Join your local community hub"
+  ];
 
   return (
-    <RegistrationLayout
-      benefitCard={benefitCard}
-      form={registrationForm}
-    />
+    <div className={styles.wrapper}>
+      <div className={styles.container}>
+        <div style={{ textAlign: 'center', marginBottom: 12 }}>
+          <Link to="/landing" style={{ textDecoration: 'none', display: 'inline-block' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#344e41', textShadow: '0 2px 8px rgba(88,129,87,0.15)' }}>
+              <span>SCR</span>
+              <IconRecycle size={32} style={{ color: '#588157', margin: '0 -2px', strokeWidth: 2.5 }} />
+              <span>PP</span>
+            </div>
+          </Link>
+        </div>
+        <Grid gutter="xl" align="stretch">
+          {/* Left Side - Benefits Card */}
+          <Grid.Col span={{ base: 12, md: 5 }}>
+            <Paper className={styles.benefitCard} p="xl" radius="lg">
+              <div className={styles.benefitIconWrapper}>
+                <IconUser size={48} stroke={1.5} />
+              </div>
+              
+              <Title order={2} className={styles.benefitTitle} mt="lg">
+                Individual Account
+              </Title>
+              
+              <Text className={styles.benefitDescription} mt="md" size="lg">
+                For personal and household recycling, right from your doorstep.
+              </Text>
+
+              <div className={styles.benefitsList} style={{ marginTop: '32px' }}>
+                {benefits.map((benefit, idx) => (
+                  <div key={idx} className={styles.benefitItem}>
+                    <div className={styles.checkIconWrapper}>
+                      <IconCheck size={20} stroke={2.5} />
+                    </div>
+                    <Text className={styles.benefitText}>{benefit}</Text>
+                  </div>
+                ))}
+              </div>
+
+              <div className={styles.badgeWrapper}>
+                <div className={styles.badge}>
+                  <IconSparkles size={16} />
+                  <span>Join 415+ households</span>
+                </div>
+              </div>
+            </Paper>
+          </Grid.Col>
+
+          {/* Right Side - Registration Form */}
+          <Grid.Col span={{ base: 12, md: 7 }}>
+            <Paper className={styles.formCard} p="xl" radius="lg">
+              <Title order={2} className={styles.formTitle}>
+                Create Your Account
+              </Title>
+              <Text className={styles.formSubtitle} mt="xs">
+                Start your sustainable journey today
+              </Text>
+
+              <form onSubmit={form.onSubmit(handleSubmit)}>
+                <div className={styles.formSection}>
+                  <Title order={4} className={styles.sectionTitle}>
+                    Personal Information
+                  </Title>
+                  
+                  <TextInput
+                    label="Full Name"
+                    placeholder="John Doe"
+                    leftSection={<IconUser size={18} />}
+                    classNames={{
+                      input: styles.input,
+                      label: styles.label
+                    }}
+                    {...form.getInputProps('name')}
+                  />
+
+                  <Grid gutter="md" mt="md">
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
+                      <TextInput
+                        label="Email Address"
+                        placeholder="john@example.com"
+                        leftSection={<IconMail size={18} />}
+                        classNames={{
+                          input: styles.input,
+                          label: styles.label
+                        }}
+                        {...form.getInputProps('email')}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
+                      <TextInput
+                        label="Phone Number"
+                        placeholder="9876543210"
+                        leftSection={<IconPhone size={18} />}
+                        classNames={{
+                          input: styles.input,
+                          label: styles.label
+                        }}
+                        {...form.getInputProps('phone')}
+                      />
+                    </Grid.Col>
+                  </Grid>
+                </div>
+
+                <div className={styles.formSection}>
+                  <Title order={4} className={styles.sectionTitle}>
+                    Default Pickup Address
+                  </Title>
+                  
+                  <TextInput
+                    label="Address Line 1"
+                    placeholder="123 Main Street"
+                    leftSection={<IconMapPin size={18} />}
+                    classNames={{
+                      input: styles.input,
+                      label: styles.label
+                    }}
+                    {...form.getInputProps('addressLine1')}
+                  />
+
+                  <TextInput
+                    label="Address Line 2 (Optional)"
+                    placeholder="Apt 4B"
+                    leftSection={<IconMapPin size={18} />}
+                    mt="md"
+                    classNames={{
+                      input: styles.input,
+                      label: styles.label
+                    }}
+                    {...form.getInputProps('addressLine2')}
+                  />
+
+                  <Grid gutter="md" mt="md">
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
+                      <TextInput
+                        label="City"
+                        placeholder="Bangalore"
+                        classNames={{
+                          input: styles.input,
+                          label: styles.label
+                        }}
+                        {...form.getInputProps('city')}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
+                      <TextInput
+                        label="State/Province"
+                        placeholder="Karnataka"
+                        classNames={{
+                          input: styles.input,
+                          label: styles.label
+                        }}
+                        {...form.getInputProps('state')}
+                      />
+                    </Grid.Col>
+                  </Grid>
+
+                  <TextInput
+                    label="Postal/ZIP Code"
+                    placeholder="560001"
+                    mt="md"
+                    classNames={{
+                      input: styles.input,
+                      label: styles.label
+                    }}
+                    {...form.getInputProps('postalCode')}
+                  />
+                </div>
+
+                <div className={styles.formSection}>
+                  <Title order={4} className={styles.sectionTitle}>
+                    Account Security
+                  </Title>
+                  
+                  <PasswordInput
+                    label="Password"
+                    placeholder="At least 8 characters"
+                    leftSection={<IconLock size={18} />}
+                    classNames={{
+                      input: styles.input,
+                      label: styles.label
+                    }}
+                    {...form.getInputProps('password')}
+                  />
+
+                  <PasswordInput
+                    label="Confirm Password"
+                    placeholder="Re-enter your password"
+                    leftSection={<IconLock size={18} />}
+                    mt="md"
+                    classNames={{
+                      input: styles.input,
+                      label: styles.label
+                    }}
+                    {...form.getInputProps('confirmPassword')}
+                  />
+                </div>
+
+                <Checkbox
+                  mt="xl"
+                  label={
+                    <Text size="sm" className={styles.checkboxLabel}>
+                      I agree to the <Link to="/terms" className={styles.link}>Terms of Service</Link> and <Link to="/privacy" className={styles.link}>Privacy Policy</Link>
+                    </Text>
+                  }
+                  classNames={{
+                    input: styles.checkbox
+                  }}
+                  {...form.getInputProps('terms', { type: 'checkbox' })}
+                />
+
+                <Button 
+                  fullWidth 
+                  size="lg" 
+                  mt="xl" 
+                  type="submit" 
+                  className={styles.submitButton}
+                >
+                  Create Account
+                </Button>
+
+                <Text ta="center" mt="lg" size="sm" className={styles.loginText}>
+                  Already have an account? <Link to="/login" className={styles.link}>Login here</Link>
+                </Text>
+              </form>
+            </Paper>
+          </Grid.Col>
+        </Grid>
+      </div>
+    </div>
   );
 }
 
