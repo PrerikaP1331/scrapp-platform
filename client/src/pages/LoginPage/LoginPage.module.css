@@ -1,0 +1,36 @@
+/* /client/src/pages/LoginPage/LoginPage.module.css */
+
+.wrapper {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Ensures video doesn't cause scrollbars */
+}
+
+.backgroundVideo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* This makes the video cover the screen without distortion */
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* A dark overlay to make text readable */
+  z-index: 2;
+}
+
+.formContainer {
+  position: relative;
+  z-index: 3; /* Ensures the form is on top of the video and overlay */
+}
