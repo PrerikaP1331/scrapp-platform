@@ -1,20 +1,20 @@
-// /client/src/components/formSections/OrganizationDetails.js
+// /client/src/components/formSections/OrganisationalDetails.js
 import React from 'react';
 import { Grid, TextInput, Title, Select } from '@mantine/core';
 import AddressInformation from './AddressInformation';
 
-function OrganizationDetails({ form }) {
+function OrganisationalDetails({ form }) {
   return (
     <>
       <Grid.Col span={12}>
-        <Title order={4} mt="md" style={{ color: '#3a5a40' }}>Organization Details</Title>
+        <Title order={4} mt="md" style={{ color: '#3a5a40' }}>Organisation Details</Title>
       </Grid.Col>
       <Grid.Col span={12}>
-        <TextInput label="Organization Name" placeholder="e.g., Innovatech Solutions Inc." {...form.getInputProps('orgName')} required />
+        <TextInput label="Organisation Name" placeholder="e.g., Innovatech Solutions Inc." {...form.getInputProps('orgName')} required />
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 6 }}>
         <Select
-          label="Type of Organization"
+          label="Type of Organisation"
           placeholder="Select a type"
           data={['Corporate Office', 'Retail Store / Business', 'School / University', 'Restaurant / Hotel', 'Factory / Industrial Unit', 'Non-Profit / NGO', 'Other']}
           {...form.getInputProps('orgType')}
@@ -30,9 +30,9 @@ function OrganizationDetails({ form }) {
           required
         />
       </Grid.Col>
-      <AddressInformation form={form} title="Organization's Primary Address" />
+      <AddressInformation form={form} title="Organisation's Primary Address" />
     </>
   );
 }
 
-export default OrganizationDetails;
+export default OrganisationalDetails;
