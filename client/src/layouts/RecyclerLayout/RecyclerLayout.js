@@ -37,13 +37,13 @@ function RecyclerLayout({ children }) {
       navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="md"
     >
-      <AppShell.Header style={{ backgroundColor: '#344e41', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'white' }}>
+      <AppShell.Header style={{ backgroundColor: '#dad7cd', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: '1.5rem', paddingLeft: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#344e41' }}>
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Group gap={4} align="center">
-            <Text fw={800} size="lg" style={{ letterSpacing: '-0.02em', color: '#ffffff' }}>SCR</Text>
-            <IconRecycle size={24} style={{ color: '#588157', margin: '0 -2px', strokeWidth: 2.5 }} />
-            <Text fw={800} size="lg" style={{ letterSpacing: '-0.02em', color: '#ffffff' }}>PP</Text>
+          <Group gap={8} align="center" style={{ padding: '4px 10px', marginLeft: '12px' }}>
+            <Text fw={900} style={{ fontSize: '2rem', letterSpacing: '-0.02em', color: '#344e41' }}>SCR</Text>
+            <IconRecycle size={32} style={{ color: '#588157', margin: '0 -3px', strokeWidth: 2.5 }} />
+            <Text fw={900} style={{ fontSize: '2rem', letterSpacing: '-0.02em', color: '#344e41' }}>PP</Text>
           </Group>
         </div>
         {/* User Profile Avatar - Top Right */}
@@ -54,7 +54,7 @@ function RecyclerLayout({ children }) {
               alt={user?.name}
               radius="xl"
               size="md"
-              style={{ backgroundColor: '#588157', cursor: 'pointer' }}
+              style={{ backgroundColor: '#a3b18a', color: '#344e41', cursor: 'pointer' }}
             >
               {getInitials()}
             </Avatar>
@@ -70,7 +70,7 @@ function RecyclerLayout({ children }) {
         </Menu>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md" style={{ backgroundColor: '#0d2b34' }}>
+      <AppShell.Navbar p="md" style={{ backgroundColor: '#ecebe5' }}>
         {navLinks.map((link) => {
           const active = location.pathname === link.href;
           return (
@@ -78,13 +78,13 @@ function RecyclerLayout({ children }) {
               key={link.label}
               component={Link}
               to={link.href}
-              label={link.label}
-              leftSection={<link.icon size="1rem" stroke={1.5} color={active ? '#dad7cd' : '#ffffff'} />}
+              label={<Text size="md" fw={600} style={{ color: 'inherit' }}>{link.label}</Text>}
+              leftSection={<link.icon size="1rem" stroke={1.5} color={active ? '#344e41' : '#3a5a40'} />}
               active={active}
               style={{
                 borderRadius: '8px',
-                color: active ? '#dad7cd' : '#ffffff',
-                backgroundColor: active ? '#1e4236' : 'transparent',
+                color: active ? '#344e41' : '#3a5a40',
+                backgroundColor: active ? '#dad7cd' : 'transparent',
                 marginBottom: '6px',
                 paddingLeft: '12px'
               }}
@@ -95,19 +95,19 @@ function RecyclerLayout({ children }) {
         <NavLink
           component={Link}
           to="/recycler/settings"
-          label="Settings"
-          leftSection={<IconSettings size="1rem" stroke={1.5} color={location.pathname === '/recycler/settings' ? '#dad7cd' : '#ffffff'} />}
+          label={<Text size="md" fw={600} style={{ color: 'inherit' }}>Settings</Text>}
+          leftSection={<IconSettings size="1rem" stroke={1.5} color={location.pathname === '/recycler/settings' ? '#344e41' : '#3a5a40'} />}
           active={location.pathname === '/recycler/settings'}
           style={{
             borderRadius: '8px',
-            color: location.pathname === '/recycler/settings' ? '#dad7cd' : '#ffffff',
-            backgroundColor: location.pathname === '/recycler/settings' ? '#1e4236' : 'transparent',
+            color: location.pathname === '/recycler/settings' ? '#344e41' : '#3a5a40',
+            backgroundColor: location.pathname === '/recycler/settings' ? '#dad7cd' : 'transparent',
             paddingLeft: '12px'
           }}
         />
       </AppShell.Navbar>
 
-      <AppShell.Main style={{ backgroundColor: '#f6f7f4' }}>
+      <AppShell.Main style={{ backgroundColor: '#f6f7f4', overflowY: 'auto' }}>
         {children}
       </AppShell.Main>
     </AppShell>

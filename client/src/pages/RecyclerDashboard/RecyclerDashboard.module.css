@@ -43,3 +43,9 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(88, 129, 87, 0.3);
 }
+
+.ctaLabel {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.2;
+}

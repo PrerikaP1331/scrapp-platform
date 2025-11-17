@@ -182,17 +182,20 @@ const RecyclerDashboard = () => {
           <Button
             size="lg"
             variant="filled"
-            fullHeight
-            rightSection={<IconArrowRight size={20} />}
+            fullWidth
+            rightSection={<IconArrowRight size={16} />}
             onClick={() => navigate('/recycler/route')}
             className={styles.ctaButton}
+            classNames={{ label: styles.ctaLabel }}
             style={{
               background: 'linear-gradient(135deg, #588157 0%, #3a5a40 100%)',
               color: '#ffffff',
-              border: 'none'
+              border: 'none',
+              minHeight: '56px',
+              marginTop: '8px'
             }}
           >
-            View Today's Route →
+            View Today's Route
           </Button>
         </SimpleGrid>
 

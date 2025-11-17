@@ -69,7 +69,7 @@ function RecyclerSettings() {
   };
 
   return (
-    <Container size="lg" py="xl">
+    <Container size="lg" py="xl" style={{ overflowY: 'auto' }}>
       <Stack gap="lg">
         {/* Header */}
         <div>
@@ -83,7 +83,7 @@ function RecyclerSettings() {
           </Alert>
         )}
 
-        <Tabs value={activeTab} onTabChange={setActiveTab} orientation="vertical">
+        <Tabs value={activeTab} onChange={setActiveTab} orientation="vertical">
           <Tabs.List>
             <Tabs.Tab value="account" leftSection={<IconUser size={14} />}>Account</Tabs.Tab>
             <Tabs.Tab value="security" leftSection={<IconLock size={14} />}>Security</Tabs.Tab>

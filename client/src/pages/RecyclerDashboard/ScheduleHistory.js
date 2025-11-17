@@ -7,7 +7,8 @@ import {
 import {
   IconSearch, IconFilter, IconCalendar, IconList, IconCheck, IconX,
   IconAlertCircle, IconPhone, IconMapPin, IconClock, IconFileText,
-  IconChevronDown, IconEye, IconTrash, IconEdit, IconPlus
+  IconChevronDown, IconEye, IconTrash, IconEdit, IconPlus,
+  IconChevronLeft, IconChevronRight
 } from '@tabler/icons-react';
 import { Calendar } from '@mantine/dates';
 import { getPickupsFiltered, acceptPickup, declinePickup, updatePickupStatus } from '../../api/recyclerService';
@@ -118,10 +119,18 @@ function ScheduleHistory() {
   };
 
   // Get pickups for selected date
+  const normalizeDateOnly = (v) => {
+    const d = v instanceof Date ? v : new Date(v);
+    if (Number.isNaN(d.getTime())) return null;
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  };
+
   const getPickupsForDate = (date) => {
-    return pickups.filter(p => {
-      const pickupDate = new Date(p.date);
-      return pickupDate.toDateString() === date.toDateString();
+    const target = normalizeDateOnly(date);
+    if (!target) return [];
+    return pickups.filter((p) => {
+      const pickupDate = normalizeDateOnly(p.date);
+      return pickupDate && pickupDate.getTime() === target.getTime();
     });
   };
 
@@ -181,21 +190,35 @@ function ScheduleHistory() {
           <Grid gutter="lg">
             {/* Calendar */}
             <Grid.Col span={{ base: 12, md: 6 }}>
-              <Paper p="lg" radius="md" withBorder>
+              <Paper p="lg" radius="md" withBorder className={styles.calendarCard}>
                 <Calendar
                   value={selectedDate}
-                  onChange={setSelectedDate}
+                  onChange={(value) => {
+                    if (value) {
+                      setSelectedDate(value instanceof Date ? value : new Date(value));
+                    }
+                  }}
                   fullWidth
-                  dayStyle={(date) => {
-                    const pickupsOnDay = getPickupsForDate(date);
-                    if (pickupsOnDay.length === 0) return {};
-
-                    const completed = pickupsOnDay.filter(p => p.status === 'completed').length;
-                    const total = pickupsOnDay.length;
-
-                    if (completed === total) return { backgroundColor: '#588157', color: 'white' };
-                    if (completed > 0) return { backgroundColor: '#a3b18a', color: 'white' };
-                    return { backgroundColor: '#588157', color: 'white' };
+                  size="md"
+                  previousIcon={<IconChevronLeft size={18} color="#344e41" />}
+                  nextIcon={<IconChevronRight size={18} color="#344e41" />}
+                  allowLevelChange={false}
+                  getDayProps={(date) => ({
+                    onClick: () => setSelectedDate(date instanceof Date ? date : new Date(date)),
+                  })}
+                  renderDay={(date) => {
+                    const d = date instanceof Date ? date : new Date(date);
+                    const pickupsOnDay = getPickupsForDate(d);
+                    const isSelected = selectedDate && (selectedDate instanceof Date ? selectedDate.toDateString() : new Date(selectedDate).toDateString()) === d.toDateString();
+                    const hasPickups = pickupsOnDay.length > 0;
+                    return (
+                      <div className={`${styles.dayCell} ${isSelected ? styles.daySelected : ''} ${hasPickups ? styles.dayWithPickups : ''}`}>
+                        {d.getDate()}
+                        {hasPickups && (
+                          <span className={styles.pickupCount}>{pickupsOnDay.length}</span>
+                        )}
+                      </div>
+                    );
                   }}
                 />
               </Paper>
@@ -209,7 +232,7 @@ function ScheduleHistory() {
                   <Group justify="space-between" mb="md">
                     <div>
                       <Title order={4} style={{ color: '#344e41' }}>
-                        {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                        {new Date(selectedDate || Date.now()).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                       </Title>
                     </div>
                   </Group>
@@ -316,8 +339,7 @@ function ScheduleHistory() {
         {/* Filter Bar */}
         <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#dad7cd' }}>
           <Stack gap="md">
-            <Group grow>
-              {/* Status Filter */}
+            <SimpleGrid cols={2} gap="md">
               <Select
                 label="Filter by Status"
                 placeholder="Select status"
@@ -335,18 +357,16 @@ function ScheduleHistory() {
                 searchable
                 clearable={false}
               />
-
-              {/* Search Bar */}
               <TextInput
+                label="Search"
                 placeholder="Search by customer name, address, or ID..."
                 leftSection={<IconSearch size={16} />}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.currentTarget.value)}
               />
-            </Group>
+            </SimpleGrid>
 
-            <Group grow>
-              {/* Date Range */}
+            <SimpleGrid cols={3} gap="md">
               <div>
                 <Text fw={500} size="sm" mb={4}>Start Date</Text>
                 <TextInput
@@ -377,7 +397,7 @@ function ScheduleHistory() {
                   Clear Filters
                 </Button>
               </div>
-            </Group>
+            </SimpleGrid>
           </Stack>
         </Paper>
 
