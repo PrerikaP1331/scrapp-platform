@@ -4,11 +4,29 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.registerUser = async (req, res) => {
-    // NOTE: For now, we are getting all data from req.body.
-    // We will add input validation in a later step.
     const { name, email, password, phone, role, address } = req.body;
 
     try {
+        // Input validation
+        if (!name || !email || !password || !phone || !role) {
+            return res.status(400).json({ msg: 'Please provide all required fields: name, email, password, phone, role' });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({ msg: 'Password must be at least 8 characters long' });
+        }
+
+        if (!/^\S+@\S+$/.test(email)) {
+            return res.status(400).json({ msg: 'Please provide a valid email address' });
+        }
+
+        // For individual users, validate address
+        if (role === 'individual' && address) {
+            if (!address.addressLine1 || !address.city || !address.state || !address.postalCode) {
+                return res.status(400).json({ msg: 'Please provide complete address information: addressLine1, city, state, postalCode' });
+            }
+        }
+
         // 1. Check if user already exists
         let user = await User.findOne({ email });
         if (user) {
@@ -16,13 +34,22 @@ exports.registerUser = async (req, res) => {
         }
 
         // 2. Create a new user instance
+        console.log('Registering user with address:', address);
+        const addressData = {
+            addressLine1: String(address?.addressLine1 || '').trim(),
+            addressLine2: String(address?.addressLine2 || '').trim(),
+            city: String(address?.city || '').trim(),
+            state: String(address?.state || '').trim(),
+            postalCode: String(address?.postalCode || '').trim()
+        };
+        console.log('Address data to be saved:', addressData);
         user = new User({
             name,
             email,
             password, // Plain text for now
             phone,
             role,
-            address
+            address: addressData
         });
 
         // 3. Hash the password
@@ -31,6 +58,7 @@ exports.registerUser = async (req, res) => {
 
         // 4. Save the user to the database
         await user.save();
+        console.log('User saved successfully with address:', user.address);
         
         // 5. Create and return a JWT
         const payload = {

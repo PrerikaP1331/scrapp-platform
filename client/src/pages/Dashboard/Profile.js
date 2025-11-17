@@ -13,7 +13,8 @@ const Profile = () => {
     name: '',
     email: '',
     phone: '',
-    address: '',
+    addressLine1: '',
+    addressLine2: '',
     city: '',
     state: '',
     postalCode: ''
@@ -25,22 +26,35 @@ const Profile = () => {
 
   const loadProfile = async () => {
     try {
-      const res = await axios.get('/api/user/profile');
+      const res = await axios.get('/user/profile');
+      console.log('Full API Response:', res.data);
+      console.log('Address object:', res.data.address);
+      
       if (res.data) {
+        const addr = res.data.address || {};
+        console.log('Address values:', {
+          line1: addr.addressLine1,
+          line2: addr.addressLine2,
+          city: addr.city,
+          state: addr.state,
+          postal: addr.postalCode
+        });
+        
         setFormData({
           name: res.data.name || '',
           email: res.data.email || '',
           phone: res.data.phone || '',
-          address: res.data.address?.street || '',
-          city: res.data.address?.city || '',
-          state: res.data.address?.state || '',
-          postalCode: res.data.address?.postalCode || ''
+          addressLine1: addr.addressLine1 || '',
+          addressLine2: addr.addressLine2 || '',
+          city: addr.city || '',
+          state: addr.state || '',
+          postalCode: addr.postalCode || ''
         });
       }
       setLoading(false);
     } catch (err) {
-      console.error('Error loading profile:', err.response?.data || err.message);
-      setMessage(err.response?.data?.msg || 'Error loading profile');
+      console.error('Error loading profile:', err);
+      setMessage('Error loading profile: ' + (err.response?.data?.msg || err.message));
       setLoading(false);
     }
   };
@@ -49,20 +63,25 @@ const Profile = () => {
     setSaving(true);
     setMessage('');
     try {
-      await axios.put('/api/user/profile', {
-        name: formData.name,
+      const payload = {
         phone: formData.phone,
         address: {
-          street: formData.address,
+          addressLine1: formData.addressLine1,
+          addressLine2: formData.addressLine2,
           city: formData.city,
           state: formData.state,
           postalCode: formData.postalCode
         }
-      });
-      setMessage('Profile updated successfully!');
-      setTimeout(() => setMessage(''), 3000);
+      };
+      console.log('Sending payload:', payload);
+      const res = await axios.put('/user/profile', payload);
+      console.log('Save response:', res.data);
+      setMessage('✓ Profile saved successfully!');
+      // Reload the form with latest data
+      loadProfile();
     } catch (err) {
-      setMessage(err.response?.data?.msg || 'Error updating profile');
+      console.error('Save error:', err);
+      setMessage('Error: ' + (err.response?.data?.msg || err.message));
     } finally {
       setSaving(false);
     }
@@ -109,7 +128,8 @@ const Profile = () => {
               label="Full Name"
               placeholder="Your name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.currentTarget.value })}
+              disabled
+              description="Name cannot be changed. Please contact support if you need to update it."
             />
 
             <TextInput
@@ -117,6 +137,7 @@ const Profile = () => {
               placeholder="Email"
               value={formData.email}
               disabled
+              description="Email cannot be changed. Please contact support to update."
             />
 
             <TextInput
@@ -136,12 +157,18 @@ const Profile = () => {
               <Text size="sm" c="dimmed">Help us deliver your pickups correctly</Text>
             </div>
 
-            <Textarea
-              label="Street Address"
+            <TextInput
+              label="Address Line 1"
               placeholder="Building name, street address"
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.currentTarget.value })}
-              minRows={2}
+              value={formData.addressLine1}
+              onChange={(e) => setFormData({ ...formData, addressLine1: e.currentTarget.value })}
+            />
+
+            <TextInput
+              label="Address Line 2 (Optional)"
+              placeholder="Apt, Suite, etc."
+              value={formData.addressLine2}
+              onChange={(e) => setFormData({ ...formData, addressLine2: e.currentTarget.value })}
             />
 
             <Group grow>

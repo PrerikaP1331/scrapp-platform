@@ -9,7 +9,8 @@ const API_BASE = '/api/communities';
 export const searchCommunities = async (query) => {
   try {
     const response = await axios.get(`${API_BASE}/search?q=${query}`);
-    return response.data;
+    console.log('Search response:', response.data);
+    return response.data; // Returns { data: [...], msg: '...' }
   } catch (error) {
     throw error.response?.data || { msg: 'Error searching communities' };
   }

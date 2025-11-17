@@ -81,6 +81,8 @@ exports.searchCommunities = async (req, res) => {
       return res.status(400).json({ msg: 'Search query is required' });
     }
 
+    console.log('Searching communities with query:', q);
+
     // Search by name or city or postal code
     const communities = await Community.find({
       $or: [
@@ -91,6 +93,8 @@ exports.searchCommunities = async (req, res) => {
     })
       .populate('admin', 'name email')
       .select('name description address type memberCount image');
+
+    console.log('Found communities:', communities.length);
 
     // Add membership status for each community
     const communitiesWithStatus = await Promise.all(
@@ -108,9 +112,12 @@ exports.searchCommunities = async (req, res) => {
       })
     );
 
-    res.json(communitiesWithStatus);
+    res.json({
+      data: communitiesWithStatus,
+      msg: `Found ${communitiesWithStatus.length} communities`
+    });
   } catch (err) {
-    console.error(err.message);
+    console.error('Search error:', err.message);
     res.status(500).send('Server Error');
   }
 };
@@ -127,7 +134,10 @@ exports.getUserCommunities = async (req, res) => {
       .populate('members', 'name email')
       .sort({ createdAt: -1 });
 
-    res.json(communities);
+    res.json({
+      data: communities,
+      msg: `Found ${communities.length} communities`
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -201,12 +211,12 @@ exports.getCommunityPosts = async (req, res) => {
     const total = await CommunityPost.countDocuments(query);
 
     res.json({
-      posts,
-      pagination: {
-        current: pageNum,
-        total: Math.ceil(total / limitNum),
+      data: {
+        posts,
+        pages: Math.ceil(total / limitNum),
         totalItems: total,
-      },
+        currentPage: pageNum
+      }
     });
   } catch (err) {
     console.error(err.message);

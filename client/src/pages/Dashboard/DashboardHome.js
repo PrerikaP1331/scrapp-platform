@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Container, Grid, Paper, Text, Title, Group, ThemeIcon, SimpleGrid, Card, Button } from '@mantine/core';
 import { IconTruck, IconTicket, IconGift, IconTicketOff } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 import styles from './DashboardLayout.module.css';
 
 function DashboardHome() {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  const userName = user?.name || 'there';
 
   const quickActions = [
     {
@@ -40,8 +43,8 @@ function DashboardHome() {
       {/* Welcome Section */}
       <Group justify="space-between" mb="xl">
         <div>
-          <Title order={2}>Welcome back, [Name]!</Title>
-          <Text c="dimmed">some question for user, [Name]?</Text>
+          <Title order={2}>Welcome back, {userName}</Title>
+          <Text c="dimmed">What do you want to do today?</Text>
         </div>
         <ThemeIcon size="xl" radius="xl" variant="light" color="green">
           👤

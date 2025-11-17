@@ -182,9 +182,13 @@ const Community = () => {
   const loadUserCommunities = async () => {
     try {
       const res = await getUserCommunities();
-      setUserCommunities(res.data || []);
-      if (res.data?.length > 0) {
-        setSelectedCommunity(res.data[0]);
+      console.log('Raw getUserCommunities response:', res);
+      console.log('Response structure:', { hasData: !!res.data, typeof: typeof res.data });
+      const communities = Array.isArray(res.data) ? res.data : (res.data?.data ? res.data.data : []);
+      console.log('Extracted communities:', communities);
+      setUserCommunities(communities);
+      if (communities.length > 0) {
+        setSelectedCommunity(communities[0]);
       }
     } catch (err) {
       console.error('Error loading communities:', err);
@@ -199,7 +203,11 @@ const Community = () => {
     }
     try {
       const res = await searchCommunities(q);
-      setSearchResults(res.data || []);
+      console.log('Raw searchCommunities response:', res);
+      console.log('Response structure:', { hasData: !!res.data, typeof: typeof res.data });
+      const communities = Array.isArray(res.data) ? res.data : (res.data?.data ? res.data.data : []);
+      console.log('Extracted communities:', communities);
+      setSearchResults(communities);
     } catch (err) {
       console.error('Search error:', err);
     }
@@ -222,8 +230,24 @@ const Community = () => {
         type: postFilter === 'all' ? undefined : postFilter,
         page,
       });
-      setPosts(res.data?.posts || []);
-      setMaxPage(res.data?.pages || 1);
+      console.log('Raw getCommunityPosts response:', res);
+      console.log('Response structure:', { hasData: !!res.data, typeof: typeof res.data });
+      
+      // Handle both response formats
+      let posts = [];
+      let maxPages = 1;
+      
+      if (res.data?.posts) {
+        posts = res.data.posts;
+        maxPages = res.data?.pages || res.data?.pagination?.pages || 1;
+      } else if (res.posts) {
+        posts = res.posts;
+        maxPages = res.pagination?.pages || 1;
+      }
+      
+      console.log('Extracted posts:', posts, 'Max pages:', maxPages);
+      setPosts(posts);
+      setMaxPage(maxPages);
     } catch (err) {
       console.error('Error loading posts:', err);
     } finally {

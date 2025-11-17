@@ -101,7 +101,7 @@ exports.getUserImpactStats = async (req, res) => {
     // Prepare equivalency messages
     const equivalencies = {
       trees_planted: Math.round(totalCO2Saved / 20), // 1 tree absorbs ~20kg CO2/year
-      plastic_bottles: Math.round(totalWasteDiverted / 0.05), // avg plastic bottle = 50g
+      plastic_bottles_saved: Math.round(totalWasteDiverted / 0.05), // avg plastic bottle = 50g
       car_km_avoided: Math.round(totalCO2Saved / 0.12), // 1 km driving = 0.12 kg CO2
     };
 
