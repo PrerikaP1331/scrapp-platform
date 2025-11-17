@@ -1,6 +1,6 @@
 // client/src/components/BusinessAnalytics/KPICards.js
 import React from 'react';
-import { Grid, Paper, Stack, Text, Group, ThemeIcon } from '@mantine/core';
+import { Grid, Paper, Text, Group, ThemeIcon } from '@mantine/core';
 import {
   IconCurrencyRupee,
   IconPackage,

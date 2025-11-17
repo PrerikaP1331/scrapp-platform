@@ -5,8 +5,6 @@ import {
   Text,
   Table,
   Tabs,
-  Loader,
-  Center,
   Box,
   Badge,
   Group,
@@ -14,21 +12,11 @@ import {
 } from '@mantine/core';
 import { IconTrendingUp, IconUser, IconBuilding } from '@tabler/icons-react';
 
-const TopCustomersTable = ({ topCustomers, isLoading }) => {
+const TopCustomersTable = ({ topIndividuals, topOrganizations }) => {
   const [activeTab, setActiveTab] = useState('individuals');
 
-  if (isLoading) {
-    return (
-      <Paper p="lg" radius="md" withBorder>
-        <Center h={300}>
-          <Loader />
-        </Center>
-      </Paper>
-    );
-  }
-
-  const individuals = topCustomers?.individuals || [];
-  const organizations = topCustomers?.organizations || [];
+  const individuals = topIndividuals || [];
+  const organizations = topOrganizations || [];
 
   const CustomerRow = ({ customer, type }) => (
     <Table.Tr key={customer.customerId}>

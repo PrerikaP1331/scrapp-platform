@@ -32,7 +32,7 @@ const WasteStreamAnalysis = ({ data, isLoading }) => {
   }
 
   const chartData = data.slice(0, 10).map(item => ({
-    material: item.material,
+    material: item.name,
     revenue: item.revenue,
     weight: item.weight
   }));
@@ -89,9 +89,8 @@ const WasteStreamAnalysis = ({ data, isLoading }) => {
                 border: '1px solid #dee2e6'
               }}
             >
-              <Text size="sm" fw={600}>{item.material}</Text>
-              <Text size="xs" c="dimmed">{item.count} pickups</Text>
-              <Text size="xs" fw={500}>₹{item.revenue.toLocaleString('en-IN')}</Text>
+              <Text size="sm" fw={600}>{item.name}</Text>
+              <Text size="xs" c="dimmed" fw={500}>₹{item.revenue.toLocaleString('en-IN')}</Text>
             </Box>
           ))}
         </Box>

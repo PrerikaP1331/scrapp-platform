@@ -3,12 +3,24 @@ import {
   Container, Paper, Title, Text, Stack, Group, Button, Badge, Card, Grid,
   Modal, Loader, Center, Alert, SimpleGrid, ActionIcon, Tooltip, ThemeIcon
 } from '@mantine/core';
-import { IconMapPin, IconClock, IconPhone, IconAlertCircle, IconPrinter, IconMapSearch, IconCheck, IconLoader } from '@tabler/icons-react';
+import { IconMapPin, IconClock, IconPhone, IconAlertCircle, IconPrinter, IconMapSearch, IconCheck } from '@tabler/icons-react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import styles from './TodayRoute.module.css';
 import { getRouteToday, updatePickupStatus } from '../../api/recyclerService';
 
+// Fix Leaflet marker icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
+
 function TodayRoute() {
   const [pickups, setPickups] = useState([]);
+  const [routeGeometry, setRouteGeometry] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedStop, setSelectedStop] = useState(null);
@@ -17,6 +29,7 @@ function TodayRoute() {
   const [completedStops, setCompletedStops] = useState({});
   const [currentStopIndex, setCurrentStopIndex] = useState(0);
   const stopListRef = useRef(null);
+  const mapRef = useRef(null);
 
   // Fetch today's route data
   useEffect(() => {
@@ -31,6 +44,12 @@ function TodayRoute() {
       
       if (data.pickups && data.pickups.length > 0) {
         setPickups(data.pickups);
+        
+        // Set route geometry for polyline
+        if (data.route && data.route.geometry && data.route.geometry.length > 0) {
+          setRouteGeometry(data.route.geometry.map(coord => [coord[1], coord[0]])); // Convert from [lon,lat] to [lat,lon]
+        }
+        
         // Initialize completed stops based on status
         const completed = {};
         data.pickups.forEach(p => {
@@ -42,7 +61,8 @@ function TodayRoute() {
       }
     } catch (err) {
       console.error('Error fetching route:', err);
-      setError(err.msg || 'Failed to load today\'s route');
+      const errorMessage = err.msg || err.response?.data?.msg || err.message || 'Failed to load today\'s route';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -83,6 +103,15 @@ function TodayRoute() {
     setCurrentStopIndex(index);
     if (stopListRef.current?.children[index]) {
       stopListRef.current.children[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  };
+
+  // Pan map to marker when clicked
+  const handleMarkerClick = (index) => {
+    scrollToStop(index);
+    if (mapRef.current && pickups[index]) {
+      const coords = [pickups[index].coordinates.latitude, pickups[index].coordinates.longitude];
+      mapRef.current.setView(coords, 15);
     }
   };
 
@@ -329,22 +358,89 @@ function TodayRoute() {
             {/* Right Panel: Map & Summary */}
             <Grid.Col span={{ base: 12, md: 7 }}>
               <Stack gap="lg">
-                {/* Map Placeholder */}
-                <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#f0f8f5', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ textAlign: 'center' }}>
-                    <ThemeIcon size={64} radius="50%" style={{ backgroundColor: '#4ecdc4', color: 'white', margin: '0 auto 16px' }}>
-                      <IconMapPin size={32} />
-                    </ThemeIcon>
-                    <Text fw={600} style={{ color: '#1a535c' }} mb="xs">
-                      Interactive Map View
-                    </Text>
-                    <Text size="sm" color="dimmed">
-                      Route map with live tracking would display here
-                    </Text>
-                    <Text size="xs" color="dimmed" mt="md" style={{ fontStyle: 'italic' }}>
-                      (React Leaflet Integration Coming Soon)
-                    </Text>
-                  </div>
+                {/* Interactive Map */}
+                <Paper p={0} radius="md" withBorder style={{ overflow: 'hidden', minHeight: '400px' }}>
+                  {pickups.length > 0 ? (
+                    <MapContainer
+                      ref={mapRef}
+                      center={[pickups[0].coordinates.latitude, pickups[0].coordinates.longitude]}
+                      zoom={13}
+                      style={{ height: '400px', width: '100%' }}
+                    >
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      
+                      {/* Route polyline */}
+                      {routeGeometry.length > 0 && (
+                        <Polyline
+                          positions={routeGeometry}
+                          color="#4ecdc4"
+                          weight={3}
+                          opacity={0.7}
+                          dashArray="5, 5"
+                        />
+                      )}
+                      
+                      {/* Markers for each stop */}
+                      {pickups.map((stop, idx) => {
+                        const isCompleted = completedStops[stop._id];
+                        const isCurrent = idx === currentStopIndex;
+                        
+                        // Create custom icon based on stop status
+                        const markerColor = isCompleted ? '#52c41a' : isCurrent ? '#4ecdc4' : '#1a535c';
+                        const customIcon = L.divIcon({
+                          html: `
+                            <div style="
+                              background-color: ${markerColor};
+                              color: white;
+                              border-radius: 50%;
+                              width: 40px;
+                              height: 40px;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              font-weight: bold;
+                              font-size: 16px;
+                              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                              border: 3px solid white;
+                              cursor: pointer;
+                            ">
+                              ${isCompleted ? '✓' : stop.position}
+                            </div>
+                          `,
+                          iconSize: [40, 40],
+                          iconAnchor: [20, 20],
+                          className: 'custom-marker'
+                        });
+                        
+                        return (
+                          <Marker
+                            key={stop._id}
+                            position={[stop.coordinates.latitude, stop.coordinates.longitude]}
+                            icon={customIcon}
+                            eventHandlers={{
+                              click: () => handleMarkerClick(idx)
+                            }}
+                          >
+                            <Popup>
+                              <div style={{ padding: '8px' }}>
+                                <strong>{stop.position}. {stop.customerName}</strong><br />
+                                {stop.address}<br />
+                                {stop.city}<br />
+                                <small>{stop.timeSlot}</small>
+                              </div>
+                            </Popup>
+                          </Marker>
+                        );
+                      })}
+                    </MapContainer>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px' }}>
+                      <Text color="dimmed">No pickups to display on map</Text>
+                    </div>
+                  )}
                 </Paper>
 
                 {/* Route Summary */}

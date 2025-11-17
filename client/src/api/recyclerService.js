@@ -1,7 +1,7 @@
 // /client/src/api/recyclerService.js
 import axios from './axios';
 
-const API_BASE = '/recycler';
+const API_BASE = '/api/recycler';
 
 /**
  * Get recycler dashboard summary
