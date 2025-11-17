@@ -28,6 +28,27 @@ const pickupSchema = new Schema({
         enum: ['pending', 'scheduled', 'upcoming', 'in-transit', 'completed', 'cancelled'],
         default: 'pending'
     },
+    pickupType: {
+        type: String,
+        enum: ['individual', 'community_bulk', 'organization_bulk'],
+        default: 'individual'
+    },
+    recurringSchedule: {
+        isRecurring: { type: Boolean, default: false },
+        frequency: {
+            type: String,
+            enum: ['weekly', 'bi-weekly', 'monthly']
+        },
+        dayOfWeek: {
+            type: Number, // 0-6 (Sunday-Saturday)
+            min: 0,
+            max: 6
+        },
+        endDate: {
+            type: Date,
+            description: 'When the recurring schedule should stop'
+        }
+    },
     wasteTypes: [{
         type: String,
         required: true

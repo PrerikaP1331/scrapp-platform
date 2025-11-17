@@ -15,7 +15,7 @@ const communityPostSchema = new Schema({
     },
     type: {
         type: String,
-        enum: ['giveaway', 'request', 'announcement', 'discussion'],
+        enum: ['giveaway', 'request', 'announcement', 'discussion', 'drive'],
         required: true
     },
     title: {
@@ -59,6 +59,10 @@ const communityPostSchema = new Schema({
     isPinned: {
         type: Boolean,
         default: false
+    },
+    scheduledDate: {
+        type: Date,
+        description: 'For drive posts, the date the drive is scheduled'
     }
 }, {
     timestamps: true

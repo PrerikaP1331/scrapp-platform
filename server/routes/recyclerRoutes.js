@@ -11,6 +11,11 @@ const {
     getProfileForEdit,
     updateProfileForEdit
 } = require('../controllers/recyclerController');
+const {
+    getAvailableRecyclers,
+    getRecyclerDetails,
+    checkRecyclerCapacity
+} = require('../controllers/recyclerFilterController');
 const { getAnalytics } = require('../controllers/recyclerAnalyticsController');
 const { getCustomers, getAnnouncements, createAnnouncement } = require('../controllers/customerCommunicationController');
 const authMiddleware = require('../middleware/authMiddleware');
@@ -19,6 +24,12 @@ const authMiddleware = require('../middleware/authMiddleware');
 // @desc    Register a new recycler user and their business profile
 // @access  Public
 router.post('/register', registerRecycler);
+
+// @route   GET /api/recyclers/search
+// @desc    Get available recyclers with filtering (capacity, waste types, location, etc)
+// @access  Private
+// @query   capacity=bulk, wasteTypes=paper,plastic, clientType=community, city=Bangalore, specialty=E-Waste, rating=4
+router.get('/search', authMiddleware, getAvailableRecyclers);
 
 // @route   GET /api/recyclers/profile
 // @desc    Get logged-in recycler's profile
@@ -29,6 +40,11 @@ router.get('/profile', authMiddleware, getRecyclerProfile);
 // @desc    Get recycler details by ID (for customer viewing)
 // @access  Public
 router.get('/:recyclerId', getRecyclerById);
+
+// @route   POST /api/recyclers/:recyclerId/check-capacity
+// @desc    Check if recycler can handle specific waste and quantity
+// @access  Private
+router.post('/:recyclerId/check-capacity', authMiddleware, checkRecyclerCapacity);
 
 // @route   PUT /api/recyclers/availability
 // @desc    Update recycler availability
