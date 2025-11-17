@@ -1,935 +1,674 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Container,
-  Paper,
-  Table,
-  Button,
-  Modal,
-  Badge,
-  Group,
-  Text,
-  TextInput,
-  Select,
-  Loader,
-  Center,
-  Pagination,
-  Card,
-  SimpleGrid,
-  ActionIcon,
-  Grid,
-  Stack,
-  ThemeIcon,
-  RingProgress,
-  Tooltip,
+  Container, Paper, Title, Text, Stack, Group, Button, Badge, Card, Grid,
+  Modal, Loader, Center, Alert, TextInput, Select, Table, ActionIcon, Tooltip,
+  Menu, Tabs, SimpleGrid, Textarea, Checkbox, TagsInput, RingProgress, Avatar
 } from '@mantine/core';
-import { DatePickerInput } from '@mantine/dates';
 import {
-  IconSearch,
-  IconDownload,
-  IconCalendar,
-  IconList,
-  IconPhone,
-  IconMail,
-  IconMapPin,
-  IconCheck,
-  IconClock,
-  IconAlertCircle,
+  IconSearch, IconFilter, IconCalendar, IconList, IconCheck, IconX,
+  IconAlertCircle, IconPhone, IconMapPin, IconClock, IconFileText,
+  IconChevronDown, IconEye, IconTrash, IconEdit, IconPlus,
+  IconChevronLeft, IconChevronRight
 } from '@tabler/icons-react';
-import { getPickupsFiltered } from '../../api/recyclerService';
-import classes from './ScheduleHistory.module.css';
+import { Calendar } from '@mantine/dates';
+import { getPickupsFiltered, acceptPickup, declinePickup, updatePickupStatus } from '../../api/recyclerService';
+import styles from './ScheduleHistory.module.css';
 
-const ScheduleHistoryPage = () => {
+function ScheduleHistory() {
   const [pickups, setPickups] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [opened, setOpened] = useState(false);
-  const [selectedPickup, setSelectedPickup] = useState(null);
-  
-  // Filters
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [dateRange, setDateRange] = useState([null, null]);
-  
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  
+
+  // Filter states
+  const [statusFilter, setStatusFilter] = useState('pending');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
   // View toggle
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'calendar'
+
+  // Selected date for calendar
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  // Details modal
+  const [selectedPickup, setSelectedPickup] = useState(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [notes, setNotes] = useState('');
+
+  // Action states
+  const [updatingId, setUpdatingId] = useState(null);
+
+  // Fetch pickups based on filters
   useEffect(() => {
     fetchPickups();
-  }, [search, statusFilter, dateRange]);
+  }, [statusFilter, startDate, endDate, searchQuery]);
 
   const fetchPickups = async () => {
-    setLoading(true);
     try {
-      const filters = {};
-      if (search) filters.search = search;
-      if (statusFilter !== 'all') filters.status = statusFilter;
-      if (dateRange[0]) filters.startDate = dateRange[0].toISOString().split('T')[0];
-      if (dateRange[1]) filters.endDate = dateRange[1].toISOString().split('T')[0];
-
-      const response = await getPickupsFiltered(filters);
-      setPickups(response.pickups || []);
+      setLoading(true);
       setError(null);
+
+      const filters = {
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        search: searchQuery || undefined,
+        startDate: startDate ? startDate.toISOString().split('T')[0] : undefined,
+        endDate: endDate ? endDate.toISOString().split('T')[0] : undefined
+      };
+
+      const data = await getPickupsFiltered(filters);
+      setPickups(data.pickups || []);
     } catch (err) {
-      setError(err.msg || 'Failed to fetch pickups');
+      console.error('Error fetching pickups:', err);
+      setError(err.msg || 'Failed to load pickups');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDownloadReport = () => {
-    const csv = [
-      ['Date', 'Time', 'Customer', 'Location', 'Waste Types', 'Status'].join(','),
-      ...filteredPickups.map(p =>
-        [
-          p.date,
-          p.time,
-          p.customerName,
-          p.address,
-          p.wasteTypes.join('; '),
-          p.status,
-        ].join(',')
-      ),
-    ].join('\n');
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `schedule-report-${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
+  // Handle accept pickup
+  const handleAcceptPickup = async (pickupId) => {
+    try {
+      setUpdatingId(pickupId);
+      await acceptPickup(pickupId);
+      setPickups(prev =>
+        prev.map(p => p._id === pickupId ? { ...p, status: 'scheduled' } : p)
+      );
+    } catch (err) {
+      setError(err.msg || 'Failed to accept pickup');
+    } finally {
+      setUpdatingId(null);
+    }
   };
 
+  // Handle decline pickup
+  const handleDeclinePickup = async (pickupId) => {
+    try {
+      setUpdatingId(pickupId);
+      await declinePickup(pickupId);
+      setPickups(prev =>
+        prev.map(p => p._id === pickupId ? { ...p, status: 'cancelled' } : p)
+      );
+    } catch (err) {
+      setError(err.msg || 'Failed to decline pickup');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  // Handle status update
+  const handleStatusUpdate = async (pickupId, newStatus) => {
+    try {
+      setUpdatingId(pickupId);
+      await updatePickupStatus(pickupId, newStatus);
+      setPickups(prev =>
+        prev.map(p => p._id === pickupId ? { ...p, status: newStatus } : p)
+      );
+    } catch (err) {
+      setError(err.msg || 'Failed to update pickup status');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  // Open details modal
   const handleViewDetails = (pickup) => {
     setSelectedPickup(pickup);
-    setOpened(true);
+    setNotes(pickup.notes || '');
+    setDetailsModalOpen(true);
   };
 
-  // Filter pickups
-  const filteredPickups = pickups.filter(p => {
-    const matchesSearch =
-      p.customerName.toLowerCase().includes(search.toLowerCase()) ||
-      p.address.toLowerCase().includes(search.toLowerCase());
-    return matchesSearch;
-  });
-
-  // Get pickups for selected date (Calendar view)
-  const selectedDateStr = selectedDate.toISOString().split('T')[0];
-  const pickupsForDate = filteredPickups.filter(p => p.date === selectedDateStr);
-
-  // Pagination for list view
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedPickups = filteredPickups.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(filteredPickups.length / itemsPerPage);
-
-  // Calendar data - count pickups per day
-  const pickupsByDate = {};
-  filteredPickups.forEach(p => {
-    pickupsByDate[p.date] = (pickupsByDate[p.date] || 0) + 1;
-  });
-
-  // Get status counts
-  const statusCounts = {
-    pending: filteredPickups.filter(p => p.status === 'pending').length,
-    upcoming: filteredPickups.filter(p => p.status === 'upcoming').length,
-    inTransit: filteredPickups.filter(p => p.status === 'in-transit').length,
-    completed: filteredPickups.filter(p => p.status === 'completed').length,
+  // Get pickups for selected date
+  const normalizeDateOnly = (v) => {
+    const d = v instanceof Date ? v : new Date(v);
+    if (Number.isNaN(d.getTime())) return null;
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'completed':
-        return <IconCheck size={16} />;
-      case 'in-transit':
-        return <IconClock size={16} />;
-      case 'pending':
-        return <IconAlertCircle size={16} />;
-      default:
-        return <IconClock size={16} />;
-    }
+  const getPickupsForDate = (date) => {
+    const target = normalizeDateOnly(date);
+    if (!target) return [];
+    return pickups.filter((p) => {
+      const pickupDate = normalizeDateOnly(p.date);
+      return pickupDate && pickupDate.getTime() === target.getTime();
+    });
   };
 
+  // Get status badge color
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed':
-        return '#52c41a';
-      case 'in-transit':
-        return '#4ecdc4';
-      case 'pending':
-        return '#fa5252';
-      default:
-        return '#0d2b34';
-    }
+    const colors = {
+      pending: 'yellow',
+      scheduled: '#588157',
+      upcoming: '#a3b18a',
+      'in-transit': '#3a5a40',
+      completed: '#588157',
+      cancelled: 'red'
+    };
+    return colors[status] || 'gray';
   };
 
-  return (
-    <Container size="xl" py="md">
-      {/* Header */}
-      <Group justify="space-between" mb="lg">
-        <div>
-          <h1>Schedule & History</h1>
-          <Text c="dimmed" size="sm">
-            Manage and track all your pickup jobs
-          </Text>
-        </div>
-        <Button
-          leftSection={<IconDownload size={16} />}
-          onClick={handleDownloadReport}
-          disabled={filteredPickups.length === 0}
-        >
-          Download Report
-        </Button>
-      </Group>
+  // Get pending count
+  const pendingCount = pickups.filter(p => p.status === 'pending').length;
 
-      {/* Statistics Cards */}
-      <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} mb="lg" spacing="md">
-        <Card withBorder p="md" className={classes.statCard}>
-          <Group justify="space-between" mb="xs">
-            <Text size="sm" fw={500} c="dimmed">
-              Total Pickups
-            </Text>
-            <ThemeIcon color="blue" variant="light" size="lg" radius="md">
-              <IconList size={18} />
-            </ThemeIcon>
+  // Calendar view
+  if (viewMode === 'calendar') {
+    const selectedDatePickups = getPickupsForDate(selectedDate);
+
+    return (
+      <Container size="xl" py="xl">
+        <Stack gap="lg">
+          {/* Header */}
+          <Group justify="space-between" align="flex-start">
+            <div>
+              <Title order={2} style={{ color: '#344e41' }}>
+                Schedule & History
+              </Title>
+              <Text size="sm" color="dimmed">
+                View and manage your pickup schedule
+              </Text>
+            </div>
+            <Group gap="xs">
+              <Button
+                variant={viewMode === 'calendar' ? 'filled' : 'light'}
+                color="#588157"
+                onClick={() => setViewMode('calendar')}
+                leftSection={<IconCalendar size={16} />}
+              >
+                Calendar View
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'filled' : 'light'}
+                color="#588157"
+                onClick={() => setViewMode('list')}
+                leftSection={<IconList size={16} />}
+              >
+                List View
+              </Button>
+            </Group>
           </Group>
-          <Text fw={700} size="lg">
-            {filteredPickups.length}
-          </Text>
-        </Card>
 
-        <Card withBorder p="md" className={classes.statCard}>
-          <Group justify="space-between" mb="xs">
-            <Text size="sm" fw={500} c="dimmed">
-              Completed
-            </Text>
-            <ThemeIcon color="green" variant="light" size="lg" radius="md">
-              <IconCheck size={18} />
-            </ThemeIcon>
-          </Group>
-          <Text fw={700} size="lg">
-            {statusCounts.completed}
-          </Text>
-        </Card>
-
-        <Card withBorder p="md" className={classes.statCard}>
-          <Group justify="space-between" mb="xs">
-            <Text size="sm" fw={500} c="dimmed">
-              In Transit
-            </Text>
-            <ThemeIcon color="cyan" variant="light" size="lg" radius="md">
-              <IconClock size={18} />
-            </ThemeIcon>
-          </Group>
-          <Text fw={700} size="lg">
-            {statusCounts.inTransit}
-          </Text>
-        </Card>
-
-        <Card withBorder p="md" className={classes.statCard}>
-          <Group justify="space-between" mb="xs">
-            <Text size="sm" fw={500} c="dimmed">
-              Pending
-            </Text>
-            <ThemeIcon color="red" variant="light" size="lg" radius="md">
-              <IconAlertCircle size={18} />
-            </ThemeIcon>
-          </Group>
-          <Text fw={700} size="lg">
-            {statusCounts.pending}
-          </Text>
-        </Card>
-      </SimpleGrid>
-
-      {/* Control Bar - Filters and View Toggle */}
-      <Paper p="md" radius="md" withBorder mb="lg" className={classes.controlBar}>
-        <Stack gap="md">
-          {/* Filters Row 1 */}
-          <Grid gutter="md">
-            <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-              <TextInput
-                placeholder="Search customer or location..."
-                leftSection={<IconSearch size={16} />}
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.currentTarget.value);
-                  setCurrentPage(1);
-                }}
-              />
+          <Grid gutter="lg">
+            {/* Calendar */}
+            <Grid.Col span={{ base: 12, md: 6 }}>
+              <Paper p="lg" radius="md" withBorder className={styles.calendarCard}>
+                <Calendar
+                  value={selectedDate}
+                  onChange={(value) => {
+                    if (value) {
+                      setSelectedDate(value instanceof Date ? value : new Date(value));
+                    }
+                  }}
+                  fullWidth
+                  size="md"
+                  previousIcon={<IconChevronLeft size={18} color="#344e41" />}
+                  nextIcon={<IconChevronRight size={18} color="#344e41" />}
+                  allowLevelChange={false}
+                  getDayProps={(date) => ({
+                    onClick: () => setSelectedDate(date instanceof Date ? date : new Date(date)),
+                  })}
+                  renderDay={(date) => {
+                    const d = date instanceof Date ? date : new Date(date);
+                    const pickupsOnDay = getPickupsForDate(d);
+                    const isSelected = selectedDate && (selectedDate instanceof Date ? selectedDate.toDateString() : new Date(selectedDate).toDateString()) === d.toDateString();
+                    const hasPickups = pickupsOnDay.length > 0;
+                    return (
+                      <div className={`${styles.dayCell} ${isSelected ? styles.daySelected : ''} ${hasPickups ? styles.dayWithPickups : ''}`}>
+                        {d.getDate()}
+                        {hasPickups && (
+                          <span className={styles.pickupCount}>{pickupsOnDay.length}</span>
+                        )}
+                      </div>
+                    );
+                  }}
+                />
+              </Paper>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+            {/* Selected Day Details */}
+            <Grid.Col span={{ base: 12, md: 6 }}>
+              <Stack gap="lg">
+                {/* Day Summary */}
+                  <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#dad7cd' }}>
+                  <Group justify="space-between" mb="md">
+                    <div>
+                      <Title order={4} style={{ color: '#344e41' }}>
+                        {new Date(selectedDate || Date.now()).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                      </Title>
+                    </div>
+                  </Group>
+
+                  {selectedDatePickups.length === 0 ? (
+                    <Text color="dimmed" size="sm">No pickups scheduled for this day</Text>
+                  ) : (
+                    <SimpleGrid cols={3} gap="md">
+                      <div>
+                        <Text fw={500} size="sm" color="dimmed">Total Pickups</Text>
+                        <Text size="xl" fw={700} style={{ color: '#344e41' }}>{selectedDatePickups.length}</Text>
+                      </div>
+                      <div>
+                        <Text fw={500} size="sm" color="dimmed">Completed</Text>
+                        <Text size="xl" fw={700} style={{ color: '#588157' }}>
+                          {selectedDatePickups.filter(p => p.status === 'completed').length}
+                        </Text>
+                      </div>
+                      <div>
+                        <Text fw={500} size="sm" color="dimmed">Pending</Text>
+                        <Text size="xl" fw={700} style={{ color: '#a3b18a' }}>
+                          {selectedDatePickups.filter(p => p.status === 'pending').length}
+                        </Text>
+                      </div>
+                    </SimpleGrid>
+                  )}
+                </Paper>
+
+                {/* Pickups for Selected Day */}
+                <Paper p="lg" radius="md" withBorder style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                  <Title order={5} style={{ color: '#344e41' }} mb="md">Pickups for Selected Day</Title>
+                  <Stack gap="sm">
+                    {selectedDatePickups.map(pickup => (
+                      <Card key={pickup._id} withBorder p="md" radius="md">
+                        <Group justify="space-between" mb="xs">
+                          <div>
+                            <Text fw={600} style={{ color: '#344e41' }}>{pickup.customerName}</Text>
+                            <Text size="sm" color="dimmed">{pickup.city}</Text>
+                          </div>
+                          <Badge color={getStatusColor(pickup.status)}>
+                            {pickup.status}
+                          </Badge>
+                        </Group>
+                        <Group gap="xs" mb="md">
+                          <Group gap={4}>
+                            <IconClock size={14} color="#344e41" />
+                            <Text size="sm">{pickup.timeSlot}</Text>
+                          </Group>
+                        </Group>
+                        <Button
+                          size="xs"
+                          variant="light"
+                          onClick={() => handleViewDetails(pickup)}
+                          fullWidth
+                        >
+                          View Details
+                        </Button>
+                      </Card>
+                    ))}
+                  </Stack>
+                </Paper>
+              </Stack>
+            </Grid.Col>
+          </Grid>
+        </Stack>
+      </Container>
+    );
+  }
+
+  // List view
+  return (
+    <Container size="xl" py="xl">
+      <Stack gap="lg">
+        {/* Header */}
+        <Group justify="space-between" align="flex-start">
+          <div>
+            <Title order={2} style={{ color: '#344e41' }}>
+              Schedule & History
+            </Title>
+            <Text size="sm" color="dimmed">
+              View and manage your pickup schedule
+            </Text>
+          </div>
+          <Group gap="xs">
+            <Button
+              variant={viewMode === 'calendar' ? 'filled' : 'light'}
+              color="#588157"
+              onClick={() => setViewMode('calendar')}
+              leftSection={<IconCalendar size={16} />}
+            >
+              Calendar View
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'filled' : 'light'}
+              color="#588157"
+              onClick={() => setViewMode('list')}
+              leftSection={<IconList size={16} />}
+            >
+              List View
+            </Button>
+          </Group>
+        </Group>
+
+        {/* Filter Bar */}
+        <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#dad7cd' }}>
+          <Stack gap="md">
+            <SimpleGrid cols={2} gap="md">
               <Select
-                label="Status"
-                placeholder="Filter by status"
+                label="Filter by Status"
+                placeholder="Select status"
+                value={statusFilter}
+                onChange={setStatusFilter}
                 data={[
-                  { value: 'all', label: 'All Status' },
-                  { value: 'pending', label: 'Pending' },
+                  { value: 'all', label: 'All Pickups' },
+                  { value: 'pending', label: `Pending Requests (${pendingCount})` },
+                  { value: 'scheduled', label: 'Scheduled' },
                   { value: 'upcoming', label: 'Upcoming' },
                   { value: 'in-transit', label: 'In Transit' },
                   { value: 'completed', label: 'Completed' },
+                  { value: 'cancelled', label: 'Cancelled' }
                 ]}
-                value={statusFilter}
-                onChange={(value) => {
-                  setStatusFilter(value);
-                  setCurrentPage(1);
-                }}
-                clearable
+                searchable
+                clearable={false}
               />
-            </Grid.Col>
-
-            <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-              <DatePickerInput
-                type="range"
-                label="Date Range"
-                placeholder="Select date range"
-                value={dateRange}
-                onChange={setDateRange}
-                clearable
+              <TextInput
+                label="Search"
+                placeholder="Search by customer name, address, or ID..."
+                leftSection={<IconSearch size={16} />}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.currentTarget.value)}
               />
-            </Grid.Col>
-          </Grid>
+            </SimpleGrid>
 
-          {/* View Toggle */}
-          <Group justify="flex-end">
-            <Tooltip label="Calendar View">
-              <ActionIcon
-                size="lg"
-                variant={viewMode === 'calendar' ? 'filled' : 'light'}
-                color={viewMode === 'calendar' ? '#1a535c' : 'gray'}
-                onClick={() => setViewMode('calendar')}
-              >
-                <IconCalendar size={20} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label="List View">
-              <ActionIcon
-                size="lg"
-                variant={viewMode === 'list' ? 'filled' : 'light'}
-                color={viewMode === 'list' ? '#1a535c' : 'gray'}
-                onClick={() => setViewMode('list')}
-              >
-                <IconList size={20} />
-              </ActionIcon>
-            </Tooltip>
-          </Group>
-        </Stack>
-      </Paper>
+            <SimpleGrid cols={3} gap="md">
+              <div>
+                <Text fw={500} size="sm" mb={4}>Start Date</Text>
+                <TextInput
+                  type="date"
+                  value={startDate ? startDate.toISOString().split('T')[0] : ''}
+                  onChange={(e) => setStartDate(e.currentTarget.value ? new Date(e.currentTarget.value) : null)}
+                />
+              </div>
+              <div>
+                <Text fw={500} size="sm" mb={4}>End Date</Text>
+                <TextInput
+                  type="date"
+                  value={endDate ? endDate.toISOString().split('T')[0] : ''}
+                  onChange={(e) => setEndDate(e.currentTarget.value ? new Date(e.currentTarget.value) : null)}
+                />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                <Button
+                  variant="light"
+                  onClick={() => {
+                    setStatusFilter('pending');
+                    setSearchQuery('');
+                    setStartDate(null);
+                    setEndDate(null);
+                  }}
+                  fullWidth
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            </SimpleGrid>
+          </Stack>
+        </Paper>
 
-      {/* Main Content */}
-      {loading ? (
-        <Center py="xl">
-          <Loader />
-        </Center>
-      ) : error ? (
-        <Text c="red">{error}</Text>
-      ) : (
-        <>
-          {viewMode === 'list' ? (
-            // LIST VIEW
-            <Paper p="md" radius="md" withBorder>
-              <Table striped highlightOnHover className={classes.table}>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Date & Time</Table.Th>
-                    <Table.Th>Customer</Table.Th>
-                    <Table.Th>Location</Table.Th>
-                    <Table.Th>Waste Types</Table.Th>
-                    <Table.Th>Status</Table.Th>
-                    <Table.Th>Actions</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {paginatedPickups.length > 0 ? (
-                    paginatedPickups.map((pickup) => (
-                      <Table.Tr key={pickup._id} className={classes.tableRow}>
-                        <Table.Td>
-                          <Stack gap={0}>
-                            <Text fw={500}>{pickup.date}</Text>
-                            <Text size="sm" c="dimmed">
-                              {pickup.time}
-                            </Text>
-                          </Stack>
-                        </Table.Td>
-                        <Table.Td>
-                          <Stack gap={0}>
-                            <Text fw={500}>{pickup.customerName}</Text>
-                            <Group gap="xs">
-                              <ActionIcon
-                                size="sm"
-                                variant="subtle"
-                                color="blue"
-                                onClick={() =>
-                                  window.open(`tel:${pickup.customerPhone}`)
-                                }
-                              >
-                                <IconPhone size={14} />
-                              </ActionIcon>
-                              <ActionIcon
-                                size="sm"
-                                variant="subtle"
-                                color="blue"
-                                onClick={() =>
-                                  window.open(`mailto:${pickup.customerEmail}`)
-                                }
-                              >
-                                <IconMail size={14} />
-                              </ActionIcon>
-                            </Group>
-                          </Stack>
-                        </Table.Td>
-                        <Table.Td>
-                          <Group gap={4}>
-                            <IconMapPin size={14} color="#4ecdc4" />
-                            <Text size="sm">{pickup.address}</Text>
-                          </Group>
-                        </Table.Td>
-                        <Table.Td>
-                          <Group gap={4}>
-                            {pickup.wasteTypes.slice(0, 2).map((type, idx) => (
-                              <Badge key={idx} size="sm" variant="dot">
-                                {type}
-                              </Badge>
-                            ))}
-                            {pickup.wasteTypes.length > 2 && (
-                              <Badge size="sm" variant="light">
-                                +{pickup.wasteTypes.length - 2}
-                              </Badge>
-                            )}
-                          </Group>
-                        </Table.Td>
-                        <Table.Td>
-                          <Group gap={4}>
-                            {getStatusIcon(pickup.status)}
-                            <Badge
-                              color={getStatusColor(pickup.status)}
-                              variant="light"
-                            >
-                              {pickup.status}
-                            </Badge>
-                          </Group>
-                        </Table.Td>
-                        <Table.Td>
-                          <Button
-                            size="xs"
-                            variant="subtle"
-                            onClick={() => handleViewDetails(pickup)}
-                          >
-                            View Details
-                          </Button>
-                        </Table.Td>
-                      </Table.Tr>
-                    ))
-                  ) : (
-                    <Table.Tr>
-                      <Table.Td colSpan={6}>
-                        <Center py="xl">
-                          <Text c="dimmed">No pickups found</Text>
-                        </Center>
-                      </Table.Td>
-                    </Table.Tr>
-                  )}
-                </Table.Tbody>
-              </Table>
+        {/* Error Alert */}
+        {error && (
+          <Alert icon={<IconAlertCircle />} title="Error" color="red">
+            {error}
+          </Alert>
+        )}
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <Group justify="center" mt="lg">
-                  <Pagination
-                    value={currentPage}
-                    onChange={setCurrentPage}
-                    total={totalPages}
-                  />
-                </Group>
-              )}
-            </Paper>
-          ) : (
-            // CALENDAR VIEW
-            <Grid gutter="lg">
-              {/* Calendar Selector */}
-              <Grid.Col span={{ base: 12, md: 3 }}>
-                <Paper p="md" radius="md" withBorder className={classes.calendarCard}>
-                  <DatePickerInput
-                    type="default"
-                    value={selectedDate}
-                    onChange={(date) => date && setSelectedDate(date)}
-                    renderDay={(date) => {
-                      const dateStr = date.toISOString().split('T')[0];
-                      const count = pickupsByDate[dateStr] || 0;
-                      const isSelected =
-                        selectedDate?.toISOString().split('T')[0] === dateStr;
-
-                      return (
-                        <Tooltip
-                          label={count > 0 ? `${count} pickup${count > 1 ? 's' : ''}` : 'No pickups'}
-                          disabled={count === 0}
-                        >
-                          <div
-                            className={`${classes.dayCell} ${
-                              isSelected ? classes.daySelected : ''
-                            } ${count > 0 ? classes.dayWithPickups : ''}`}
-                            style={{
-                              backgroundColor:
-                                count > 0
-                                  ? `rgba(82, 196, 26, ${Math.min(count * 0.3, 1)})`
-                                  : 'transparent',
-                            }}
-                          >
-                            {date.getDate()}
-                            {count > 0 && (
-                              <div className={classes.pickupCount}>{count}</div>
-                            )}
-                          </div>
-                        </Tooltip>
-                      );
-                    }}
-                  />
-                </Paper>
-              </Grid.Col>
-
-              {/* Daily Pickup Details */}
-              <Grid.Col span={{ base: 12, md: 9 }}>
-                <Paper p="md" radius="md" withBorder>
-                  <Stack gap="md">
-                    <Group justify="space-between">
+        {/* Loading State */}
+        {loading ? (
+          <Center style={{ height: '400px' }}>
+            <Stack align="center" gap="md">
+              <Loader size="lg" color="#344e41" />
+              <Text>Loading pickups...</Text>
+            </Stack>
+          </Center>
+        ) : pickups.length === 0 ? (
+          <Alert icon={<IconAlertCircle />} title="No Results" color="#588157">
+            No pickups found that match your criteria.
+          </Alert>
+        ) : (
+          /* Pickups Table */
+          <Paper radius="md" withBorder style={{ overflowX: 'auto' }}>
+            <Table striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr style={{ backgroundColor: '#dad7cd' }}>
+                  <Table.Th style={{ color: '#344e41', fontWeight: 600 }}>Date & Time</Table.Th>
+                  <Table.Th style={{ color: '#344e41', fontWeight: 600 }}>Customer</Table.Th>
+                  <Table.Th style={{ color: '#344e41', fontWeight: 600 }}>Location</Table.Th>
+                  <Table.Th style={{ color: '#344e41', fontWeight: 600 }}>Waste Types</Table.Th>
+                  <Table.Th style={{ color: '#344e41', fontWeight: 600 }}>Status</Table.Th>
+                  <Table.Th style={{ color: '#344e41', fontWeight: 600 }}>Actions</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {pickups.map((pickup) => (
+                  <Table.Tr key={pickup._id}>
+                    <Table.Td>
                       <div>
-                        <Text fw={700} size="lg">
-                          {selectedDate.toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })}
-                        </Text>
-                        <Text c="dimmed" size="sm">
-                          {pickupsForDate.length} pickup
-                          {pickupsForDate.length !== 1 ? 's' : ''} scheduled
-                        </Text>
+                        <Text fw={500} size="sm">{new Date(pickup.date).toLocaleDateString()}</Text>
+                        <Text size="xs" color="dimmed">{pickup.timeSlot}</Text>
                       </div>
-
-                      <RingProgress
-                        sections={[
-                          {
-                            value: statusCounts.completed > 0 ? 25 : 0,
-                            color: '#52c41a',
-                          },
-                          {
-                            value: statusCounts.inTransit > 0 ? 25 : 0,
-                            color: '#4ecdc4',
-                          },
-                          {
-                            value: statusCounts.pending > 0 ? 25 : 0,
-                            color: '#fa5252',
-                          },
-                        ]}
-                        radius={60}
-                        size={120}
-                        thickness={4}
-                        label={
-                          <Stack gap={0} align="center">
-                            <Text fw={700} size="sm">
-                              {pickupsForDate.length}
-                            </Text>
-                            <Text size="xs" c="dimmed">
-                              Jobs
-                            </Text>
-                          </Stack>
-                        }
-                      />
-                    </Group>
-
-                    <div className={classes.divider} />
-
-                    {pickupsForDate.length > 0 ? (
-                      <Stack gap="sm">
-                        {pickupsForDate.map((pickup, idx) => (
-                          <Card
-                            key={pickup._id}
-                            p="md"
-                            radius="md"
-                            className={classes.pickupCard}
-                            withBorder
-                          >
-                            <Group justify="space-between" mb="xs">
-                              <Group>
-                                <ThemeIcon
-                                  size={32}
-                                  radius="md"
-                                  color="blue"
-                                  variant="light"
-                                >
-                                  <Text fw={700} size="sm">
-                                    {idx + 1}
-                                  </Text>
-                                </ThemeIcon>
-                                <Stack gap={0}>
-                                  <Text fw={600}>{pickup.customerName}</Text>
-                                  <Text size="sm" c="dimmed">
-                                    {pickup.time}
-                                  </Text>
-                                </Stack>
-                              </Group>
-                              <Badge
-                                color={getStatusColor(pickup.status)}
-                                variant="light"
-                              >
-                                {pickup.status}
-                              </Badge>
-                            </Group>
-
-                            <Text size="sm" mb="xs">
-                              <IconMapPin
-                                size={14}
-                                style={{ display: 'inline', marginRight: 4 }}
-                              />
-                              {pickup.address}, {pickup.city}
-                            </Text>
-
-                            <Group gap="xs" mb="md">
-                              {pickup.wasteTypes.map((type, idx) => (
-                                <Badge key={idx} size="sm" variant="dot">
-                                  {type}
-                                </Badge>
-                              ))}
-                            </Group>
-
-                            <Button
-                              fullWidth
+                    </Table.Td>
+                    <Table.Td>
+                      <Text fw={500} size="sm">{pickup.customerName}</Text>
+                      <Text size="xs" color="dimmed">{pickup.customerPhone}</Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm">{pickup.city}, {pickup.address?.slice(0, 20)}...</Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap={4}>
+                        {pickup.wasteTypes.map(type => (
+                          <Badge key={type} size="sm" variant="light">
+                            {type}
+                          </Badge>
+                        ))}
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge color={getStatusColor(pickup.status)}>
+                        {pickup.status}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      {pickup.status === 'pending' ? (
+                        <Group gap={4}>
+                          <Tooltip label="Accept Pickup">
+                            <ActionIcon
                               size="sm"
+                              color="green"
                               variant="light"
+                              onClick={() => handleAcceptPickup(pickup._id)}
+                              loading={updatingId === pickup._id}
+                            >
+                              <IconCheck size={14} />
+                            </ActionIcon>
+                          </Tooltip>
+                          <Tooltip label="Decline Pickup">
+                            <ActionIcon
+                              size="sm"
+                              color="red"
+                              variant="light"
+                              onClick={() => handleDeclinePickup(pickup._id)}
+                              loading={updatingId === pickup._id}
+                            >
+                              <IconX size={14} />
+                            </ActionIcon>
+                          </Tooltip>
+                        </Group>
+                      ) : (
+                        <Menu shadow="md" width={200}>
+                          <Menu.Target>
+                            <ActionIcon size="sm" variant="light" color="#344e41">
+                              <IconChevronDown size={14} />
+                            </ActionIcon>
+                          </Menu.Target>
+                          <Menu.Dropdown>
+                            <Menu.Item
+                              icon={<IconEye size={14} />}
                               onClick={() => handleViewDetails(pickup)}
                             >
-                              View Full Details
-                            </Button>
-                          </Card>
-                        ))}
-                      </Stack>
-                    ) : (
-                      <Center py="xl">
-                        <Stack align="center" gap="sm">
-                          <IconCalendar size={32} color="#adb5bd" />
-                          <Text c="dimmed">No pickups scheduled for this date</Text>
-                        </Stack>
-                      </Center>
-                    )}
-                  </Stack>
-                </Paper>
-              </Grid.Col>
-            </Grid>
-          )}
-        </>
-      )}
+                              View Details
+                            </Menu.Item>
+                            {pickup.status !== 'completed' && pickup.status !== 'cancelled' && (
+                              <>
+                                <Menu.Item
+                                  icon={<IconEdit size={14} />}
+                                  onClick={() => handleStatusUpdate(pickup._id, 'completed')}
+                                  disabled={updatingId === pickup._id}
+                                >
+                                  Mark Complete
+                                </Menu.Item>
+                                <Menu.Item
+                                  icon={<IconTrash size={14} />}
+                                  color="red"
+                                  onClick={() => handleStatusUpdate(pickup._id, 'cancelled')}
+                                  disabled={updatingId === pickup._id}
+                                >
+                                  Cancel Pickup
+                                </Menu.Item>
+                              </>
+                            )}
+                          </Menu.Dropdown>
+                        </Menu>
+                      )}
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Paper>
+        )}
+      </Stack>
 
-      {/* Details Modal - Comprehensive Pickup Information */}
+      {/* Details Modal */}
       <Modal
-        opened={opened}
-        onClose={() => setOpened(false)}
-        title="Pickup Details"
+        opened={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        title={`Pickup Details: ${selectedPickup?.customerName}`}
         size="lg"
-        scrollAreaComponent={Paper}
       >
         {selectedPickup && (
-          <Stack gap="lg">
-            {/* Header Section */}
-            <Paper p="md" radius="md" style={{ background: '#f0f8f5', border: '1px solid #c3fae8' }}>
-              <Group justify="space-between" mb="sm">
+          <Stack gap="md">
+            {/* Customer Info */}
+            <div style={{ borderBottom: '1px solid #e0e0e0', paddingBottom: '16px' }}>
+              <Title order={5} style={{ color: '#344e41' }} mb="md">Customer Information</Title>
+              <SimpleGrid cols={2} gap="md">
                 <div>
-                  <Text fw={700} size="lg" c="#1a535c">
-                    {selectedPickup.customerName}
-                  </Text>
-                  <Text size="sm" c="dimmed">
-                    Pickup ID: {selectedPickup._id.substring(0, 8)}...
+                  <Text fw={500} size="sm" color="dimmed" mb={4}>Name</Text>
+                  <Text fw={600}>{selectedPickup.customerName}</Text>
+                </div>
+                <div>
+                  <Text fw={500} size="sm" color="dimmed" mb={4}>Phone</Text>
+                  <Text component="a" href={`tel:${selectedPickup.customerPhone}`} style={{ color: '#588157', textDecoration: 'none' }}>
+                    {selectedPickup.customerPhone}
                   </Text>
                 </div>
-                <Badge
-                  size="lg"
-                  color={getStatusColor(selectedPickup.status)}
-                  leftSection={getStatusIcon(selectedPickup.status)}
-                >
-                  {selectedPickup.status.charAt(0).toUpperCase() + selectedPickup.status.slice(1)}
-                </Badge>
+              </SimpleGrid>
+            </div>
+
+            {/* Address Info */}
+            <div style={{ borderBottom: '1px solid #e0e0e0', paddingBottom: '16px' }}>
+              <Title order={5} style={{ color: '#344e41' }} mb="md">Pickup Location</Title>
+              <Group gap="xs" mb="md">
+                <IconMapPin size={16} color="#344e41" />
+                <div>
+                  <Text fw={500}>{selectedPickup.address}</Text>
+                  <Text size="sm" color="dimmed">
+                    {selectedPickup.city}, {selectedPickup.address?.split(',').pop() || 'Unknown'}
+                  </Text>
+                </div>
               </Group>
-            </Paper>
+            </div>
 
-            {/* Date & Time Section */}
-            <Card withBorder p="md" radius="md">
-              <Card.Section inheritPadding py="md">
-                <Group gap="md">
-                  <ThemeIcon
-                    variant="light"
-                    color="blue"
-                    size="lg"
-                    radius="md"
-                  >
-                    <IconCalendar size={18} />
-                  </ThemeIcon>
-                  <Stack gap={0}>
-                    <Text fw={500} size="sm" c="dimmed">
-                      Scheduled Date & Time
-                    </Text>
-                    <Text fw={600} size="md">
-                      {selectedPickup.date}
-                    </Text>
-                    <Text fw={600} size="md" c="#4ecdc4">
-                      {selectedPickup.time}
-                    </Text>
-                  </Stack>
-                </Group>
-              </Card.Section>
-            </Card>
+            {/* Pickup Details */}
+            <div style={{ borderBottom: '1px solid #e0e0e0', paddingBottom: '16px' }}>
+              <Title order={5} style={{ color: '#344e41' }} mb="md">Pickup Details</Title>
+              <SimpleGrid cols={2} gap="md">
+                <div>
+                  <Text fw={500} size="sm" color="dimmed" mb={4}>Date</Text>
+                  <Text>{new Date(selectedPickup.scheduledDate).toLocaleDateString()}</Text>
+                </div>
+                <div>
+                  <Text fw={500} size="sm" color="dimmed" mb={4}>Time Slot</Text>
+                  <Text>{selectedPickup.timeSlot}</Text>
+                </div>
+                <div>
+                  <Text fw={500} size="sm" color="dimmed" mb={4}>Estimated Quantity</Text>
+                  <Text>{selectedPickup.quantity}</Text>
+                </div>
+                <div>
+                  <Text fw={500} size="sm" color="dimmed" mb={4}>Status</Text>
+                  <Badge color={getStatusColor(selectedPickup.status)}>
+                    {selectedPickup.status}
+                  </Badge>
+                </div>
+              </SimpleGrid>
+            </div>
 
-            {/* Location Section */}
-            <Card withBorder p="md" radius="md">
-              <Card.Section inheritPadding py="md">
-                <Group gap="md" align="flex-start">
-                  <ThemeIcon
-                    variant="light"
-                    color="cyan"
-                    size="lg"
-                    radius="md"
-                  >
-                    <IconMapPin size={18} />
-                  </ThemeIcon>
-                  <Stack gap={4} style={{ flex: 1 }}>
-                    <Text fw={500} size="sm" c="dimmed">
-                      Pickup Location
-                    </Text>
-                    <Text fw={600}>
-                      {selectedPickup.address}
-                    </Text>
-                    <Text size="sm" c="dimmed">
-                      {selectedPickup.city}, {selectedPickup.state} {selectedPickup.postalCode}
-                    </Text>
-                    {selectedPickup.coordinates && (
-                      <Group gap="xs">
-                        <Text size="xs" c="dimmed">
-                          📍 {selectedPickup.coordinates.latitude?.toFixed(4)}, {selectedPickup.coordinates.longitude?.toFixed(4)}
-                        </Text>
-                      </Group>
-                    )}
-                  </Stack>
-                </Group>
-              </Card.Section>
-            </Card>
+            {/* Waste Types */}
+            <div style={{ borderBottom: '1px solid #e0e0e0', paddingBottom: '16px' }}>
+              <Text fw={500} size="sm" color="dimmed" mb="md">Waste Types</Text>
+              <Group gap="xs">
+                {selectedPickup.wasteTypes.map(type => (
+                  <Badge key={type} variant="light" color="#588157">
+                    {type}
+                  </Badge>
+                ))}
+              </Group>
+            </div>
 
-            {/* Customer Contact Section */}
-            <Card withBorder p="md" radius="md">
-              <Card.Section inheritPadding py="md">
-                <Text fw={600} size="sm" mb="xs" c="#1a535c">
-                  Contact Information
-                </Text>
-                <Stack gap="xs">
-                  <Group gap="md">
-                    <ThemeIcon
-                      variant="light"
-                      color="blue"
-                      size="md"
-                      radius="md"
-                    >
-                      <IconPhone size={16} />
-                    </ThemeIcon>
-                    <Stack gap={0}>
-                      <Text size="xs" c="dimmed">
-                        Phone
-                      </Text>
-                      <Text
-                        component="a"
-                        href={`tel:${selectedPickup.customerPhone}`}
-                        fw={600}
-                        c="#4ecdc4"
-                        style={{ textDecoration: 'none', cursor: 'pointer' }}
-                      >
-                        {selectedPickup.customerPhone}
-                      </Text>
-                    </Stack>
-                  </Group>
-                  <Group gap="md">
-                    <ThemeIcon
-                      variant="light"
-                      color="blue"
-                      size="md"
-                      radius="md"
-                    >
-                      <IconMail size={16} />
-                    </ThemeIcon>
-                    <Stack gap={0}>
-                      <Text size="xs" c="dimmed">
-                        Email
-                      </Text>
-                      <Text
-                        component="a"
-                        href={`mailto:${selectedPickup.customerEmail}`}
-                        fw={600}
-                        c="#4ecdc4"
-                        style={{ textDecoration: 'none', cursor: 'pointer' }}
-                      >
-                        {selectedPickup.customerEmail}
-                      </Text>
-                    </Stack>
-                  </Group>
-                </Stack>
-              </Card.Section>
-            </Card>
-
-            {/* Waste Types Section */}
-            <Card withBorder p="md" radius="md">
-              <Card.Section inheritPadding py="md">
-                <Text fw={600} size="sm" mb="xs" c="#1a535c">
-                  Waste Types to Collect
-                </Text>
-                <Group gap="xs">
-                  {selectedPickup.wasteTypes && selectedPickup.wasteTypes.length > 0 ? (
-                    selectedPickup.wasteTypes.map((type, idx) => (
-                      <Badge
-                        key={idx}
-                        size="lg"
-                        variant="dot"
-                        color="#1a535c"
-                      >
-                        {type}
-                      </Badge>
-                    ))
-                  ) : (
-                    <Text size="sm" c="dimmed">
-                      No waste types specified
-                    </Text>
-                  )}
-                </Group>
-              </Card.Section>
-            </Card>
-
-            {/* Quantity & Weight Section */}
-            <Grid gutter="md">
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Card withBorder p="md" radius="md">
-                  <Card.Section inheritPadding py="md">
-                    <Text fw={600} size="sm" mb="xs" c="#1a535c">
-                      Quantity
-                    </Text>
-                    <Text fw={600} size="lg" c="#4ecdc4">
-                      {selectedPickup.quantity || 'Not specified'}
-                    </Text>
-                  </Card.Section>
-                </Card>
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Card withBorder p="md" radius="md">
-                  <Card.Section inheritPadding py="md">
-                    <Text fw={600} size="sm" mb="xs" c="#1a535c">
-                      Estimated Weight
-                    </Text>
-                    <Text fw={600} size="lg" c="#52c41a">
-                      {selectedPickup.estimatedWeight ? `${selectedPickup.estimatedWeight} kg` : 'Not estimated'}
-                    </Text>
-                  </Card.Section>
-                </Card>
-              </Grid.Col>
-            </Grid>
-
-            {/* Special Instructions Section */}
+            {/* Special Instructions */}
             {selectedPickup.notes && (
-              <Card withBorder p="md" radius="md" style={{ background: '#fffbeb', border: '1px solid #fde047' }}>
-                <Card.Section inheritPadding py="md">
-                  <Group gap="md" align="flex-start">
-                    <ThemeIcon
-                      variant="light"
-                      color="yellow"
-                      size="lg"
-                      radius="md"
-                    >
-                      <IconAlertCircle size={18} />
-                    </ThemeIcon>
-                    <Stack gap={4} style={{ flex: 1 }}>
-                      <Text fw={600} size="sm" c="#1a535c">
-                        Special Instructions
-                      </Text>
-                      <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-                        {selectedPickup.notes}
-                      </Text>
-                    </Stack>
-                  </Group>
-                </Card.Section>
-              </Card>
+              <div style={{ borderBottom: '1px solid #e0e0e0', paddingBottom: '16px' }}>
+                <Text fw={500} size="sm" color="dimmed" mb={4}>Special Instructions</Text>
+                <Alert icon={<IconAlertCircle />} color="yellow">
+                  {selectedPickup.notes}
+                </Alert>
+              </div>
             )}
 
-            {/* Notes/Comments Section - Recycler Add Notes */}
-            <Card withBorder p="md" radius="md" style={{ background: '#f0f8f5' }}>
-              <Card.Section inheritPadding py="md">
-                <Text fw={600} size="sm" mb="xs" c="#1a535c">
-                  Recycler Notes
-                </Text>
-                <Stack gap="xs">
-                  <Text size="xs" c="dimmed">
-                    Add internal notes or observations about this pickup
-                  </Text>
-                  <textarea
-                    placeholder="E.g., Customer requests separate sorting, fragile items, etc."
-                    style={{
-                      width: '100%',
-                      minHeight: '100px',
-                      padding: '12px',
-                      border: '1px solid #e9ecef',
-                      borderRadius: '6px',
-                      fontFamily: 'inherit',
-                      fontSize: '14px',
-                      fontColor: '#495057',
-                    }}
-                    defaultValue={selectedPickup.recyclerNotes || ''}
-                  />
-                </Stack>
-              </Card.Section>
-            </Card>
+            {/* Recycler Notes */}
+            <div>
+              <Text fw={500} size="sm" color="dimmed" mb="md">Your Notes</Text>
+              <Textarea
+                placeholder="Add private notes about this pickup..."
+                value={notes}
+                onChange={(e) => setNotes(e.currentTarget.value)}
+                minRows={3}
+              />
+            </div>
 
-            {/* Metadata Section */}
-            <Grid gutter="md">
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Text size="xs" c="dimmed">
-                  Created: {new Date(selectedPickup.createdAt).toLocaleDateString()} {new Date(selectedPickup.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Text>
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Text size="xs" c="dimmed" ta="right">
-                  Last Updated: {new Date(selectedPickup.updatedAt).toLocaleDateString()} {new Date(selectedPickup.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Text>
-              </Grid.Col>
-            </Grid>
-
-            {/* Action Buttons */}
-            <Group justify="flex-end" gap="md">
+            {/* Actions */}
+            <Group justify="flex-end" pt="md">
               <Button
                 variant="light"
-                onClick={() => setOpened(false)}
+                onClick={() => setDetailsModalOpen(false)}
               >
                 Close
               </Button>
-              <Button
-                variant="light"
-                color="blue"
-                leftSection={<IconPhone size={16} />}
-                onClick={() => window.open(`tel:${selectedPickup.customerPhone}`)}
-              >
-                Call Customer
-              </Button>
-              <Button
-                variant="light"
-                color="cyan"
-                leftSection={<IconMail size={16} />}
-                onClick={() => window.open(`mailto:${selectedPickup.customerEmail}`)}
-              >
-                Email Customer
-              </Button>
+              {selectedPickup.status === 'pending' && (
+                <>
+                  <Button
+                    color="red"
+                    onClick={() => {
+                      handleDeclinePickup(selectedPickup._id);
+                      setDetailsModalOpen(false);
+                    }}
+                  >
+                    Decline
+                  </Button>
+                  <Button
+                    color="green"
+                    onClick={() => {
+                      handleAcceptPickup(selectedPickup._id);
+                      setDetailsModalOpen(false);
+                    }}
+                  >
+                    Accept
+                  </Button>
+                </>
+              )}
             </Group>
           </Stack>
         )}
       </Modal>
     </Container>
   );
-};
+}
 
-export default ScheduleHistoryPage;
+export default ScheduleHistory;

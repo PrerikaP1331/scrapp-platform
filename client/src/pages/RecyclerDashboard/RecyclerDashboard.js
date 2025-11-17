@@ -67,7 +67,7 @@ const TodayPickupCard = ({ pickup }) => (
   <Card withBorder p="md" className={styles.pickupCard}>
     <Group justify="space-between" mb="xs">
       <Text fw={600} size="lg">{pickup.timeSlot}</Text>
-      <Badge size="sm" color="blue">{pickup.status}</Badge>
+      <Badge size="sm" color="#588157">{pickup.status}</Badge>
     </Group>
     <Text fw={500} mb="xs">{pickup.customerName}</Text>
     <Text size="sm" c="dimmed">{pickup.location}</Text>
@@ -165,29 +165,37 @@ const RecyclerDashboard = () => {
             label="Pickups Today"
             value={kpis.todaysPickups}
             unit="scheduled"
-            color="#51CF66"
+            color="#588157"
           />
           <KPICard
             label="New Requests"
             value={kpis.pendingRequests}
             unit="pending"
-            color="#4ECDC4"
+            color="#3a5a40"
             action="View All"
           />
           <KPICard
             label="Earnings This Month"
             value={`₹${kpis.monthlyEarnings}`}
-            color="#FFD93D"
+            color="#a3b18a"
           />
           <Button
             size="lg"
-            color="cyan"
-            fullHeight
-            rightSection={<IconArrowRight size={20} />}
+            variant="filled"
+            fullWidth
+            rightSection={<IconArrowRight size={16} />}
             onClick={() => navigate('/recycler/route')}
             className={styles.ctaButton}
+            classNames={{ label: styles.ctaLabel }}
+            style={{
+              background: 'linear-gradient(135deg, #588157 0%, #3a5a40 100%)',
+              color: '#ffffff',
+              border: 'none',
+              minHeight: '56px',
+              marginTop: '8px'
+            }}
           >
-            View Today's Route →
+            View Today's Route
           </Button>
         </SimpleGrid>
 
@@ -199,7 +207,7 @@ const RecyclerDashboard = () => {
               <Card.Section withBorder inheritPadding py="md">
                 <Group justify="space-between">
                   <Title order={3}>Action Required: New Requests</Title>
-                  {newRequests.length > 0 && <Badge color="red">{newRequests.length}</Badge>}
+                  {newRequests.length > 0 && <Badge styles={{root:{backgroundColor:'#a3b18a', color:'#344e41'}}}>{newRequests.length}</Badge>}
                 </Group>
               </Card.Section>
               <Card.Section inheritPadding py="md">
@@ -225,7 +233,7 @@ const RecyclerDashboard = () => {
                     )}
                   </Stack>
                 ) : (
-                  <Alert icon={<IconAlertCircle size={16} />} color="blue">
+                  <Alert icon={<IconAlertCircle size={16} />} color="#588157">
                     No new pickup requests at this time.
                   </Alert>
                 )}
@@ -247,7 +255,7 @@ const RecyclerDashboard = () => {
                     ))}
                   </Stack>
                 ) : (
-                  <Alert icon={<IconAlertCircle size={16} />} color="blue">
+                  <Alert icon={<IconAlertCircle size={16} />} color="#588157">
                     No pickups scheduled for today.
                   </Alert>
                 )}
@@ -278,11 +286,11 @@ const RecyclerDashboard = () => {
                   <XAxis dataKey="day" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="pickups" fill="#4ECDC4" name="Completed Pickups" />
+                  <Bar dataKey="pickups" fill="#588157" name="Completed Pickups" />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <Alert icon={<IconAlertCircle size={16} />} color="blue">
+              <Alert icon={<IconAlertCircle size={16} />} color="#588157">
                 No performance data available
               </Alert>
             )}

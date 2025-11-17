@@ -95,7 +95,7 @@ const SentHistory = ({ announcements, isLoading }) => {
             </Group>
 
             <Group gap="sm" mb="md">
-              <Badge variant="light" color="blue">
+              <Badge variant="light" styles={{root:{backgroundColor:'#dad7cd', color:'#344e41'}}}>
                 Sent to {announcement.recipientCount} customer{announcement.recipientCount !== 1 ? 's' : ''}
               </Badge>
             </Group>
@@ -104,9 +104,9 @@ const SentHistory = ({ announcements, isLoading }) => {
               <Box
                 p="md"
                 style={{
-                  backgroundColor: '#f8f9fa',
+                  backgroundColor: '#ecebe5',
                   borderRadius: '8px',
-                  border: '1px solid #dee2e6',
+                  border: '1px solid #a3b18a',
                   marginTop: 'md'
                 }}
               >

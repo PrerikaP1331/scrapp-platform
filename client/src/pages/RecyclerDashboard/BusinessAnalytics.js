@@ -1,20 +1,16 @@
 // client/src/pages/RecyclerDashboard/BusinessAnalytics.js
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Stack, Alert, Loader, Center, Box } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { AuthContext } from '../../context/AuthContext';
-import { getAnalytics, exportToCSV } from '../../api/recyclerAnalyticsService';
 import ReportControls from '../../components/BusinessAnalytics/ReportControls';
 import KPICards from '../../components/BusinessAnalytics/KPICards';
 import RevenueTrendChart from '../../components/BusinessAnalytics/RevenueTrendChart';
 import WasteStreamAnalysis from '../../components/BusinessAnalytics/WasteStreamAnalysis';
 import PickupHeatmap from '../../components/BusinessAnalytics/PickupHeatmap';
 import TopCustomersTable from '../../components/BusinessAnalytics/TopCustomersTable';
+import { generateMockAnalytics } from '../../api/recyclerAnalyticsService';
 
 const BusinessAnalytics = () => {
-  const { user } = useContext(AuthContext);
-  const recyclerId = user?.recyclerProfileId || user?.id;
-  
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,6 +18,8 @@ const BusinessAnalytics = () => {
     startDate: null,
     endDate: null
   });
+
+
 
   // Initialize with last 30 days
   useEffect(() => {
@@ -43,11 +41,13 @@ const BusinessAnalytics = () => {
       setError(null);
 
       try {
-        const startDateStr = dateRange.startDate.toISOString().split('T')[0];
-        const endDateStr = dateRange.endDate.toISOString().split('T')[0];
+        // For now, use mock data. In production, call actual API:
+        // const startDateStr = dateRange.startDate.toISOString().split('T')[0];
+        // const endDateStr = dateRange.endDate.toISOString().split('T')[0];
+        // const data = await getAnalytics(recyclerId, startDateStr, endDateStr);
 
-        const data = await getAnalytics(recyclerId, startDateStr, endDateStr);
-        setAnalytics(data);
+        const mockData = generateMockAnalytics(dateRange.startDate, dateRange.endDate);
+        setAnalytics(mockData);
       } catch (err) {
         console.error('Error fetching analytics:', err);
         setError(
@@ -60,7 +60,7 @@ const BusinessAnalytics = () => {
     };
 
     fetchAnalytics();
-  }, [dateRange, recyclerId]);
+  }, [dateRange]);
 
   const handleDateRangeChange = (start, end) => {
     setDateRange({
@@ -71,8 +71,27 @@ const BusinessAnalytics = () => {
 
   const handleExport = () => {
     if (analytics) {
-      const filename = `analytics-${dateRange.startDate?.toISOString().split('T')[0]}-to-${dateRange.endDate?.toISOString().split('T')[0]}.csv`;
-      exportToCSV(analytics, filename);
+      const headers = ['Metric', 'Value'];
+      const rows = [
+        ['Total Revenue', `₹${analytics.kpis.totalRevenue}`],
+        ['Total Completed Pickups', analytics.kpis.totalPickups],
+        ['Average Revenue Per Pickup', `₹${analytics.kpis.avgRevenuePerPickup}`],
+        ['Total Weight Collected', `${analytics.kpis.totalWeight}T`],
+        ['New Customers Acquired', analytics.kpis.newCustomers],
+        [],
+        ['Waste Type', 'Revenue', 'Weight (kg)'],
+        ...analytics.wasteTypes.map(w => [w.name, `₹${w.revenue}`, w.weight])
+      ];
+
+      let csv = headers.join(',') + '\n';
+      rows.forEach(row => {
+        csv += row.join(',') + '\n';
+      });
+
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = `analytics-${dateRange.startDate?.toISOString().split('T')[0]}-to-${dateRange.endDate?.toISOString().split('T')[0]}.csv`;
+      link.click();
     }
   };
 
@@ -81,8 +100,8 @@ const BusinessAnalytics = () => {
       <Stack gap="lg">
         {/* Page Title */}
         <Box>
-          <h1>Business Analytics</h1>
-          <p style={{ color: '#666', marginTop: '8px' }}>
+          <h1 style={{ color: '#344e41' }}>Business Analytics</h1>
+          <p style={{ color: '#3a5a40', marginTop: '8px' }}>
             Comprehensive overview of your recycling business performance on Scrapp
           </p>
         </Box>
@@ -112,16 +131,19 @@ const BusinessAnalytics = () => {
             <KPICards kpis={analytics.kpis} />
 
             {/* Revenue Trend Chart */}
-            <RevenueTrendChart data={analytics.revenueTrend} isLoading={loading} />
+            <RevenueTrendChart data={analytics.revenueTrend} />
 
-            {/* Waste Stream Analysis and Charts Row */}
-            <WasteStreamAnalysis data={analytics.wasteStreamAnalysis} isLoading={loading} />
+            {/* Waste Stream Analysis */}
+            <WasteStreamAnalysis data={analytics.wasteTypes} />
 
             {/* Pickup Heatmap */}
-            <PickupHeatmap locations={analytics.pickupLocations} isLoading={loading} />
+            <PickupHeatmap locations={analytics.heatmapData} />
 
             {/* Top Customers Table */}
-            <TopCustomersTable topCustomers={analytics.topCustomers} isLoading={loading} />
+            <TopCustomersTable
+              topIndividuals={analytics.topIndividuals}
+              topOrganizations={analytics.topOrganizations}
+            />
           </>
         ) : null}
       </Stack>

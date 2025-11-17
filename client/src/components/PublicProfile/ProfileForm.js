@@ -104,7 +104,7 @@ const ProfileForm = ({ profile, onChange, onSubmit, isLoading }) => {
         <Stack gap="lg">
           {/* Section A: Basic Business Information */}
           <Box>
-            <Text fw={600} size="lg" mb="md">
+            <Text fw={600} size="lg" mb="md" style={{ color: '#344e41' }}>
               Basic Business Information
             </Text>
 
@@ -172,7 +172,7 @@ const ProfileForm = ({ profile, onChange, onSubmit, isLoading }) => {
 
           {/* Section B: Company Description */}
           <Box>
-            <Text fw={600} size="lg" mb="md">
+            <Text fw={600} size="lg" mb="md" style={{ color: '#344e41' }}>
               Company Description
             </Text>
 
@@ -204,7 +204,7 @@ const ProfileForm = ({ profile, onChange, onSubmit, isLoading }) => {
 
           {/* Section C: Service Details */}
           <Box>
-            <Text fw={600} size="lg" mb="md">
+            <Text fw={600} size="lg" mb="md" style={{ color: '#344e41' }}>
               Service Details
             </Text>
 
@@ -249,7 +249,7 @@ const ProfileForm = ({ profile, onChange, onSubmit, isLoading }) => {
                         rightSection={
                           <ActionIcon
                             size="xs"
-                            color="blue"
+                            color="forest"
                             radius="xl"
                             variant="transparent"
                             onClick={() => removeServiceArea(area)}
@@ -269,9 +269,9 @@ const ProfileForm = ({ profile, onChange, onSubmit, isLoading }) => {
 
               {/* Accepted Waste Materials */}
               <Box>
-                <Text fw={500} size="sm" mb="md">
-                  Accepted Waste Materials
-                </Text>
+                        <Text fw={500} size="sm" mb="md" style={{ color: '#344e41' }}>
+                          Accepted Waste Materials
+                        </Text>
 
                 <SimpleGrid cols={{ base: 1, sm: 2 }} gap="md">
                   {WASTE_MATERIALS.map((material) => (
@@ -288,9 +288,9 @@ const ProfileForm = ({ profile, onChange, onSubmit, isLoading }) => {
 
               {/* Client Types */}
               <Box>
-                <Text fw={500} size="sm" mb="md">
-                  Client Types Served
-                </Text>
+                        <Text fw={500} size="sm" mb="md" style={{ color: '#344e41' }}>
+                          Client Types Served
+                        </Text>
 
                 <Stack gap="sm">
                   {CLIENT_TYPES.map((type) => (
@@ -307,9 +307,9 @@ const ProfileForm = ({ profile, onChange, onSubmit, isLoading }) => {
 
               {/* Specialties */}
               <Box>
-                <Text fw={500} size="sm" mb="xs">
-                  Specialties (Tags)
-                </Text>
+                        <Text fw={500} size="sm" mb="xs" style={{ color: '#344e41' }}>
+                          Specialties (Tags)
+                        </Text>
                 <Text size="xs" c="dimmed" mb="md">
                   Add special services you offer. E.g., "Bulk Pickups", "E-Waste Specialist"
                 </Text>
@@ -345,7 +345,7 @@ const ProfileForm = ({ profile, onChange, onSubmit, isLoading }) => {
                         rightSection={
                           <ActionIcon
                             size="xs"
-                            color="green"
+                            color="forest"
                             radius="xl"
                             variant="transparent"
                             onClick={() => removeSpecialty(specialty)}
@@ -355,7 +355,7 @@ const ProfileForm = ({ profile, onChange, onSubmit, isLoading }) => {
                           </ActionIcon>
                         }
                         variant="dot"
-                        color="green"
+                        color="forest"
                       >
                         {specialty}
                       </Badge>
@@ -373,9 +373,13 @@ const ProfileForm = ({ profile, onChange, onSubmit, isLoading }) => {
             <Button
               type="submit"
               size="lg"
-              color="green"
               disabled={isLoading}
               loading={isLoading}
+              style={{
+                background: 'linear-gradient(135deg, #588157 0%, #3a5a40 100%)',
+                color: '#ffffff',
+                border: 'none'
+              }}
             >
               Save Profile Changes
             </Button>

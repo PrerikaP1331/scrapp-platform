@@ -1,0 +1,288 @@
+:root {
+  --linen: #dad7cd;
+  --sage: #a3b18a;
+  --fern: #588157;
+  --pine: #3a5a40;
+  --forest: #344e41;
+}
+
+.wrapper {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #ffffff 0%, #dad7cd 50%, #a3b18a 100%);
+  padding-top: 12px;
+  padding-bottom: 80px;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 8px 16px;
+}
+
+.benefitCard {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(218, 215, 205, 0.95) 100%);
+  border: 2px solid rgba(163, 177, 138, 0.3);
+  box-shadow: 0 8px 32px rgba(88, 129, 87, 0.15);
+  backdrop-filter: blur(10px);
+  height: 100%;
+  position: sticky;
+  top: 90px;
+}
+
+.benefitIconWrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #588157 0%, #3a5a40 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.benefitTitle {
+  color: #344e41;
+  font-weight: 700;
+  font-size: 2rem;
+  letter-spacing: -0.01em;
+}
+
+.benefitDescription {
+  color: #3a5a40;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+.benefitsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.benefitItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.checkIconWrapper {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  background: rgba(88, 129, 87, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #588157;
+}
+
+.benefitText {
+  color: #344e41;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  padding-top: 4px;
+}
+
+.badgeWrapper {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(163, 177, 138, 0.3);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #588157 0%, #3a5a40 100%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.formCard {
+  background: white;
+  border: 2px solid rgba(163, 177, 138, 0.2);
+  box-shadow: 0 8px 32px rgba(88, 129, 87, 0.15);
+}
+
+.formTitle {
+  color: #344e41;
+  font-weight: 700;
+  font-size: 2rem;
+  letter-spacing: -0.01em;
+}
+
+.formSubtitle {
+  color: #3a5a40;
+  opacity: 0.8;
+  font-size: 1.05rem;
+}
+
+.formSection {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(163, 177, 138, 0.2);
+}
+
+.formSection:first-of-type {
+  margin-top: 32px;
+  padding-top: 0;
+  border-top: none;
+}
+
+.sectionTitle {
+  color: #3a5a40;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+/* Form Inputs */
+.label {
+  color: #344e41;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.input {
+  border: 2px solid rgba(163, 177, 138, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  background: rgba(218, 215, 205, 0.05);
+}
+
+.input:focus {
+  border-color: #588157;
+  box-shadow: 0 0 0 3px rgba(88, 129, 87, 0.1);
+  background: white;
+}
+
+.input::placeholder {
+  color: rgba(58, 90, 64, 0.4);
+}
+
+/* Checkbox */
+.checkbox {
+  border: 2px solid rgba(163, 177, 138, 0.4);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.checkbox:checked {
+  background: #588157;
+  border-color: #588157;
+}
+
+.checkboxLabel {
+  color: #344e41;
+  opacity: 0.9;
+}
+
+/* Submit Button */
+.submitButton {
+  background: linear-gradient(135deg, #588157 0%, #3a5a40 100%);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  height: 48px;
+  box-shadow: 0 4px 12px rgba(88, 129, 87, 0.3);
+  transition: all 0.3s ease;
+}
+
+.submitButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(88, 129, 87, 0.4);
+  background: linear-gradient(135deg, #3a5a40 0%, #344e41 100%);
+}
+
+.submitButton:active {
+  transform: translateY(0);
+}
+
+.link {
+  color: #588157;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #3a5a40;
+  text-decoration: underline;
+}
+
+.loginText {
+  color: #3a5a40;
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .container {
+    padding: 24px 16px;
+  }
+
+  .benefitCard {
+    position: static;
+    margin-bottom: 24px;
+  }
+
+  .benefitTitle {
+    font-size: 1.75rem;
+  }
+
+  .formTitle {
+    font-size: 1.75rem;
+  }
+}
+
+.input:disabled {
+  background: rgba(218, 215, 205, 0.2);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.input[aria-invalid="true"] {
+  border-color: #e03131;
+  background: rgba(224, 49, 49, 0.05);
+}
+
+.input[aria-invalid="true"]:focus {
+  border-color: #e03131;
+  box-shadow: 0 0 0 3px rgba(224, 49, 49, 0.1);
+}
+
+.input[aria-invalid="false"] {
+  border-color: #588157;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.benefitItem {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+.benefitItem:nth-child(1) { animation-delay: 0.1s; opacity: 0; }
+.benefitItem:nth-child(2) { animation-delay: 0.2s; opacity: 0; }
+.benefitItem:nth-child(3) { animation-delay: 0.3s; opacity: 0; }
+.benefitItem:nth-child(4) { animation-delay: 0.4s; opacity: 0; }

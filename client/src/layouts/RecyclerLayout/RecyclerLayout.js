@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import { AppShell, Burger, Group, NavLink, Avatar, Menu } from '@mantine/core';
+import { AppShell, Burger, Group, NavLink, Avatar, Menu, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Link, useLocation } from 'react-router-dom';
-import { IconHome, IconMap, IconCalendar, IconChartBar, IconMessageCircle, IconUser, IconReceipt, IconSettings } from '@tabler/icons-react';
+import { IconHome, IconMap, IconCalendar, IconChartBar, IconMessageCircle, IconUser, IconReceipt, IconSettings, IconRecycle } from '@tabler/icons-react';
 import { AuthContext } from '../../context/AuthContext';
 
 const navLinks = [
@@ -37,10 +37,14 @@ function RecyclerLayout({ children }) {
       navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="md"
     >
-      <AppShell.Header style={{ backgroundColor: '#1a535c', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white' }}>
+      <AppShell.Header style={{ backgroundColor: '#dad7cd', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: '1.5rem', paddingLeft: '1.5rem', zIndex: 1000 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#344e41' }}>
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <span style={{ fontWeight: 'bold', fontSize: '18px' }}>Scrapp Recycler</span>
+          <Group gap={8} align="center" style={{ padding: '4px 10px', marginLeft: '12px' }}>
+            <Text fw={900} style={{ fontSize: '2rem', letterSpacing: '-0.02em', color: '#344e41' }}>SCR</Text>
+            <IconRecycle size={32} style={{ color: '#588157', margin: '0 -3px', strokeWidth: 2.5 }} />
+            <Text fw={900} style={{ fontSize: '2rem', letterSpacing: '-0.02em', color: '#344e41' }}>PP</Text>
+          </Group>
         </div>
         {/* User Profile Avatar - Top Right */}
         <Menu position="bottom-end" shadow="md">
@@ -48,10 +52,9 @@ function RecyclerLayout({ children }) {
             <Avatar
               src={null}
               alt={user?.name}
-              color="cyan"
               radius="xl"
               size="md"
-              style={{ cursor: 'pointer' }}
+              style={{ backgroundColor: '#a3b18a', color: '#344e41', cursor: 'pointer' }}
             >
               {getInitials()}
             </Avatar>
@@ -67,34 +70,44 @@ function RecyclerLayout({ children }) {
         </Menu>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md" style={{ backgroundColor: '#0d2b34' }}>
-        {navLinks.map((link) => (
-          <NavLink
-            key={link.label}
-            component={Link}
-            to={link.href}
-            label={link.label}
-            leftSection={<link.icon size="1rem" stroke={1.5} color="white" />}
-            active={location.pathname === link.href}
-            style={{ borderRadius: '4px', color: 'white' }}
-            variant="filled"
-            color="#4ecdc4"
-          />
-        ))}
+      <AppShell.Navbar p="md" style={{ backgroundColor: '#ecebe5' }}>
+        {navLinks.map((link) => {
+          const active = location.pathname === link.href;
+          return (
+            <NavLink
+              key={link.label}
+              component={Link}
+              to={link.href}
+              label={<Text size="md" fw={600} style={{ color: 'inherit' }}>{link.label}</Text>}
+              leftSection={<link.icon size="1rem" stroke={1.5} color={active ? '#344e41' : '#3a5a40'} />}
+              active={active}
+              style={{
+                borderRadius: '8px',
+                color: active ? '#344e41' : '#3a5a40',
+                backgroundColor: active ? '#dad7cd' : 'transparent',
+                marginBottom: '6px',
+                paddingLeft: '12px'
+              }}
+            />
+          );
+        })}
         <div style={{ flex: 1 }} />
         <NavLink
           component={Link}
           to="/recycler/settings"
-          label="Settings"
-          leftSection={<IconSettings size="1rem" stroke={1.5} color="white" />}
+          label={<Text size="md" fw={600} style={{ color: 'inherit' }}>Settings</Text>}
+          leftSection={<IconSettings size="1rem" stroke={1.5} color={location.pathname === '/recycler/settings' ? '#344e41' : '#3a5a40'} />}
           active={location.pathname === '/recycler/settings'}
-          style={{ borderRadius: '4px', color: 'white' }}
-          variant="filled"
-          color="#4ecdc4"
+          style={{
+            borderRadius: '8px',
+            color: location.pathname === '/recycler/settings' ? '#344e41' : '#3a5a40',
+            backgroundColor: location.pathname === '/recycler/settings' ? '#dad7cd' : 'transparent',
+            paddingLeft: '12px'
+          }}
         />
       </AppShell.Navbar>
 
-      <AppShell.Main style={{ backgroundColor: '#f5f5f5' }}>
+      <AppShell.Main style={{ backgroundColor: '#f6f7f4', overflowY: 'auto' }}>
         {children}
       </AppShell.Main>
     </AppShell>

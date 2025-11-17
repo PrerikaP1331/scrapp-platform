@@ -88,8 +88,8 @@ function CustomerCommunication() {
       <Stack gap="lg">
         {/* Page Title */}
         <div>
-          <h1>Customer Communication</h1>
-          <p style={{ color: '#666', marginTop: '8px' }}>
+          <h1 style={{ color: '#344e41' }}>Customer Communication</h1>
+          <p style={{ color: '#3a5a40', marginTop: '8px' }}>
             Send announcements and manage your customer base
           </p>
         </div>
@@ -103,13 +103,13 @@ function CustomerCommunication() {
 
         {/* Success Alert */}
         {successMessage && (
-          <Alert icon={<IconAlertCircle size={16} />} color="green" title="Success">
+          <Alert icon={<IconAlertCircle size={16} />} color="#588157" title="Success">
             {successMessage}
           </Alert>
         )}
 
         {/* Tabs */}
-        <Tabs value={activeTab} onTabChange={setActiveTab}>
+        <Tabs value={activeTab} onChange={setActiveTab}>
           <Tabs.List>
             <Tabs.Tab value="send">Send Announcement</Tabs.Tab>
             <Tabs.Tab value="customers">

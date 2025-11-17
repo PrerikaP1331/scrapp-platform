@@ -3,11 +3,11 @@ import React from 'react';
 import { Grid, TextInput, Title, Select } from '@mantine/core';
 import AddressInformation from './AddressInformation'; // We are composing components!
 
-function CommunityDetails({ form }) {
+function CommunityDetails({ form, inputClassNames, sectionTitleClass }) {
   return (
     <>
       <Grid.Col span={12}>
-        <Title order={4} mt="md" style={{ color: '#3a5a40' }}>Community Details</Title>
+        <Title order={4} mt="md" className={sectionTitleClass}>Community Details</Title>
       </Grid.Col>
       <Grid.Col span={12}>
         <TextInput
@@ -15,6 +15,7 @@ function CommunityDetails({ form }) {
           placeholder="e.g., Green Meadows Housing Society"
           {...form.getInputProps('communityName')}
           required
+          classNames={inputClassNames}
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 6 }}>
@@ -29,6 +30,7 @@ function CommunityDetails({ form }) {
           ]}
           {...form.getInputProps('communityType')}
           required
+          classNames={inputClassNames}
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 6 }}>
@@ -38,11 +40,12 @@ function CommunityDetails({ form }) {
           data={['1-50', '51-100', '101-250', '251-500', '500+']}
           {...form.getInputProps('householdCount')}
           required
+          classNames={inputClassNames}
         />
       </Grid.Col>
       
       {/* Here we reuse the AddressInformation component for the community's address */}
-      <AddressInformation form={form} title="Community's Primary Address" />
+      <AddressInformation form={form} title="Community's Primary Address" inputClassNames={inputClassNames} sectionTitleClass={sectionTitleClass} />
     </>
   );
 }
