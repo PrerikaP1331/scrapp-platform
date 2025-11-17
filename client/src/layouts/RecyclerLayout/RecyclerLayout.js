@@ -37,7 +37,7 @@ function RecyclerLayout({ children }) {
       navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="md"
     >
-      <AppShell.Header style={{ backgroundColor: '#dad7cd', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: '1.5rem', paddingLeft: '1.5rem' }}>
+      <AppShell.Header style={{ backgroundColor: '#dad7cd', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: '1.5rem', paddingLeft: '1.5rem', zIndex: 1000 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#344e41' }}>
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
           <Group gap={8} align="center" style={{ padding: '4px 10px', marginLeft: '12px' }}>
