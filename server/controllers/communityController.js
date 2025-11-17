@@ -59,7 +59,17 @@ exports.registerCommunity = async (req, res) => {
       { expiresIn: '5h' },
       (err, token) => {
         if (err) throw err;
-        res.status(201).json({ token }); // Return the token
+        res.status(201).json({ 
+          token,
+          user: {
+            id: adminUser.id,
+            name: adminUser.name,
+            email: adminUser.email,
+            role: adminUser.role,
+            phone: adminUser.phone,
+            communityId: newCommunity.id
+          }
+        });
       }
     );
 
