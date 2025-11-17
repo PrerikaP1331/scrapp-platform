@@ -1,7 +1,7 @@
 // client/src/api/publicProfileService.js
 import axios from './axios';
 
-const API_BASE_URL = '/api/recyclers';
+const API_BASE_URL = '/recyclers';
 
 export const getProfile = async (recyclerId) => {
   try {

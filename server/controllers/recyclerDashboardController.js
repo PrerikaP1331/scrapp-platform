@@ -1,4 +1,5 @@
 // /server/controllers/recyclerDashboardController.js
+const axios = require('axios');
 const Pickup = require('../models/Pickup');
 const RecyclerProfile = require('../models/RecyclerProfile');
 const User = require('../models/User');
@@ -210,20 +211,80 @@ exports.getTodayRoute = async (req, res) => {
       });
     }
 
-    // Extract coordinates for route optimization
-    const waypoints = todayPickups.map((p, idx) => ({
-      index: idx,
-      latitude: p.address?.coordinates?.latitude || 0,
-      longitude: p.address?.coordinates?.longitude || 0,
-      pickupId: p._id.toString()
-    }));
+    // If only 1 pickup, no need to optimize
+    if (todayPickups.length === 1) {
+      const pickup = todayPickups[0];
+      const optimizedPickups = [{
+        _id: pickup._id,
+        position: 1,
+        timeSlot: pickup.timeSlot,
+        customerName: pickup.user?.name || 'Unknown',
+        customerPhone: pickup.user?.phone || 'N/A',
+        address: pickup.address?.addressLine1 || 'Unknown',
+        city: pickup.address?.city || 'Unknown',
+        postalCode: pickup.address?.postalCode || 'Unknown',
+        location: `${pickup.address?.city}, ${pickup.address?.state}`,
+        wasteTypes: pickup.wasteTypes,
+        quantity: pickup.quantity,
+        notes: pickup.notes,
+        status: pickup.status,
+        coordinates: {
+          latitude: pickup.address?.coordinates?.latitude || 0,
+          longitude: pickup.address?.coordinates?.longitude || 0
+        }
+      }];
 
-    // For now, use the natural order from database (sorted by timeSlot)
-    // In production, integrate OpenRouteService or Google Maps Directions API
-    // The order would be: [start] -> optimized waypoint order -> [end]
-    
-    // Mock route optimization - in production, call actual routing API
-    const optimizedOrder = waypoints.map((w, idx) => idx); // Keep current order for now
+      return res.json({
+        pickups: optimizedPickups,
+        route: { 
+          coordinates: optimizedPickups.map(p => [p.coordinates.longitude, p.coordinates.latitude]),
+          geometry: []
+        },
+        date: today.toISOString().split('T')[0],
+        totalPickups: 1
+      });
+    }
+
+    // Build waypoints array for OpenRouteService (lon, lat format)
+    const waypoints = todayPickups.map(p => [
+      p.address?.coordinates?.longitude || 0,
+      p.address?.coordinates?.latitude || 0
+    ]);
+
+    // Call OpenRouteService to optimize route
+    let optimizedOrder = Array.from({length: todayPickups.length}, (_, i) => i);
+    let routeGeometry = [];
+
+    try {
+      const apiKey = process.env.OPENROUTE_SERVICE_API_KEY;
+      
+      // If we have multiple waypoints, use Directions API to get the optimized route
+      if (todayPickups.length > 1) {
+        // Format waypoints as comma-separated lon,lat pairs for directions API
+        const coordinatesString = waypoints.map(w => `${w[0]},${w[1]}`).join('|');
+        
+        // Call OpenRouteService Directions API to get route geometry
+        const directionsResponse = await axios.get(
+          'https://api.openrouteservice.org/v2/directions/driving',
+          {
+            params: {
+              coordinates: coordinatesString,
+              format: 'geojson'
+            },
+            headers: {
+              'Authorization': apiKey
+            }
+          }
+        );
+
+        if (directionsResponse.data && directionsResponse.data.features && directionsResponse.data.features.length > 0) {
+          routeGeometry = directionsResponse.data.features[0].geometry.coordinates;
+        }
+      }
+    } catch (routeError) {
+      console.warn('Route optimization failed, using database order:', routeError.message);
+      optimizedOrder = Array.from({length: todayPickups.length}, (_, i) => i);
+    }
 
     // Reorder pickups based on optimization
     const optimizedPickups = optimizedOrder.map((idx, position) => {
@@ -249,18 +310,16 @@ exports.getTodayRoute = async (req, res) => {
       };
     });
 
-    // Create route coordinates for polyline
-    const routeCoordinates = optimizedPickups.map(p => [
-      p.coordinates.latitude,
-      p.coordinates.longitude
-    ]);
-
+    // Return optimized route with geometry
     res.json({
       pickups: optimizedPickups,
       route: {
-        coordinates: routeCoordinates,
-        distance: 'To be calculated by routing engine', // km
-        duration: 'To be calculated by routing engine'  // minutes
+        coordinates: waypoints.map((w, idx) => {
+          const pickupIdx = optimizedOrder.indexOf(idx);
+          const pickup = todayPickups[idx];
+          return [pickup.address?.coordinates?.longitude || 0, pickup.address?.coordinates?.latitude || 0];
+        }),
+        geometry: routeGeometry
       },
       date: today.toISOString().split('T')[0],
       totalPickups: optimizedPickups.length

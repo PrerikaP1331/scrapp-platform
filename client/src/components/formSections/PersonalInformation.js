@@ -2,7 +2,7 @@ import React from 'react';
 import { Grid, TextInput } from '@mantine/core';
 import { IconUser, IconAt, IconPhone } from '@tabler/icons-react';
 
-function PersonalInformation({ form }) {
+function PersonalInformation({ form, inputClassNames }) {
   return (
     <>
       <Grid.Col span={{ base: 12, md: 6 }}>
@@ -13,6 +13,7 @@ function PersonalInformation({ form }) {
           required
           leftSection={<IconUser size={16} />}
           leftSectionWidth={36}
+          classNames={inputClassNames}
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 6 }}>
@@ -23,6 +24,7 @@ function PersonalInformation({ form }) {
           required
           leftSection={<IconAt size={16} />}
           leftSectionWidth={36}
+          classNames={inputClassNames}
         />
       </Grid.Col>
       <Grid.Col span={12}>
@@ -33,6 +35,7 @@ function PersonalInformation({ form }) {
           required
           leftSection={<IconPhone size={16} />}
           leftSectionWidth={36}
+          classNames={inputClassNames}
         />
       </Grid.Col>
     </>

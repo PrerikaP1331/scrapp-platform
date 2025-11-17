@@ -2,11 +2,11 @@ import React from 'react';
 import { Grid, TextInput, Title } from '@mantine/core';
 import { IconHome, IconMapPin, IconHash } from '@tabler/icons-react';
 
-function AddressInformation({ form, title = "Pickup Location" }) {
+function AddressInformation({ form, title = "Pickup Location", inputClassNames, sectionTitleClass }) {
   return (
     <>
       <Grid.Col span={12}>
-        <Title order={4} mt="md" style={{ color: '#3a5a40' }}>{title}</Title>
+        <Title order={4} mt="md" className={sectionTitleClass}>{title}</Title>
       </Grid.Col>
       <Grid.Col span={12}>
         <TextInput
@@ -16,6 +16,7 @@ function AddressInformation({ form, title = "Pickup Location" }) {
           required
           leftSection={<IconHome size={16} />}
           leftSectionWidth={36}
+          classNames={inputClassNames}
         />
       </Grid.Col>
       <Grid.Col span={12}>
@@ -25,6 +26,7 @@ function AddressInformation({ form, title = "Pickup Location" }) {
           {...form.getInputProps('addressLine2')}
           leftSection={<IconHome size={16} />}
           leftSectionWidth={36}
+          classNames={inputClassNames}
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 4 }}>
@@ -35,6 +37,7 @@ function AddressInformation({ form, title = "Pickup Location" }) {
           required
           leftSection={<IconMapPin size={16} />}
           leftSectionWidth={36}
+          classNames={inputClassNames}
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 4 }}>
@@ -45,6 +48,7 @@ function AddressInformation({ form, title = "Pickup Location" }) {
           required
           leftSection={<IconHash size={16} />}
           leftSectionWidth={36}
+          classNames={inputClassNames}
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 4 }}>
@@ -55,6 +59,7 @@ function AddressInformation({ form, title = "Pickup Location" }) {
           required
           leftSection={<IconMapPin size={16} />}
           leftSectionWidth={36}
+          classNames={inputClassNames}
         />
       </Grid.Col>
     </>

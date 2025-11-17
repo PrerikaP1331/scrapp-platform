@@ -8,11 +8,11 @@ const wasteOptions = [
   'Textiles & Fabric', 'Organic/Compostable Waste'
 ];
 
-function ServiceDetails({ form }) {
+function ServiceDetails({ form, inputClassNames, sectionTitleClass }) {
   return (
     <>
       <Grid.Col span={12}>
-        <Title order={4} mt="md" style={{ color: '#3a5a40' }}>Service Details</Title>
+        <Title order={4} mt="md" className={sectionTitleClass}>Service Details</Title>
       </Grid.Col>
       <Grid.Col span={12}>
         <Textarea
@@ -21,6 +21,7 @@ function ServiceDetails({ form }) {
           placeholder="e.g., 400050, 400051, Andheri West, Juhu"
           {...form.getInputProps('serviceAreas')}
           required
+          classNames={inputClassNames}
         />
       </Grid.Col>
       <Grid.Col span={12}>
@@ -29,6 +30,7 @@ function ServiceDetails({ form }) {
           description="Select at least one."
           {...form.getInputProps('acceptedWasteTypes')}
           required
+          classNames={{ label: inputClassNames?.label }}
         >
           <Group mt="xs">
             {wasteOptions.map(option => <Checkbox key={option} value={option} label={option} />)}

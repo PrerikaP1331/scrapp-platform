@@ -97,8 +97,8 @@ function PublicProfile() {
       <Stack gap="lg">
         {/* Page Title */}
         <Box>
-          <h1>Manage Your Public Profile</h1>
-          <p style={{ color: '#666', marginTop: '8px' }}>
+          <h1 style={{ color: '#344e41' }}>Manage Your Public Profile</h1>
+          <p style={{ color: '#3a5a40', marginTop: '8px' }}>
             Update your business information that's visible to customers on the Scrapp platform
           </p>
         </Box>
@@ -114,7 +114,7 @@ function PublicProfile() {
         {success && (
           <Alert
             icon={<IconCheck size={16} />}
-            color="green"
+            color="#588157"
             title="Success"
             withCloseButton
             onClose={() => setSuccess(false)}

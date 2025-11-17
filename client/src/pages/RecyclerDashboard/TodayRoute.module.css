@@ -1,6 +1,6 @@
 .stopCard {
   transition: all 0.3s ease;
-  border-left: 4px solid #4ecdc4;
+  border-left: 4px solid #588157;
   background-color: white;
 }
 
@@ -10,15 +10,15 @@
 }
 
 .stopCard.completed {
-  background-color: #f0f8f5;
-  opacity: 0.8;
-  border-left-color: #52c41a;
+  background-color: #ecebe5;
+  opacity: 0.9;
+  border-left-color: #a3b18a;
 }
 
 .stopCard.current {
-  background-color: #f0f8f5;
-  box-shadow: 0 0 0 2px #4ecdc4;
-  border-left: 4px solid #4ecdc4;
+  background-color: #dad7cd;
+  box-shadow: 0 0 0 2px #588157;
+  border-left: 4px solid #588157;
 }
 
 .stopCard .stopNumber {
@@ -28,14 +28,14 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #4ecdc4;
+  background-color: #588157;
   color: white;
   font-weight: bold;
   font-size: 18px;
 }
 
 .stopCard.completed .stopNumber {
-  background-color: #52c41a;
+  background-color: #a3b18a;
 }
 
 .routeSummary {
@@ -43,7 +43,7 @@
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
   padding: 1rem;
-  background-color: #f0f8f5;
+  background-color: #ecebe5;
   border-radius: 8px;
 }
 
@@ -59,7 +59,7 @@
 }
 
 .summaryCard .number {
-  color: #1a535c;
+  color: #344e41;
   font-weight: 700;
   font-size: 28px;
 }

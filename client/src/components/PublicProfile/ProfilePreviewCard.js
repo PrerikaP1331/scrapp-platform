@@ -7,7 +7,7 @@ const ProfilePreviewCard = ({ profile }) => {
   if (!profile) return null;
 
   return (
-    <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#f8f9fa' }}>
+    <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#ecebe5' }}>
       <Stack gap="md">
         <Text fw={600} size="md" c="dimmed">
           PREVIEW: How customers will see your profile
@@ -28,14 +28,14 @@ const ProfilePreviewCard = ({ profile }) => {
                 <Avatar
                   size={80}
                   radius="md"
-                  style={{ backgroundColor: '#4ecdc4', color: 'white' }}
+                  style={{ backgroundColor: '#588157', color: 'white' }}
                 >
                   {profile.businessName?.charAt(0).toUpperCase()}
                 </Avatar>
               )}
 
               <Stack gap={0} style={{ flex: 1 }}>
-                <Text fw={600} size="lg">
+                <Text fw={600} size="lg" style={{ color: '#344e41' }}>
                   {profile.businessName || 'Business Name'}
                 </Text>
 
@@ -106,7 +106,7 @@ const ProfilePreviewCard = ({ profile }) => {
                 </Text>
                 <Group gap="xs">
                   {profile.acceptedWasteTypes.map((material, idx) => (
-                    <Badge key={idx} variant="light" size="sm">
+                    <Badge key={idx} variant="light" size="sm" styles={{root:{backgroundColor:'#dad7cd', color:'#344e41'}}}>
                       {material}
                     </Badge>
                   ))}
@@ -122,7 +122,7 @@ const ProfilePreviewCard = ({ profile }) => {
                 </Text>
                 <Group gap="xs">
                   {profile.specialties.map((specialty, idx) => (
-                    <Badge key={idx} variant="dot" size="sm" color="green">
+                    <Badge key={idx} variant="dot" size="sm" color="forest">
                       {specialty}
                     </Badge>
                   ))}
