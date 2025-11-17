@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Container,
   Paper,
@@ -17,64 +17,160 @@ import {
   Divider,
   Modal,
   Select,
-  Alert
-} from '@mantine/core';
+  Alert,
+} from "@mantine/core";
 import {
   IconDownload,
   IconCreditCard,
   IconCheck,
   IconAlertCircle,
   IconEdit,
-  IconTrash
-} from '@tabler/icons-react';
-import classes from './RecyclerBilling.module.css';
+  IconTrash,
+} from "@tabler/icons-react";
+import classes from "./RecyclerBilling.module.css";
 
 function RecyclerBilling() {
-  const [subscription] = useState({
-    plan: 'Professional',
-    status: 'Active',
+  const [subscription, setSubscription] = useState({
+    plan: "Professional",
+    status: "Active",
     monthlyCharge: 2499,
-    billingCycle: 'Monthly',
-    nextBillingDate: 'Dec 1, 2025',
-    startDate: 'Sep 1, 2024'
+    billingCycle: "Monthly",
+    nextBillingDate: "Dec 1, 2025",
+    startDate: "Sep 1, 2024",
   });
 
   const [earnings] = useState({
     thisMonth: 15900,
     totalEarned: 127650,
     availableBalance: 15900,
-    lastPayout: 'Nov 15, 2025'
+    lastPayout: "Nov 15, 2025",
   });
 
   const [invoices] = useState([
-    { id: 1, date: 'Nov 1, 2025', amount: 2499, status: 'Paid', pdf: 'INV-REC-001' },
-    { id: 2, date: 'Oct 1, 2025', amount: 2499, status: 'Paid', pdf: 'INV-REC-002' },
-    { id: 3, date: 'Sep 1, 2025', amount: 2499, status: 'Paid', pdf: 'INV-REC-003' },
-    { id: 4, date: 'Aug 1, 2025', amount: 2499, status: 'Paid', pdf: 'INV-REC-004' },
+    {
+      id: 1,
+      date: "Nov 1, 2025",
+      amount: 2499,
+      status: "Paid",
+      pdf: "INV-REC-001",
+    },
+    {
+      id: 2,
+      date: "Oct 1, 2025",
+      amount: 2499,
+      status: "Paid",
+      pdf: "INV-REC-002",
+    },
+    {
+      id: 3,
+      date: "Sep 1, 2025",
+      amount: 2499,
+      status: "Paid",
+      pdf: "INV-REC-003",
+    },
+    {
+      id: 4,
+      date: "Aug 1, 2025",
+      amount: 2499,
+      status: "Paid",
+      pdf: "INV-REC-004",
+    },
   ]);
 
   const [payouts] = useState([
-    { id: 1, date: 'Nov 15, 2025', amount: 14000, status: 'Completed', method: 'Bank Transfer' },
-    { id: 2, date: 'Oct 15, 2025', amount: 14000, status: 'Completed', method: 'Bank Transfer' },
-    { id: 3, date: 'Sep 15, 2025', amount: 14000, status: 'Completed', method: 'Bank Transfer' },
+    {
+      id: 1,
+      date: "Nov 15, 2025",
+      amount: 14000,
+      status: "Completed",
+      method: "Bank Transfer",
+    },
+    {
+      id: 2,
+      date: "Oct 15, 2025",
+      amount: 14000,
+      status: "Completed",
+      method: "Bank Transfer",
+    },
+    {
+      id: 3,
+      date: "Sep 15, 2025",
+      amount: 14000,
+      status: "Completed",
+      method: "Bank Transfer",
+    },
   ]);
 
   const [planModal, setPlanModal] = useState(false);
   const [paymentModal, setPaymentModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [changingPlan, setChangingPlan] = useState(false);
 
   const plans = [
-    { name: 'Basic', price: 999, features: ['Free listings', 'Basic analytics', 'Email support'] },
-    { name: 'Professional', price: 2499, features: ['Priority listings', 'Advanced analytics', 'Phone support', 'Custom branding'] },
-    { name: 'Enterprise', price: 4999, features: ['Dedicated listings', 'Real-time analytics', '24/7 support', 'API access'] }
+    {
+      name: "Basic",
+      price: 999,
+      features: ["Free listings", "Basic analytics", "Email support"],
+    },
+    {
+      name: "Professional",
+      price: 2499,
+      features: [
+        "Priority listings",
+        "Advanced analytics",
+        "Phone support",
+        "Custom branding",
+      ],
+    },
+    {
+      name: "Enterprise",
+      price: 4999,
+      features: [
+        "Dedicated listings",
+        "Real-time analytics",
+        "24/7 support",
+        "API access",
+      ],
+    },
   ];
+
+  const handlePlanChange = (planName) => {
+    const selectedPlanData = plans.find((p) => p.name === planName);
+    if (selectedPlanData && planName !== subscription.plan) {
+      setSelectedPlan(planName);
+      setChangingPlan(true);
+      // Simulate API call
+      setTimeout(() => {
+        setSubscription({
+          ...subscription,
+          plan: planName,
+          monthlyCharge: selectedPlanData.price,
+          nextBillingDate: new Date(
+            new Date().setMonth(new Date().getMonth() + 1)
+          ).toLocaleDateString("en-IN", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+        });
+        setChangingPlan(false);
+        setPlanModal(false);
+        setSelectedPlan(null);
+      }, 1000);
+    }
+  };
 
   return (
     <Container size="xl" py="xl">
       <Stack gap="lg">
         {/* Header */}
         <div>
-          <Title order={2} style={{ color: '#1a535c' }}>Billing & Subscription</Title>
-          <Text size="sm" color="dimmed">Manage your Scrapp platform subscription and view earnings</Text>
+          <Title order={2} style={{ color: "#1a535c" }}>
+            Billing & Subscription
+          </Title>
+          <Text size="sm" color="dimmed">
+            Manage your Scrapp platform subscription and view earnings
+          </Text>
         </div>
 
         {/* Earnings Overview */}
@@ -82,70 +178,121 @@ function RecyclerBilling() {
           <Paper p="lg" radius="md" withBorder>
             <Group justify="space-between" mb="xs">
               <div>
-                <Text size="sm" color="dimmed" fw={500}>This Month</Text>
-                <Text size="xl" fw={700} style={{ color: '#1a535c' }}>₹{earnings.thisMonth.toLocaleString()}</Text>
+                <Text size="sm" color="dimmed" fw={500}>
+                  This Month
+                </Text>
+                <Text size="xl" fw={700} style={{ color: "#1a535c" }}>
+                  ₹{earnings.thisMonth.toLocaleString()}
+                </Text>
               </div>
-              <ThemeIcon size={48} radius="md" style={{ backgroundColor: '#f0f8f5' }}>
+              <ThemeIcon
+                size={48}
+                radius="md"
+                style={{ backgroundColor: "#f0f8f5" }}
+              >
                 <IconCreditCard size={24} color="#4ecdc4" />
               </ThemeIcon>
             </Group>
-            <Text size="xs" color="dimmed">From {15} completed pickups</Text>
+            <Text size="xs" color="dimmed">
+              From {15} completed pickups
+            </Text>
           </Paper>
 
           <Paper p="lg" radius="md" withBorder>
             <Group justify="space-between" mb="xs">
               <div>
-                <Text size="sm" color="dimmed" fw={500}>Available Balance</Text>
-                <Text size="xl" fw={700} style={{ color: '#52c41a' }}>₹{earnings.availableBalance.toLocaleString()}</Text>
+                <Text size="sm" color="dimmed" fw={500}>
+                  Available Balance
+                </Text>
+                <Text size="xl" fw={700} style={{ color: "#52c41a" }}>
+                  ₹{earnings.availableBalance.toLocaleString()}
+                </Text>
               </div>
-              <ThemeIcon size={48} radius="md" style={{ backgroundColor: '#f0f8f5' }}>
+              <ThemeIcon
+                size={48}
+                radius="md"
+                style={{ backgroundColor: "#f0f8f5" }}
+              >
                 <IconCheck size={24} color="#52c41a" />
               </ThemeIcon>
             </Group>
-            <Button size="xs" mt="md" style={{ backgroundColor: '#4ecdc4' }}>Request Payout</Button>
+            <Button size="xs" mt="md" style={{ backgroundColor: "#4ecdc4" }}>
+              Request Payout
+            </Button>
           </Paper>
 
           <Paper p="lg" radius="md" withBorder>
-            <Text size="sm" color="dimmed" fw={500} mb="xs">Total Earned</Text>
-            <Text size="xl" fw={700} style={{ color: '#1a535c' }}>₹{earnings.totalEarned.toLocaleString()}</Text>
-            <Text size="xs" color="dimmed" mt="md">All time</Text>
+            <Text size="sm" color="dimmed" fw={500} mb="xs">
+              Total Earned
+            </Text>
+            <Text size="xl" fw={700} style={{ color: "#1a535c" }}>
+              ₹{earnings.totalEarned.toLocaleString()}
+            </Text>
+            <Text size="xs" color="dimmed" mt="md">
+              All time
+            </Text>
           </Paper>
 
           <Paper p="lg" radius="md" withBorder>
-            <Text size="sm" color="dimmed" fw={500} mb="xs">Last Payout</Text>
-            <Text size="xl" fw={700} style={{ color: '#1a535c' }}>{earnings.lastPayout}</Text>
-            <Text size="xs" color="dimmed" mt="md">Completed</Text>
+            <Text size="sm" color="dimmed" fw={500} mb="xs">
+              Last Payout
+            </Text>
+            <Text size="xl" fw={700} style={{ color: "#1a535c" }}>
+              {earnings.lastPayout}
+            </Text>
+            <Text size="xs" color="dimmed" mt="md">
+              Completed
+            </Text>
           </Paper>
         </SimpleGrid>
 
         {/* Current Plan */}
-        <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#f0f8f5' }}>
+        <Paper
+          p="lg"
+          radius="md"
+          withBorder
+          style={{ backgroundColor: "#f0f8f5" }}
+        >
           <Group justify="space-between" mb="md">
             <div>
-              <Title order={4} style={{ color: '#1a535c' }} mb="md">Current Subscription</Title>
+              <Title order={4} style={{ color: "#1a535c" }} mb="md">
+                Current Subscription
+              </Title>
               <SimpleGrid cols={{ base: 2, sm: 4 }} gap="md">
                 <div>
-                  <Text size="sm" color="dimmed" mb="xs">Plan Type</Text>
-                  <Text fw={600} style={{ color: '#1a535c' }}>{subscription.plan}</Text>
+                  <Text size="sm" color="dimmed" mb="xs">
+                    Plan Type
+                  </Text>
+                  <Text fw={600} style={{ color: "#1a535c" }}>
+                    {subscription.plan}
+                  </Text>
                 </div>
                 <div>
-                  <Text size="sm" color="dimmed" mb="xs">Status</Text>
+                  <Text size="sm" color="dimmed" mb="xs">
+                    Status
+                  </Text>
                   <Badge color="#52c41a" leftSection={<IconCheck size={12} />}>
                     {subscription.status}
                   </Badge>
                 </div>
                 <div>
-                  <Text size="sm" color="dimmed" mb="xs">Monthly Charge</Text>
-                  <Text fw={600} style={{ color: '#4ecdc4' }}>₹{subscription.monthlyCharge}</Text>
+                  <Text size="sm" color="dimmed" mb="xs">
+                    Monthly Charge
+                  </Text>
+                  <Text fw={600} style={{ color: "#4ecdc4" }}>
+                    ₹{subscription.monthlyCharge}
+                  </Text>
                 </div>
                 <div>
-                  <Text size="sm" color="dimmed" mb="xs">Next Billing</Text>
+                  <Text size="sm" color="dimmed" mb="xs">
+                    Next Billing
+                  </Text>
                   <Text fw={600}>{subscription.nextBillingDate}</Text>
                 </div>
               </SimpleGrid>
             </div>
             <Button
-              style={{ backgroundColor: '#4ecdc4' }}
+              style={{ backgroundColor: "#4ecdc4" }}
               onClick={() => setPlanModal(true)}
             >
               Change Plan
@@ -161,12 +308,27 @@ function RecyclerBilling() {
           size="lg"
         >
           <SimpleGrid cols={{ base: 1, md: 3 }} gap="lg">
-            {plans.map(plan => (
-              <Paper key={plan.name} p="lg" radius="md" withBorder style={{ border: plan.name === 'Professional' ? '2px solid #4ecdc4' : '1px solid #ddd' }}>
-                <Text fw={600} style={{ color: '#1a535c' }} mb="xs">{plan.name}</Text>
-                <Text size="xl" fw={700} style={{ color: '#4ecdc4' }} mb="md">₹{plan.price}/mo</Text>
+            {plans.map((plan) => (
+              <Paper
+                key={plan.name}
+                p="lg"
+                radius="md"
+                withBorder
+                style={{
+                  border:
+                    plan.name === subscription.plan
+                      ? "2px solid #4ecdc4"
+                      : "1px solid #ddd",
+                }}
+              >
+                <Text fw={600} style={{ color: "#1a535c" }} mb="xs">
+                  {plan.name}
+                </Text>
+                <Text size="xl" fw={700} style={{ color: "#4ecdc4" }} mb="md">
+                  ₹{plan.price}/mo
+                </Text>
                 <Stack gap="xs" mb="lg">
-                  {plan.features.map(feature => (
+                  {plan.features.map((feature) => (
                     <Group key={feature} gap="xs">
                       <IconCheck size={16} color="#52c41a" />
                       <Text size="sm">{feature}</Text>
@@ -175,10 +337,20 @@ function RecyclerBilling() {
                 </Stack>
                 <Button
                   fullWidth
-                  variant={plan.name === 'Professional' ? 'filled' : 'light'}
-                  style={{ backgroundColor: plan.name === 'Professional' ? '#4ecdc4' : 'transparent' }}
+                  variant={plan.name === subscription.plan ? "filled" : "light"}
+                  style={{
+                    backgroundColor:
+                      plan.name === subscription.plan
+                        ? "#4ecdc4"
+                        : "transparent",
+                  }}
+                  onClick={() => handlePlanChange(plan.name)}
+                  disabled={plan.name === subscription.plan}
+                  loading={changingPlan && selectedPlan === plan.name}
                 >
-                  {plan.name === 'Professional' ? 'Current Plan' : 'Upgrade'}
+                  {plan.name === subscription.plan
+                    ? "Current Plan"
+                    : "Switch to " + plan.name}
                 </Button>
               </Paper>
             ))}
@@ -188,16 +360,18 @@ function RecyclerBilling() {
         {/* Invoices */}
         <Paper p="lg" radius="md" withBorder>
           <Group justify="space-between" mb="lg">
-            <Title order={4} style={{ color: '#1a535c' }}>Recent Invoices</Title>
+            <Title order={4} style={{ color: "#1a535c" }}>
+              Recent Invoices
+            </Title>
             <Button variant="light" leftSection={<IconDownload size={14} />}>
               Download All
             </Button>
           </Group>
 
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ overflowX: "auto" }}>
             <Table>
               <Table.Thead>
-                <Table.Tr style={{ backgroundColor: '#f8f9fa' }}>
+                <Table.Tr style={{ backgroundColor: "#f8f9fa" }}>
                   <Table.Th>Invoice #</Table.Th>
                   <Table.Th>Date</Table.Th>
                   <Table.Th>Amount</Table.Th>
@@ -210,7 +384,9 @@ function RecyclerBilling() {
                   <Table.Tr key={invoice.id}>
                     <Table.Td fw={500}>{invoice.pdf}</Table.Td>
                     <Table.Td>{invoice.date}</Table.Td>
-                    <Table.Td fw={600} style={{ color: '#4ecdc4' }}>₹{invoice.amount}</Table.Td>
+                    <Table.Td fw={600} style={{ color: "#4ecdc4" }}>
+                      ₹{invoice.amount}
+                    </Table.Td>
                     <Table.Td>
                       <Badge color="#52c41a">{invoice.status}</Badge>
                     </Table.Td>
@@ -232,12 +408,14 @@ function RecyclerBilling() {
 
         {/* Payouts */}
         <Paper p="lg" radius="md" withBorder>
-          <Title order={4} style={{ color: '#1a535c' }} mb="lg">Payout History</Title>
+          <Title order={4} style={{ color: "#1a535c" }} mb="lg">
+            Payout History
+          </Title>
 
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ overflowX: "auto" }}>
             <Table>
               <Table.Thead>
-                <Table.Tr style={{ backgroundColor: '#f8f9fa' }}>
+                <Table.Tr style={{ backgroundColor: "#f8f9fa" }}>
                   <Table.Th>Date</Table.Th>
                   <Table.Th>Amount</Table.Th>
                   <Table.Th>Method</Table.Th>
@@ -248,7 +426,9 @@ function RecyclerBilling() {
                 {payouts.map((payout) => (
                   <Table.Tr key={payout.id}>
                     <Table.Td fw={500}>{payout.date}</Table.Td>
-                    <Table.Td fw={600} style={{ color: '#52c41a' }}>₹{payout.amount}</Table.Td>
+                    <Table.Td fw={600} style={{ color: "#52c41a" }}>
+                      ₹{payout.amount}
+                    </Table.Td>
                     <Table.Td>{payout.method}</Table.Td>
                     <Table.Td>
                       <Badge color="#52c41a">{payout.status}</Badge>
@@ -263,7 +443,9 @@ function RecyclerBilling() {
         {/* Payment Method */}
         <Paper p="lg" radius="md" withBorder>
           <Group justify="space-between" mb="lg">
-            <Title order={4} style={{ color: '#1a535c' }}>Payment Method</Title>
+            <Title order={4} style={{ color: "#1a535c" }}>
+              Payment Method
+            </Title>
             <Button
               variant="light"
               leftSection={<IconEdit size={14} />}
@@ -273,19 +455,34 @@ function RecyclerBilling() {
             </Button>
           </Group>
 
-          <Card withBorder p="md" radius="md" style={{ backgroundColor: '#f0f8f5' }}>
+          <Card
+            withBorder
+            p="md"
+            radius="md"
+            style={{ backgroundColor: "#f0f8f5" }}
+          >
             <Group justify="space-between">
               <div>
                 <Group gap="md" mb="xs">
-                  <ThemeIcon size={40} radius="md" style={{ backgroundColor: '#4ecdc4' }}>
+                  <ThemeIcon
+                    size={40}
+                    radius="md"
+                    style={{ backgroundColor: "#4ecdc4" }}
+                  >
                     <IconCreditCard size={24} color="white" />
                   </ThemeIcon>
                   <div>
-                    <Text fw={600} style={{ color: '#1a535c' }}>Visa Card</Text>
-                    <Text size="sm" color="dimmed">ending in 4242</Text>
+                    <Text fw={600} style={{ color: "#1a535c" }}>
+                      Visa Card
+                    </Text>
+                    <Text size="sm" color="dimmed">
+                      ending in 4242
+                    </Text>
                   </div>
                 </Group>
-                <Text size="sm" color="dimmed">Expires 12/26</Text>
+                <Text size="sm" color="dimmed">
+                  Expires 12/26
+                </Text>
               </div>
               <Group gap="xs">
                 <Button
@@ -310,11 +507,21 @@ function RecyclerBilling() {
         </Paper>
 
         {/* Billing FAQs */}
-        <Alert icon={<IconAlertCircle />} title="Billing Information" color="blue">
+        <Alert
+          icon={<IconAlertCircle />}
+          title="Billing Information"
+          color="blue"
+        >
           <Stack gap="xs">
-            <Text size="sm">• Invoices are issued on the 1st of every month</Text>
-            <Text size="sm">• Payouts are processed weekly to your registered bank account</Text>
-            <Text size="sm">• Service charges are deducted from your earnings automatically</Text>
+            <Text size="sm">
+              • Invoices are issued on the 1st of every month
+            </Text>
+            <Text size="sm">
+              • Payouts are processed weekly to your registered bank account
+            </Text>
+            <Text size="sm">
+              • Service charges are deducted from your earnings automatically
+            </Text>
           </Stack>
         </Alert>
       </Stack>
