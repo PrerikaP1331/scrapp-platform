@@ -1,0 +1,35 @@
+/* /client/src/pages/Dashboard/components/SchedulePickup/SchedulePickup.module.css */
+
+.wasteCard {
+  transition: all 0.2s ease;
+}
+
+.wasteCard:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.timeSlotCard {
+  transition: all 0.2s ease;
+}
+
+.timeSlotCard:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recyclerCard {
+  transition: all 0.2s ease;
+}
+
+.recyclerCard:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stepperContainer {
+  margin: 2rem 0;
+}
+
+.confirmationContent {
+  background-color: #f0f8f5;
+  border-left: 4px solid #588157;
+}

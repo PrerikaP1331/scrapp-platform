@@ -1,0 +1,37 @@
+/* /client/src/pages/Dashboard/components/History/History.module.css */
+
+.filterBar {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.historyItem {
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.historyItem:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.expandedContent {
+  background-color: #f9f9f9;
+  padding: 1rem;
+}
+
+.statusBadge {
+  font-weight: 600;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.paginationContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}

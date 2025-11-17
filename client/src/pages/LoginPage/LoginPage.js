@@ -42,9 +42,9 @@ function LoginPage() {
   const handleSubmit = async (values) => {
     try {
       const response = await apiClient.post('/auth/login', values);
-      const { token } = response.data;
+      const { token, user } = response.data;
 
-      login(null, token);
+      login(user, token);
 
       notifications.show({
         title: 'Login Successful',
@@ -52,7 +52,9 @@ function LoginPage() {
         color: 'green',
       });
 
-      navigate('/dashboard');
+      // Redirect based on user role
+      const dashboardPath = getDashboardPath(user?.role);
+      navigate(dashboardPath);
 
     } catch (error) {
       notifications.show({
@@ -61,6 +63,22 @@ function LoginPage() {
         color: 'red',
       });
       console.error('Login error:', error.response);
+    }
+  };
+
+  // Helper function to get dashboard path based on role
+  const getDashboardPath = (role) => {
+    switch(role) {
+      case 'individual':
+        return '/dashboard';
+      case 'community_admin':
+        return '/community-dashboard';
+      case 'org_admin':
+        return '/org-dashboard';
+      case 'recycler':
+        return '/recycler-dashboard';
+      default:
+        return '/dashboard';
     }
   };
 

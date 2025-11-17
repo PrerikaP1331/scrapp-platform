@@ -11,6 +11,10 @@ const pickupSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User' // Recyclers are also users
     },
+    recyclerProfile: {
+        type: Schema.Types.ObjectId,
+        ref: 'RecyclerProfile'
+    },
     community: {
         type: Schema.Types.ObjectId,
         ref: 'Community'
@@ -21,7 +25,7 @@ const pickupSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'upcoming', 'completed', 'cancelled'],
+        enum: ['pending', 'scheduled', 'upcoming', 'in-transit', 'completed', 'cancelled'],
         default: 'pending'
     },
     wasteTypes: [{
@@ -30,6 +34,7 @@ const pickupSchema = new Schema({
     }],
     quantity: {
         type: String,
+        enum: ['1-2 Small Bags', 'A Medium Box', 'Multiple Large Bags', 'Bulky Items'],
         required: true
     },
     notes: {
@@ -41,7 +46,11 @@ const pickupSchema = new Schema({
         addressLine2: { type: String },
         city: { type: String, required: true },
         postalCode: { type: String, required: true },
-        state: { type: String, required: true }
+        state: { type: String, required: true },
+        coordinates: {
+            latitude: { type: Number },
+            longitude: { type: Number }
+        }
     },
     scheduledDate: {
         type: Date,
@@ -50,6 +59,14 @@ const pickupSchema = new Schema({
     timeSlot: {
         type: String,
         required: true
+    },
+    estimatedWeight: {
+        type: Number // in kg
+    },
+    rating: {
+        score: { type: Number, min: 1, max: 5 },
+        review: { type: String },
+        ratedAt: { type: Date }
     }
 }, {
     timestamps: true

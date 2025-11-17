@@ -1,0 +1,75 @@
+.stopCard {
+  transition: all 0.3s ease;
+  border-left: 4px solid #4ecdc4;
+  background-color: white;
+}
+
+.stopCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.stopCard.completed {
+  background-color: #f0f8f5;
+  opacity: 0.8;
+  border-left-color: #52c41a;
+}
+
+.stopCard.current {
+  background-color: #f0f8f5;
+  box-shadow: 0 0 0 2px #4ecdc4;
+  border-left: 4px solid #4ecdc4;
+}
+
+.stopCard .stopNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #4ecdc4;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.stopCard.completed .stopNumber {
+  background-color: #52c41a;
+}
+
+.routeSummary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f0f8f5;
+  border-radius: 8px;
+}
+
+.summaryCard {
+  text-align: center;
+}
+
+.summaryCard h4 {
+  color: #666;
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.summaryCard .number {
+  color: #1a535c;
+  font-weight: 700;
+  font-size: 28px;
+}
+
+@media (max-width: 768px) {
+  .stopCard {
+    margin-bottom: 12px;
+  }
+
+  .routeSummary {
+    grid-template-columns: 1fr;
+  }
+}

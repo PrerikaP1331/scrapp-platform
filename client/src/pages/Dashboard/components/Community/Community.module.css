@@ -1,0 +1,81 @@
+/* Community.module.css */
+
+.communityCard {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  height: 100%;
+}
+
+.communityCard:hover {
+  border-color: #51cf66;
+  box-shadow: 0 4px 12px rgba(81, 207, 102, 0.15);
+  transform: translateY(-2px);
+}
+
+.postCard {
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+}
+
+.postCard:hover {
+  border-color: #51cf66;
+  box-shadow: 0 4px 12px rgba(81, 207, 102, 0.1);
+}
+
+.pinnedBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 12px;
+}
+
+.commentsSection {
+  background: #f9f9f9;
+  border-top: 1px solid #e9ecef;
+}
+
+.comment {
+  padding: 8px;
+  border-radius: 6px;
+  background: white;
+  border: 1px solid #e9ecef;
+}
+
+.commentContent {
+  flex: 1;
+}
+
+.communitySidebarItem {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid #f0f0f0;
+}
+
+.communitySidebarItem:hover {
+  border-color: #51cf66;
+  background: #f9fdf4;
+}
+
+.communitySidebarItemActive {
+  border-color: #51cf66;
+  background: #f0fdf4;
+}
+
+.filterBadge {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filterBadge:hover {
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .communitySidebarItem {
+    margin-bottom: 0.5rem;
+  }
+
+  .postCard {
+    margin-bottom: 1rem;
+  }
+}

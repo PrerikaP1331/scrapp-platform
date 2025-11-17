@@ -66,17 +66,17 @@ function IndividualSignUpPage() {
 
     try {
       const response = await apiClient.post('/auth/register', payload);
-      const { token } = response.data;
+      const { token, user } = response.data;
       
-      login(null, token);
+      login(user, token);
 
       notifications.show({
         title: 'Registration Successful',
-        message: 'Welcome to Scrapp! Your account has been created.',
+        message: 'Welcome to Scrapp! Your account has been created. Redirecting to login...',
         color: 'green',
       });
       
-      navigate('/dashboard');
+      navigate('/login');
 
     } catch (error) {
       notifications.show({

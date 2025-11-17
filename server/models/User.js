@@ -28,11 +28,15 @@ const userSchema = new Schema({
         default: 'individual'
     },
     address: {
-        addressLine1: { type: String, required: true },
-        addressLine2: { type: String },
-        city: { type: String, required: true },
-        postalCode: { type: String, required: true },
-        state: { type: String, required: true }
+        street: { type: String },
+        city: { type: String },
+        state: { type: String },
+        postalCode: { type: String }
+    },
+    notifications: {
+        pickupReminders: { email: { type: Boolean, default: true }, push: { type: Boolean, default: false } },
+        communityUpdates: { email: { type: Boolean, default: true }, push: { type: Boolean, default: true } },
+        rewardsPromos: { email: { type: Boolean, default: true }, push: { type: Boolean, default: false } }
     }
 }, {
     timestamps: true // Adds createdAt and updatedAt timestamps

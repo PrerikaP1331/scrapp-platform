@@ -55,17 +55,17 @@ function CorporateSignUpPage() {
 
         try {
             const response = await apiClient.post('/organisations/register', payload);
-            const { token } = response.data;
+            const { token, user } = response.data;
 
-            login(null, token);
+            login(user, token);
 
             notifications.show({
             title: 'Organization Registration Successful',
-            message: 'Welcome! Your organization is now registered on Scrapp.',
+            message: 'Welcome! Your organization is now registered on Scrapp. Redirecting to login...',
             color: 'green',
             });
             
-            navigate('/dashboard');
+            navigate('/login');
 
         } catch (error) {
             notifications.show({

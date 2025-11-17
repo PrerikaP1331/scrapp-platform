@@ -1,0 +1,99 @@
+/* RecyclerSettings.module.css */
+
+/* Tab styling */
+.tabsContainer {
+  display: flex;
+  gap: 2rem;
+}
+
+.tabList {
+  flex: 0 0 200px;
+}
+
+.tabPanel {
+  flex: 1;
+}
+
+/* Account tab styles */
+.accountForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formSection {
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 1.5rem;
+}
+
+.formSection:last-child {
+  border-bottom: none;
+}
+
+/* Security tab styles */
+.passwordForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.securityAlert {
+  background-color: #e7f5ff;
+  border: 1px solid #b3daff;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 1rem;
+}
+
+/* Danger zone styles */
+.dangerZone {
+  background-color: #ffe0e0;
+  border: 2px solid #fa5252;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.dangerZoneTitle {
+  color: #c92a2a;
+  font-weight: 600;
+}
+
+.dangerZoneDescription {
+  color: #666;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+/* Modal styles */
+.confirmationModal {
+  text-align: left;
+}
+
+.confirmationText {
+  font-weight: 600;
+  color: #1a535c;
+  margin-bottom: 0.5rem;
+}
+
+.businessNameHighlight {
+  color: #c92a2a;
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .tabsContainer {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .tabList {
+    flex: 1;
+  }
+
+  .tabPanel {
+    flex: 1;
+  }
+}

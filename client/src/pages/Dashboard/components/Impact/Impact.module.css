@@ -1,0 +1,52 @@
+/* Impact.module.css */
+
+.header {
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 1rem;
+}
+
+.heroSection {
+  background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  transition: all 0.3s ease;
+  border: 2px solid #f0f0f0;
+  background: white;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.statCard:hover {
+  border-color: #51CF66;
+  box-shadow: 0 8px 24px rgba(81, 207, 102, 0.15);
+  transform: translateY(-2px);
+}
+
+.chartCard {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.shareSection {
+  background: linear-gradient(135deg, #fff8f0 0%, #fff0e8 100%);
+  border: 2px solid #ffd6a5;
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    padding: 1rem;
+  }
+
+  .chartCard {
+    margin-bottom: 1rem;
+  }
+}

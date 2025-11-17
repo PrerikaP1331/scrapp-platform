@@ -36,9 +36,28 @@ exports.registerUser = async (req, res) => {
         const payload = {
             user: {
                 id: user.id,
-                role: user.role
+                role: user.role,
+                name: user.name,
+                email: user.email
             }
         };
+
+        // For recycler role, fetch the recycler profile ID
+        let responseUser = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            phone: user.phone
+        };
+
+        if (user.role === 'recycler') {
+            const RecyclerProfile = require('../models/RecyclerProfile');
+            const recyclerProfile = await RecyclerProfile.findOne({ user: user.id });
+            if (recyclerProfile) {
+                responseUser.recyclerProfileId = recyclerProfile.id;
+            }
+        }
 
         jwt.sign(
             payload,
@@ -46,10 +65,12 @@ exports.registerUser = async (req, res) => {
             { expiresIn: '5h' },
             (err, token) => {
                 if (err) throw err;
-                res.json({ token });
+                res.json({ 
+                    token,
+                    user: responseUser
+                });
             }
         );
-
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -77,9 +98,28 @@ exports.loginUser = async (req, res) => {
         const payload = {
             user: {
                 id: user.id,
-                role: user.role
+                role: user.role,
+                name: user.name,
+                email: user.email
             }
         };
+
+        // For recycler role, fetch the recycler profile ID
+        let responseUser = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            phone: user.phone
+        };
+
+        if (user.role === 'recycler') {
+            const RecyclerProfile = require('../models/RecyclerProfile');
+            const recyclerProfile = await RecyclerProfile.findOne({ user: user.id });
+            if (recyclerProfile) {
+                responseUser.recyclerProfileId = recyclerProfile.id;
+            }
+        }
 
         jwt.sign(
             payload,
@@ -87,7 +127,10 @@ exports.loginUser = async (req, res) => {
             { expiresIn: '5h' },
             (err, token) => {
                 if (err) throw err;
-                res.json({ token });
+                res.json({ 
+                    token,
+                    user: responseUser
+                });
             }
         );
     } catch (err) {

@@ -61,17 +61,17 @@ const handleSubmit = async (values) => {
 
     try {
         const response = await apiClient.post('/recyclers/register', payload);
-        const { token } = response.data;
+        const { token, user } = response.data;
 
-        login(null, token);
+        login(user, token);
 
         notifications.show({
         title: 'Registration Successful',
-        message: 'Welcome, Partner! Your account has been created.',
+        message: 'Welcome, Partner! Your account has been created. Redirecting to login...',
         color: 'green',
         });
         
-        navigate('/dashboard');
+        navigate('/login');
 
     } catch (error) {
         notifications.show({

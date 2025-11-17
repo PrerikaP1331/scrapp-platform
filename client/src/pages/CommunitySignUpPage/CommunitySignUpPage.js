@@ -66,17 +66,17 @@ function CommunitySignUpPage() {
     try {
         // THIS LINE IS THE FIX: The URL is now correct.
         const response = await apiClient.post('/communities/register', payload);
-        const { token } = response.data;
+        const { token, user } = response.data;
 
-        login(null, token);
+        login(user, token);
 
         notifications.show({
           title: 'Community Registration Successful',
-          message: 'Welcome! Your community is now registered.',
+          message: 'Welcome! Your community is now registered. Redirecting to login...',
           color: 'green',
         });
         
-        navigate('/dashboard');
+        navigate('/login');
 
     } catch (error) {
         notifications.show({
