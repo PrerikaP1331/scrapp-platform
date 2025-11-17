@@ -41,7 +41,7 @@ const RevenueTrendChart = ({ data, isLoading }) => {
 
   return (
     <Paper p="lg" radius="md" withBorder>
-      <Text fw={600} size="lg" mb="md">
+      <Text fw={600} size="lg" mb="md" style={{ color: '#344e41' }}>
         Revenue Over Time
       </Text>
 
@@ -66,8 +66,8 @@ const RevenueTrendChart = ({ data, isLoading }) => {
             <Line
               type="monotone"
               dataKey="revenue"
-              stroke="#2f9e44"
-              dot={{ fill: '#2f9e44', r: 4 }}
+              stroke="#588157"
+              dot={{ fill: '#588157', r: 4 }}
               activeDot={{ r: 6 }}
               name="Daily Revenue"
               strokeWidth={2}

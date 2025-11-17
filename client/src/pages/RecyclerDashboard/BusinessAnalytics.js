@@ -100,8 +100,8 @@ const BusinessAnalytics = () => {
       <Stack gap="lg">
         {/* Page Title */}
         <Box>
-          <h1>Business Analytics</h1>
-          <p style={{ color: '#666', marginTop: '8px' }}>
+          <h1 style={{ color: '#344e41' }}>Business Analytics</h1>
+          <p style={{ color: '#3a5a40', marginTop: '8px' }}>
             Comprehensive overview of your recycling business performance on Scrapp
           </p>
         </Box>

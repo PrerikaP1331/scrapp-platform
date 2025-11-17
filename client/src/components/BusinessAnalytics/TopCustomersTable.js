@@ -61,8 +61,8 @@ const TopCustomersTable = ({ topIndividuals, topOrganizations }) => {
     <Paper p="lg" radius="md" withBorder>
       <Group justify="space-between" mb="md">
         <Group gap="xs">
-          <IconTrendingUp size={20} />
-          <Text fw={600} size="lg">
+          <IconTrendingUp size={20} color="#588157" />
+          <Text fw={600} size="lg" style={{ color: '#344e41' }}>
             Top Customers
           </Text>
         </Group>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { AppShell, Burger, Group, Header, Navbar, Text, Avatar, Menu, Button } from '@mantine/core';
+import { AppShell, Burger, Group, Text, Avatar, Menu } from '@mantine/core';
+import styles from './RecyclerDashboardLayout.module.css';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RecyclerSidebar from './RecyclerSidebar';
@@ -20,11 +21,11 @@ function RecyclerDashboardLayout({ children }) {
       navbar={{ width: 250, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="md"
     >
-      <AppShell.Header>
+      <AppShell.Header className={styles.header}>
         <Group justify="space-between" style={{ height: '100%', padding: '0 16px' }}>
           <Group>
             <Burger opened={opened} onClick={() => setOpened(!opened)} hiddenFrom="sm" size="sm" />
-            <Text fw={600} size="lg" style={{ color: '#344e41' }}>Scrapp Recyclers</Text>
+            <Text fw={700} size="lg" style={{ color: '#ffffff' }}>Scrapp Recyclers</Text>
           </Group>
           <Menu shadow="md" width={200}>
             <Menu.Target>
@@ -42,11 +43,11 @@ function RecyclerDashboardLayout({ children }) {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar>
+      <AppShell.Navbar className={styles.navbar}>
         <RecyclerSidebar />
       </AppShell.Navbar>
 
-      <AppShell.Main>
+      <AppShell.Main className={styles.main}>
         {children}
       </AppShell.Main>
     </AppShell>

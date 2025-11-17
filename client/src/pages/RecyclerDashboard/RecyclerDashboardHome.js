@@ -11,7 +11,7 @@ import {
   IconCheck,
   IconX,
 } from '@tabler/icons-react';
-import axios from 'axios';
+import apiClient from '../../api/axios';
 import { AuthContext } from '../../context/AuthContext';
 
 function RecyclerDashboardHome() {
@@ -30,10 +30,7 @@ function RecyclerDashboardHome() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/api/recycler/dashboard', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiClient.get('/recycler/dashboard');
       setDashboardData(response.data);
       setError(null);
     } catch (err) {
@@ -47,10 +44,7 @@ function RecyclerDashboardHome() {
   const handleAcceptRequest = async (pickupId) => {
     try {
       setProcessingId(pickupId);
-      const token = localStorage.getItem('token');
-      await axios.post(`/api/recycler/pickup/${pickupId}/accept`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await apiClient.post(`/recycler/pickup/${pickupId}/accept`);
       fetchDashboardData();
       setSelectedRequest(null);
     } catch (err) {
@@ -64,10 +58,7 @@ function RecyclerDashboardHome() {
   const handleDeclineRequest = async (pickupId) => {
     try {
       setProcessingId(pickupId);
-      const token = localStorage.getItem('token');
-      await axios.post(`/api/recycler/pickup/${pickupId}/decline`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await apiClient.post(`/recycler/pickup/${pickupId}/decline`);
       fetchDashboardData();
       setSelectedRequest(null);
     } catch (err) {
@@ -146,7 +137,7 @@ function RecyclerDashboardHome() {
               icon={IconClock} 
               label="New Pending Requests" 
               value={kpis.pendingRequests}
-              color="#2563eb"
+              color="#588157"
             />
             <StatCard 
               icon={IconMoneybag} 
@@ -174,7 +165,7 @@ function RecyclerDashboardHome() {
                 Action Required: New Requests
               </Title>
               {newRequests.length > 0 && (
-                <Badge color="blue">{newRequests.length}</Badge>
+                <Badge color="#588157">{newRequests.length}</Badge>
               )}
             </Group>
 
@@ -268,7 +259,7 @@ function RecyclerDashboardHome() {
                           <Text size="sm" color="dimmed">{pickup.location}</Text>
                         </Group>
                       </div>
-                      <Badge color="green" variant="filled">
+                      <Badge color="#588157" variant="filled">
                         {pickup.status}
                       </Badge>
                     </Group>

@@ -58,11 +58,23 @@ function TodayRoute() {
           }
         });
         setCompletedStops(completed);
+      } else {
+        // Gracefully handle empty data
+        setPickups([]);
+        setRouteGeometry([]);
       }
     } catch (err) {
       console.error('Error fetching route:', err);
-      const errorMessage = err.msg || err.response?.data?.msg || err.message || 'Failed to load today\'s route';
-      setError(errorMessage);
+      const status = err?.response?.status;
+      const errorMessage = err?.response?.data?.msg || err?.message || 'Failed to load today\'s route';
+      // Show error only for authorization issues; otherwise show empty state
+      if (status === 401) {
+        setError(errorMessage);
+      } else {
+        setError(null);
+        setPickups([]);
+        setRouteGeometry([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -143,10 +155,10 @@ function TodayRoute() {
           <title>Today's Route - Scrapp</title>
           <style>
             body { font-family: Arial, sans-serif; margin: 20px; }
-            h1 { color: #1a535c; }
+            h1 { color: #344e41; }
             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
             th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-            th { background-color: #1a535c; color: white; }
+            th { background-color: #344e41; color: white; }
             tr:nth-child(even) { background-color: #f9f9f9; }
           </style>
         </head>
@@ -188,7 +200,7 @@ function TodayRoute() {
     return (
       <Center style={{ height: '400px' }}>
         <Stack align="center" gap="md">
-          <Loader size="lg" color="#1a535c" />
+          <Loader size="lg" color="#344e41" />
           <Text>Loading today's route...</Text>
         </Stack>
       </Center>
@@ -215,7 +227,7 @@ function TodayRoute() {
         {/* Header */}
         <Group justify="space-between" align="flex-start">
           <div>
-            <Title order={2} style={{ color: '#1a535c' }}>
+            <Title order={2} style={{ color: '#344e41' }}>
               Today's Optimized Route
             </Title>
             <Text size="sm" color="dimmed">
@@ -228,7 +240,7 @@ function TodayRoute() {
             <Tooltip label="Print Route">
               <ActionIcon 
                 variant="light" 
-                color="#1a535c"
+                color="#344e41"
                 onClick={handlePrintRoute}
                 size="lg"
               >
@@ -239,7 +251,7 @@ function TodayRoute() {
               <Tooltip label="Open in Maps">
                 <ActionIcon 
                   variant="light" 
-                  color="#4ecdc4"
+                  color="#588157"
                   onClick={() => handleOpenMaps(currentStop)}
                   size="lg"
                 >
@@ -251,7 +263,7 @@ function TodayRoute() {
         </Group>
 
         {pickups.length === 0 ? (
-          <Alert icon={<IconAlertCircle />} title="No Pickups" color="blue">
+          <Alert icon={<IconAlertCircle />} title="No Pickups" color="#588157">
             There are no pickups scheduled for today.
           </Alert>
         ) : (
@@ -260,8 +272,8 @@ function TodayRoute() {
             <Grid.Col span={{ base: 12, md: 5 }}>
               <Paper p="lg" radius="md" withBorder style={{ maxHeight: '600px', overflowY: 'auto' }}>
                 <Group justify="space-between" mb="lg">
-                  <Title order={4} style={{ color: '#1a535c' }}>Route Checklist</Title>
-                  <Badge size="lg" variant="light" color="#4ecdc4">
+                  <Title order={4} style={{ color: '#344e41' }}>Route Checklist</Title>
+                  <Badge size="lg" variant="light" color="#588157">
                     {completedCount} / {pickups.length}
                   </Badge>
                 </Group>
@@ -283,7 +295,7 @@ function TodayRoute() {
                             size={36}
                             radius="50%"
                             style={{
-                              backgroundColor: completedStops[stop._id] ? '#52c41a' : '#4ecdc4',
+                              backgroundColor: completedStops[stop._id] ? '#a3b18a' : '#588157',
                               color: 'white'
                             }}
                             fw={700}
@@ -294,7 +306,7 @@ function TodayRoute() {
                             <Text
                               fw={600}
                               style={{
-                                color: '#1a535c',
+                                color: '#344e41',
                                 textDecoration: completedStops[stop._id] ? 'line-through' : 'none',
                                 opacity: completedStops[stop._id] ? 0.6 : 1
                               }}
@@ -305,13 +317,13 @@ function TodayRoute() {
                           </div>
                         </div>
                         {currentStopIndex === idx && (
-                          <Badge size="sm" color="#4ecdc4">Current</Badge>
+                          <Badge size="sm" color="#588157">Current</Badge>
                         )}
                       </Group>
 
                       <Group gap="xs" mb="sm">
                         <Group gap={4}>
-                          <IconClock size={14} color="#1a535c" />
+                          <IconClock size={14} color="#344e41" />
                           <Text size="sm">{stop.timeSlot}</Text>
                         </Group>
                       </Group>
@@ -339,7 +351,7 @@ function TodayRoute() {
                         </Button>
                         <Button
                           size="xs"
-                          color={completedStops[stop._id] ? 'gray' : '#52c41a'}
+                          color={completedStops[stop._id] ? 'gray' : '#588157'}
                           loading={updatingId === stop._id}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -376,7 +388,7 @@ function TodayRoute() {
                       {routeGeometry.length > 0 && (
                         <Polyline
                           positions={routeGeometry}
-                          color="#4ecdc4"
+                          color="#588157"
                           weight={3}
                           opacity={0.7}
                           dashArray="5, 5"
@@ -389,7 +401,7 @@ function TodayRoute() {
                         const isCurrent = idx === currentStopIndex;
                         
                         // Create custom icon based on stop status
-                        const markerColor = isCompleted ? '#52c41a' : isCurrent ? '#4ecdc4' : '#1a535c';
+                        const markerColor = isCompleted ? '#588157' : isCurrent ? '#a3b18a' : '#344e41';
                         const customIcon = L.divIcon({
                           html: `
                             <div style="
@@ -445,24 +457,24 @@ function TodayRoute() {
 
                 {/* Route Summary */}
                 <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#f0f8f5' }}>
-                  <Title order={4} style={{ color: '#1a535c' }} mb="lg">Today's Summary</Title>
+                  <Title order={4} style={{ color: '#344e41' }} mb="lg">Today's Summary</Title>
                   <SimpleGrid cols={{ base: 2, sm: 3 }} gap="md">
                     <div>
                       <Text fw={500} size="sm" color="dimmed">Total Stops</Text>
-                      <Text size="lg" fw={700} style={{ color: '#1a535c' }}>{pickups.length}</Text>
+                      <Text size="lg" fw={700} style={{ color: '#344e41' }}>{pickups.length}</Text>
                     </div>
                     <div>
                       <Text fw={500} size="sm" color="dimmed">Completed</Text>
-                      <Text size="lg" fw={700} style={{ color: '#52c41a' }}>{completedCount}</Text>
+                      <Text size="lg" fw={700} style={{ color: '#588157' }}>{completedCount}</Text>
                     </div>
                     <div>
                       <Text fw={500} size="sm" color="dimmed">Remaining</Text>
-                      <Text size="lg" fw={700} style={{ color: '#1a535c' }}>{pickups.length - completedCount}</Text>
+                      <Text size="lg" fw={700} style={{ color: '#344e41' }}>{pickups.length - completedCount}</Text>
                     </div>
                   </SimpleGrid>
 
                   {completedCount === pickups.length && pickups.length > 0 && (
-                    <Alert icon={<IconCheck />} title="Great Job!" color="#52c41a" mt="lg">
+                    <Alert icon={<IconCheck />} title="Great Job!" color="#588157" mt="lg">
                       You've completed all pickups for today!
                     </Alert>
                   )}
@@ -470,22 +482,22 @@ function TodayRoute() {
 
                 {/* Current Stop Details */}
                 {currentStop && (
-                  <Paper p="lg" radius="md" withBorder style={{ borderLeft: '4px solid #4ecdc4' }}>
-                    <Title order={5} style={{ color: '#1a535c' }} mb="md">Current Stop</Title>
+                  <Paper p="lg" radius="md" withBorder style={{ borderLeft: '4px solid #588157' }}>
+                    <Title order={5} style={{ color: '#344e41' }} mb="md">Current Stop</Title>
                     <Stack gap="sm">
                       <Group justify="space-between">
-                        <Text fw={600} style={{ color: '#1a535c' }}>{currentStop.customerName}</Text>
-                        <Badge size="sm" color="#4ecdc4">Stop {currentStop.position}</Badge>
+                        <Text fw={600} style={{ color: '#344e41' }}>{currentStop.customerName}</Text>
+                        <Badge size="sm" color="#588157">Stop {currentStop.position}</Badge>
                       </Group>
                       <Text size="sm">{currentStop.address}, {currentStop.city}</Text>
                       <Group gap="xs">
-                        <IconClock size={16} color="#1a535c" />
+                        <IconClock size={16} color="#344e41" />
                         <Text size="sm">{currentStop.timeSlot}</Text>
                       </Group>
                       {currentStop.customerPhone && (
                         <Group gap="xs">
-                          <IconPhone size={16} color="#1a535c" />
-                          <Text size="sm" component="a" href={`tel:${currentStop.customerPhone}`} style={{ color: '#4ecdc4', textDecoration: 'none' }}>
+                          <IconPhone size={16} color="#344e41" />
+                          <Text size="sm" component="a" href={`tel:${currentStop.customerPhone}`} style={{ color: '#588157', textDecoration: 'none' }}>
                             {currentStop.customerPhone}
                           </Text>
                         </Group>
@@ -497,7 +509,7 @@ function TodayRoute() {
                       )}
                       <Button
                         size="sm"
-                        style={{ backgroundColor: '#4ecdc4' }}
+                        style={{ backgroundColor: '#588157' }}
                         onClick={() => handleOpenMaps(currentStop)}
                         fullWidth
                       >
@@ -528,7 +540,7 @@ function TodayRoute() {
 
             <div>
               <Text fw={500} size="sm" color="dimmed" mb={4}>Phone Number</Text>
-              <Text component="a" href={`tel:${selectedStop.customerPhone}`} style={{ color: '#4ecdc4', textDecoration: 'none' }}>
+              <Text component="a" href={`tel:${selectedStop.customerPhone}`} style={{ color: '#588157', textDecoration: 'none' }}>
                 {selectedStop.customerPhone}
               </Text>
             </div>
@@ -574,7 +586,7 @@ function TodayRoute() {
                 Close
               </Button>
               <Button
-                style={{ backgroundColor: '#4ecdc4' }}
+                style={{ backgroundColor: '#588157' }}
                 onClick={() => {
                   handleOpenMaps(selectedStop);
                   setDetailsModalOpen(false);

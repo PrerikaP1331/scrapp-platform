@@ -16,7 +16,7 @@ const KPICard = ({ icon: Icon, label, value, unit = '', trend = null }) => {
         <Text size="sm" fw={600} c="dimmed" tt="uppercase">
           {label}
         </Text>
-        <ThemeIcon variant="light" size="lg" radius="md">
+        <ThemeIcon variant="light" size="lg" radius="md" color="forest">
           <Icon size={20} />
         </ThemeIcon>
       </Group>
@@ -29,7 +29,7 @@ const KPICard = ({ icon: Icon, label, value, unit = '', trend = null }) => {
       </Group>
 
       {trend && (
-        <Text size="xs" c={trend > 0 ? 'green' : 'red'}>
+        <Text size="xs" c={trend > 0 ? 'forest' : 'red'}>
           {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}% from last period
         </Text>
       )}

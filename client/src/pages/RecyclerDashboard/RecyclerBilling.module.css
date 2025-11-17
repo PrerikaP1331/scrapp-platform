@@ -2,13 +2,13 @@
 
 /* Plan Card Styling */
 .planCard {
-  background: linear-gradient(135deg, #f8fafb 0%, #f0f8f5 100%);
-  border: 2px solid #4ecdc4;
+  background: linear-gradient(135deg, #f8fafb 0%, #ecebe5 100%);
+  border: 2px solid #588157;
   transition: all 0.3s ease;
 }
 
 .planCard:hover {
-  box-shadow: 0 8px 24px rgba(78, 205, 196, 0.15);
+  box-shadow: 0 8px 24px rgba(88, 129, 87, 0.15);
   transform: translateY(-2px);
 }
 
@@ -23,7 +23,7 @@
 }
 
 .invoiceTable tbody tr:hover {
-  background-color: #f0f8f5;
+  background-color: #ecebe5;
 }
 
 .invoiceTable tbody tr td {
@@ -32,12 +32,12 @@
 }
 
 .invoiceTable thead tr {
-  background-color: #f0f8f5;
-  border-bottom: 2px solid #4ecdc4;
+  background-color: #ecebe5;
+  border-bottom: 2px solid #588157;
 }
 
 .invoiceTable thead tr th {
-  color: #1a535c;
+  color: #344e41;
   font-weight: 600;
   padding: 12px;
   text-align: left;
@@ -92,7 +92,7 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background-color: #4ecdc4;
+  background: linear-gradient(135deg, #588157 0%, #3a5a40 100%);
   color: white;
   border: none;
   border-radius: 6px;
@@ -103,9 +103,8 @@
 }
 
 .actionButton:hover {
-  background-color: #3bb3aa;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.2);
+  box-shadow: 0 4px 12px rgba(88, 129, 87, 0.25);
 }
 
 .actionButton:active {
@@ -120,8 +119,8 @@
 }
 
 .modalAlert {
-  border-left: 4px solid #4ecdc4;
-  background-color: #f0f8f5;
+  border-left: 4px solid #588157;
+  background-color: #ecebe5;
   padding: 12px;
   border-radius: 4px;
 }
@@ -153,7 +152,7 @@
 }
 
 .cardDetailValue {
-  color: #1a535c;
+  color: #344e41;
   font-weight: 600;
   font-family: 'Courier New', monospace;
 }
@@ -174,7 +173,7 @@
 }
 
 .planFeatureIcon {
-  color: #52c41a;
+  color: #588157;
   flex-shrink: 0;
 }
 
@@ -184,7 +183,7 @@
 }
 
 .billingHistoryTitle {
-  color: #1a535c;
+  color: #344e41;
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -192,8 +191,8 @@
 
 /* Alert Styles */
 .taxAlert {
-  background-color: #e7f5ff;
-  border-left: 4px solid #4ecdc4;
+  background-color: #ecebe5;
+  border-left: 4px solid #588157;
   padding: 12px;
   border-radius: 4px;
   margin-top: 1rem;

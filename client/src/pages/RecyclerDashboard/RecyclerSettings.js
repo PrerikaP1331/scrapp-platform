@@ -73,12 +73,12 @@ function RecyclerSettings() {
       <Stack gap="lg">
         {/* Header */}
         <div>
-          <Title order={2} style={{ color: '#1a535c' }}>Account Settings</Title>
+          <Title order={2} style={{ color: '#344e41' }}>Account Settings</Title>
           <Text size="sm" color="dimmed">Manage your login credentials and account preferences</Text>
         </div>
 
         {saved && (
-          <Alert icon={<IconCheck />} title="Success" color="#52c41a" withCloseButton onClose={() => setSaved(false)}>
+          <Alert icon={<IconCheck />} title="Success" color="#588157" withCloseButton onClose={() => setSaved(false)}>
             Your changes have been saved successfully!
           </Alert>
         )}
@@ -95,7 +95,7 @@ function RecyclerSettings() {
             <Paper p="lg" radius="md" withBorder>
               <Stack gap="lg">
                 <div>
-                  <Title order={4} style={{ color: '#1a535c' }} mb="xs">Primary Contact Information</Title>
+                  <Title order={4} style={{ color: '#344e41' }} mb="xs">Primary Contact Information</Title>
                   <Text size="sm" color="dimmed" mb="lg">Manage your login and contact information</Text>
                 </div>
 
@@ -125,16 +125,16 @@ function RecyclerSettings() {
                 </div>
 
                 <div>
-                  <Text fw={500} size="sm" mb="xs" style={{ color: '#1a535c' }}>Business Associated:</Text>
-                  <Paper p="md" radius="md" style={{ backgroundColor: '#f0f8f5' }}>
-                    <Text fw={600} style={{ color: '#1a535c' }}>{businessName}</Text>
+                  <Text fw={500} size="sm" mb="xs" style={{ color: '#344e41' }}>Business Associated:</Text>
+                  <Paper p="md" radius="md" style={{ backgroundColor: '#ecebe5' }}>
+                    <Text fw={600} style={{ color: '#344e41' }}>{businessName}</Text>
                     <Text size="sm" color="dimmed" mt="xs">This is the main business account. Account transfer requires support assistance for security purposes.</Text>
                   </Paper>
                 </div>
 
                 <Group justify="flex-end">
                   <Button variant="default">Cancel</Button>
-                  <Button style={{ backgroundColor: '#4ecdc4' }} onClick={handleSaveContact}>Save Changes</Button>
+                  <Button style={{ background: 'linear-gradient(135deg, #588157 0%, #3a5a40 100%)', color: '#ffffff', border: 'none' }} onClick={handleSaveContact}>Save Changes</Button>
                 </Group>
               </Stack>
             </Paper>
@@ -146,7 +146,7 @@ function RecyclerSettings() {
               <Paper p="lg" radius="md" withBorder>
                 <Stack gap="lg">
                   <div>
-                    <Title order={4} style={{ color: '#1a535c' }} mb="xs">Change Password</Title>
+                    <Title order={4} style={{ color: '#344e41' }} mb="xs">Change Password</Title>
                     <Text size="sm" color="dimmed">Update your login password to keep your account secure</Text>
                   </div>
 
@@ -180,12 +180,12 @@ function RecyclerSettings() {
 
                   <Group justify="flex-end">
                     <Button variant="default" onClick={() => setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })}>Cancel</Button>
-                    <Button style={{ backgroundColor: '#4ecdc4' }} onClick={handleUpdatePassword}>Update Password</Button>
+                    <Button style={{ background: 'linear-gradient(135deg, #588157 0%, #3a5a40 100%)', color: '#ffffff', border: 'none' }} onClick={handleUpdatePassword}>Update Password</Button>
                   </Group>
                 </Stack>
               </Paper>
 
-              <Alert icon={<IconAlertCircle />} title="Password Security Tips" color="blue">
+              <Alert icon={<IconAlertCircle />} title="Password Security Tips" color="#588157">
                 <Stack gap="xs">
                   <Text size="sm">• Use a unique password that you don't use elsewhere</Text>
                   <Text size="sm">• Include uppercase letters, numbers, and special characters</Text>
@@ -222,14 +222,14 @@ function RecyclerSettings() {
               </Stack>
             </Paper>
 
-            <Alert icon={<IconAlertCircle />} title="What Happens After Deactivation?" color="yellow" mt="lg">
-              <Stack gap="xs">
-                <Text size="sm">• Your profile will be hidden from the marketplace</Text>
-                <Text size="sm">• You won't receive new pickup requests</Text>
-                <Text size="sm">• Your historical data and transactions are preserved</Text>
-                <Text size="sm">• You can reactivate your account by contacting support</Text>
-              </Stack>
-            </Alert>
+          <Alert icon={<IconAlertCircle />} title="What Happens After Deactivation?" color="yellow" mt="lg">
+            <Stack gap="xs">
+              <Text size="sm">• Your profile will be hidden from the marketplace</Text>
+              <Text size="sm">• You won't receive new pickup requests</Text>
+              <Text size="sm">• Your historical data and transactions are preserved</Text>
+              <Text size="sm">• You can reactivate your account by contacting support</Text>
+            </Stack>
+          </Alert>
           </Tabs.Panel>
         </Tabs>
       </Stack>
@@ -242,7 +242,7 @@ function RecyclerSettings() {
           </Alert>
 
           <div>
-            <Text fw={600} mb="xs" style={{ color: '#1a535c' }}>To confirm, please type your business name:</Text>
+            <Text fw={600} mb="xs" style={{ color: '#344e41' }}>To confirm, please type your business name:</Text>
             <Text fw={700} size="lg" mb="lg" style={{ color: '#c92a2a' }}>{businessName}</Text>
             <TextInput placeholder={`Type "${businessName}" to confirm`} value={deactivationConfirmation} onChange={(e) => setDeactivationConfirmation(e.currentTarget.value)} />
           </div>

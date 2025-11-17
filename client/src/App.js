@@ -69,7 +69,24 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <MantineProvider>
+    <MantineProvider theme={{
+      colors: {
+        forest: [
+          '#f4f3ef',
+          '#ecebe5',
+          '#dad7cd',
+          '#c7ccb4',
+          '#b4c09c',
+          '#a3b18a',
+          '#7d9c70',
+          '#588157',
+          '#3a5a40',
+          '#344e41'
+        ]
+      },
+      primaryColor: 'forest',
+      defaultRadius: 'md'
+    }}>
       <AuthProvider>
         <Router>
           <Notifications />

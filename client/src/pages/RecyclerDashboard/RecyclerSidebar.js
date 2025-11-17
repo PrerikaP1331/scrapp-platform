@@ -42,10 +42,10 @@ function RecyclerSidebar() {
             icon={<item.icon size={20} stroke={1.5} />}
             onClick={() => navigate(item.path)}
             active={isActive(item.path)}
-            color="teal"
+            color="#588157"
             style={{
-              color: isActive(item.path) ? '#588157' : '#666',
-              backgroundColor: isActive(item.path) ? '#e8f5e9' : 'transparent',
+              color: isActive(item.path) ? '#344e41' : '#3a5a40',
+              backgroundColor: isActive(item.path) ? '#dad7cd' : 'transparent',
               borderRadius: '8px',
               marginBottom: '4px',
               paddingLeft: '12px',
@@ -64,10 +64,10 @@ function RecyclerSidebar() {
             icon={<item.icon size={20} stroke={1.5} />}
             onClick={() => navigate(item.path)}
             active={isActive(item.path)}
-            color="teal"
+            color="#588157"
             style={{
-              color: isActive(item.path) ? '#588157' : '#666',
-              backgroundColor: isActive(item.path) ? '#e8f5e9' : 'transparent',
+              color: isActive(item.path) ? '#344e41' : '#3a5a40',
+              backgroundColor: isActive(item.path) ? '#dad7cd' : 'transparent',
               borderRadius: '8px',
               marginBottom: '4px',
               paddingLeft: '12px',

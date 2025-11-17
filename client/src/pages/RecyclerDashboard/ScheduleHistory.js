@@ -120,7 +120,7 @@ function ScheduleHistory() {
   // Get pickups for selected date
   const getPickupsForDate = (date) => {
     return pickups.filter(p => {
-      const pickupDate = new Date(p.scheduledDate);
+      const pickupDate = new Date(p.date);
       return pickupDate.toDateString() === date.toDateString();
     });
   };
@@ -129,10 +129,10 @@ function ScheduleHistory() {
   const getStatusColor = (status) => {
     const colors = {
       pending: 'yellow',
-      scheduled: 'blue',
-      upcoming: 'cyan',
-      'in-transit': 'grape',
-      completed: 'green',
+      scheduled: '#588157',
+      upcoming: '#a3b18a',
+      'in-transit': '#3a5a40',
+      completed: '#588157',
       cancelled: 'red'
     };
     return colors[status] || 'gray';
@@ -151,7 +151,7 @@ function ScheduleHistory() {
           {/* Header */}
           <Group justify="space-between" align="flex-start">
             <div>
-              <Title order={2} style={{ color: '#1a535c' }}>
+              <Title order={2} style={{ color: '#344e41' }}>
                 Schedule & History
               </Title>
               <Text size="sm" color="dimmed">
@@ -161,7 +161,7 @@ function ScheduleHistory() {
             <Group gap="xs">
               <Button
                 variant={viewMode === 'calendar' ? 'filled' : 'light'}
-                color="#4ecdc4"
+                color="#588157"
                 onClick={() => setViewMode('calendar')}
                 leftSection={<IconCalendar size={16} />}
               >
@@ -169,7 +169,7 @@ function ScheduleHistory() {
               </Button>
               <Button
                 variant={viewMode === 'list' ? 'filled' : 'light'}
-                color="#4ecdc4"
+                color="#588157"
                 onClick={() => setViewMode('list')}
                 leftSection={<IconList size={16} />}
               >
@@ -193,9 +193,9 @@ function ScheduleHistory() {
                     const completed = pickupsOnDay.filter(p => p.status === 'completed').length;
                     const total = pickupsOnDay.length;
 
-                    if (completed === total) return { backgroundColor: '#52c41a', color: 'white' };
-                    if (completed > 0) return { backgroundColor: '#faad14', color: 'white' };
-                    return { backgroundColor: '#4ecdc4', color: 'white' };
+                    if (completed === total) return { backgroundColor: '#588157', color: 'white' };
+                    if (completed > 0) return { backgroundColor: '#a3b18a', color: 'white' };
+                    return { backgroundColor: '#588157', color: 'white' };
                   }}
                 />
               </Paper>
@@ -205,10 +205,10 @@ function ScheduleHistory() {
             <Grid.Col span={{ base: 12, md: 6 }}>
               <Stack gap="lg">
                 {/* Day Summary */}
-                <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#f0f8f5' }}>
+                  <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#dad7cd' }}>
                   <Group justify="space-between" mb="md">
                     <div>
-                      <Title order={4} style={{ color: '#1a535c' }}>
+                      <Title order={4} style={{ color: '#344e41' }}>
                         {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                       </Title>
                     </div>
@@ -220,17 +220,17 @@ function ScheduleHistory() {
                     <SimpleGrid cols={3} gap="md">
                       <div>
                         <Text fw={500} size="sm" color="dimmed">Total Pickups</Text>
-                        <Text size="xl" fw={700} style={{ color: '#1a535c' }}>{selectedDatePickups.length}</Text>
+                        <Text size="xl" fw={700} style={{ color: '#344e41' }}>{selectedDatePickups.length}</Text>
                       </div>
                       <div>
                         <Text fw={500} size="sm" color="dimmed">Completed</Text>
-                        <Text size="xl" fw={700} style={{ color: '#52c41a' }}>
+                        <Text size="xl" fw={700} style={{ color: '#588157' }}>
                           {selectedDatePickups.filter(p => p.status === 'completed').length}
                         </Text>
                       </div>
                       <div>
                         <Text fw={500} size="sm" color="dimmed">Pending</Text>
-                        <Text size="xl" fw={700} style={{ color: '#faad14' }}>
+                        <Text size="xl" fw={700} style={{ color: '#a3b18a' }}>
                           {selectedDatePickups.filter(p => p.status === 'pending').length}
                         </Text>
                       </div>
@@ -240,13 +240,13 @@ function ScheduleHistory() {
 
                 {/* Pickups for Selected Day */}
                 <Paper p="lg" radius="md" withBorder style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                  <Title order={5} style={{ color: '#1a535c' }} mb="md">Pickups for Selected Day</Title>
+                  <Title order={5} style={{ color: '#344e41' }} mb="md">Pickups for Selected Day</Title>
                   <Stack gap="sm">
                     {selectedDatePickups.map(pickup => (
                       <Card key={pickup._id} withBorder p="md" radius="md">
                         <Group justify="space-between" mb="xs">
                           <div>
-                            <Text fw={600} style={{ color: '#1a535c' }}>{pickup.customerName}</Text>
+                            <Text fw={600} style={{ color: '#344e41' }}>{pickup.customerName}</Text>
                             <Text size="sm" color="dimmed">{pickup.city}</Text>
                           </div>
                           <Badge color={getStatusColor(pickup.status)}>
@@ -255,7 +255,7 @@ function ScheduleHistory() {
                         </Group>
                         <Group gap="xs" mb="md">
                           <Group gap={4}>
-                            <IconClock size={14} color="#1a535c" />
+                            <IconClock size={14} color="#344e41" />
                             <Text size="sm">{pickup.timeSlot}</Text>
                           </Group>
                         </Group>
@@ -286,7 +286,7 @@ function ScheduleHistory() {
         {/* Header */}
         <Group justify="space-between" align="flex-start">
           <div>
-            <Title order={2} style={{ color: '#1a535c' }}>
+            <Title order={2} style={{ color: '#344e41' }}>
               Schedule & History
             </Title>
             <Text size="sm" color="dimmed">
@@ -296,7 +296,7 @@ function ScheduleHistory() {
           <Group gap="xs">
             <Button
               variant={viewMode === 'calendar' ? 'filled' : 'light'}
-              color="#4ecdc4"
+              color="#588157"
               onClick={() => setViewMode('calendar')}
               leftSection={<IconCalendar size={16} />}
             >
@@ -304,7 +304,7 @@ function ScheduleHistory() {
             </Button>
             <Button
               variant={viewMode === 'list' ? 'filled' : 'light'}
-              color="#4ecdc4"
+              color="#588157"
               onClick={() => setViewMode('list')}
               leftSection={<IconList size={16} />}
             >
@@ -314,7 +314,7 @@ function ScheduleHistory() {
         </Group>
 
         {/* Filter Bar */}
-        <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#f0f8f5' }}>
+        <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#dad7cd' }}>
           <Stack gap="md">
             <Group grow>
               {/* Status Filter */}
@@ -392,12 +392,12 @@ function ScheduleHistory() {
         {loading ? (
           <Center style={{ height: '400px' }}>
             <Stack align="center" gap="md">
-              <Loader size="lg" color="#1a535c" />
+              <Loader size="lg" color="#344e41" />
               <Text>Loading pickups...</Text>
             </Stack>
           </Center>
         ) : pickups.length === 0 ? (
-          <Alert icon={<IconAlertCircle />} title="No Results" color="blue">
+          <Alert icon={<IconAlertCircle />} title="No Results" color="#588157">
             No pickups found that match your criteria.
           </Alert>
         ) : (
@@ -405,13 +405,13 @@ function ScheduleHistory() {
           <Paper radius="md" withBorder style={{ overflowX: 'auto' }}>
             <Table striped highlightOnHover>
               <Table.Thead>
-                <Table.Tr style={{ backgroundColor: '#f0f8f5' }}>
-                  <Table.Th style={{ color: '#1a535c', fontWeight: 600 }}>Date & Time</Table.Th>
-                  <Table.Th style={{ color: '#1a535c', fontWeight: 600 }}>Customer</Table.Th>
-                  <Table.Th style={{ color: '#1a535c', fontWeight: 600 }}>Location</Table.Th>
-                  <Table.Th style={{ color: '#1a535c', fontWeight: 600 }}>Waste Types</Table.Th>
-                  <Table.Th style={{ color: '#1a535c', fontWeight: 600 }}>Status</Table.Th>
-                  <Table.Th style={{ color: '#1a535c', fontWeight: 600 }}>Actions</Table.Th>
+                <Table.Tr style={{ backgroundColor: '#dad7cd' }}>
+                  <Table.Th style={{ color: '#344e41', fontWeight: 600 }}>Date & Time</Table.Th>
+                  <Table.Th style={{ color: '#344e41', fontWeight: 600 }}>Customer</Table.Th>
+                  <Table.Th style={{ color: '#344e41', fontWeight: 600 }}>Location</Table.Th>
+                  <Table.Th style={{ color: '#344e41', fontWeight: 600 }}>Waste Types</Table.Th>
+                  <Table.Th style={{ color: '#344e41', fontWeight: 600 }}>Status</Table.Th>
+                  <Table.Th style={{ color: '#344e41', fontWeight: 600 }}>Actions</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -419,7 +419,7 @@ function ScheduleHistory() {
                   <Table.Tr key={pickup._id}>
                     <Table.Td>
                       <div>
-                        <Text fw={500} size="sm">{new Date(pickup.scheduledDate).toLocaleDateString()}</Text>
+                        <Text fw={500} size="sm">{new Date(pickup.date).toLocaleDateString()}</Text>
                         <Text size="xs" color="dimmed">{pickup.timeSlot}</Text>
                       </div>
                     </Table.Td>
@@ -473,7 +473,7 @@ function ScheduleHistory() {
                       ) : (
                         <Menu shadow="md" width={200}>
                           <Menu.Target>
-                            <ActionIcon size="sm" variant="light" color="#1a535c">
+                            <ActionIcon size="sm" variant="light" color="#344e41">
                               <IconChevronDown size={14} />
                             </ActionIcon>
                           </Menu.Target>
@@ -526,7 +526,7 @@ function ScheduleHistory() {
           <Stack gap="md">
             {/* Customer Info */}
             <div style={{ borderBottom: '1px solid #e0e0e0', paddingBottom: '16px' }}>
-              <Title order={5} style={{ color: '#1a535c' }} mb="md">Customer Information</Title>
+              <Title order={5} style={{ color: '#344e41' }} mb="md">Customer Information</Title>
               <SimpleGrid cols={2} gap="md">
                 <div>
                   <Text fw={500} size="sm" color="dimmed" mb={4}>Name</Text>
@@ -534,7 +534,7 @@ function ScheduleHistory() {
                 </div>
                 <div>
                   <Text fw={500} size="sm" color="dimmed" mb={4}>Phone</Text>
-                  <Text component="a" href={`tel:${selectedPickup.customerPhone}`} style={{ color: '#4ecdc4', textDecoration: 'none' }}>
+                  <Text component="a" href={`tel:${selectedPickup.customerPhone}`} style={{ color: '#588157', textDecoration: 'none' }}>
                     {selectedPickup.customerPhone}
                   </Text>
                 </div>
@@ -543,9 +543,9 @@ function ScheduleHistory() {
 
             {/* Address Info */}
             <div style={{ borderBottom: '1px solid #e0e0e0', paddingBottom: '16px' }}>
-              <Title order={5} style={{ color: '#1a535c' }} mb="md">Pickup Location</Title>
+              <Title order={5} style={{ color: '#344e41' }} mb="md">Pickup Location</Title>
               <Group gap="xs" mb="md">
-                <IconMapPin size={16} color="#1a535c" />
+                <IconMapPin size={16} color="#344e41" />
                 <div>
                   <Text fw={500}>{selectedPickup.address}</Text>
                   <Text size="sm" color="dimmed">
@@ -557,7 +557,7 @@ function ScheduleHistory() {
 
             {/* Pickup Details */}
             <div style={{ borderBottom: '1px solid #e0e0e0', paddingBottom: '16px' }}>
-              <Title order={5} style={{ color: '#1a535c' }} mb="md">Pickup Details</Title>
+              <Title order={5} style={{ color: '#344e41' }} mb="md">Pickup Details</Title>
               <SimpleGrid cols={2} gap="md">
                 <div>
                   <Text fw={500} size="sm" color="dimmed" mb={4}>Date</Text>
@@ -585,7 +585,7 @@ function ScheduleHistory() {
               <Text fw={500} size="sm" color="dimmed" mb="md">Waste Types</Text>
               <Group gap="xs">
                 {selectedPickup.wasteTypes.map(type => (
-                  <Badge key={type} variant="light" color="#4ecdc4">
+                  <Badge key={type} variant="light" color="#588157">
                     {type}
                   </Badge>
                 ))}

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Grid, PasswordInput, Title } from '@mantine/core';
 
-function AccountSecurity({ form }) {
+function AccountSecurity({ form, inputClassNames, sectionTitleClass }) {
   return (
     <>
       <Grid.Col span={12}>
-        <Title order={4} mt="md" style={{ color: '#3a5a40' }}>Account Security</Title>
+        <Title order={4} mt="md" className={sectionTitleClass}>Account Security</Title>
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 6 }}>
         <PasswordInput
@@ -13,6 +13,7 @@ function AccountSecurity({ form }) {
           placeholder="Your password"
           {...form.getInputProps('password')}
           required
+          classNames={inputClassNames}
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 6 }}>
@@ -21,6 +22,7 @@ function AccountSecurity({ form }) {
           placeholder="Confirm your password"
           {...form.getInputProps('confirmPassword')}
           required
+          classNames={inputClassNames}
         />
       </Grid.Col>
     </>

@@ -39,7 +39,7 @@ const WasteStreamAnalysis = ({ data, isLoading }) => {
 
   return (
     <Paper p="lg" radius="md" withBorder>
-      <Text fw={600} size="lg" mb="md">
+      <Text fw={600} size="lg" mb="md" style={{ color: '#344e41' }}>
         Revenue by Waste Material
       </Text>
 
@@ -55,12 +55,12 @@ const WasteStreamAnalysis = ({ data, isLoading }) => {
             <YAxis dataKey="material" type="category" width={190} />
             <Tooltip
               formatter={(value) => `₹${value.toLocaleString('en-IN')}`}
-              contentStyle={{ backgroundColor: '#f8f9fa', border: '1px solid #dee2e6' }}
+              contentStyle={{ backgroundColor: '#ecebe5', border: '1px solid #a3b18a' }}
             />
             <Legend />
             <Bar
               dataKey="revenue"
-              fill="#4c6ef5"
+              fill="#588157"
               name="Revenue (₹)"
               radius={[0, 8, 8, 0]}
             />
@@ -72,28 +72,28 @@ const WasteStreamAnalysis = ({ data, isLoading }) => {
         <Text fw={600} size="sm" mb="sm">
           Top Materials by Count
         </Text>
-        <Box
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: '10px'
-          }}
-        >
-          {data.slice(0, 5).map((item, index) => (
             <Box
-              key={index}
-              p="xs"
               style={{
-                backgroundColor: '#f8f9fa',
-                borderRadius: '8px',
-                border: '1px solid #dee2e6'
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                gap: '10px'
               }}
             >
-              <Text size="sm" fw={600}>{item.name}</Text>
-              <Text size="xs" c="dimmed" fw={500}>₹{item.revenue.toLocaleString('en-IN')}</Text>
+              {data.slice(0, 5).map((item, index) => (
+                <Box
+                  key={index}
+                  p="xs"
+                  style={{
+                    backgroundColor: '#ecebe5',
+                    borderRadius: '8px',
+                    border: '1px solid #a3b18a'
+                  }}
+                >
+                  <Text size="sm" fw={600}>{item.name}</Text>
+                  <Text size="xs" c="dimmed" fw={500}>₹{item.revenue.toLocaleString('en-IN')}</Text>
+                </Box>
+              ))}
             </Box>
-          ))}
-        </Box>
       </Box>
     </Paper>
   );

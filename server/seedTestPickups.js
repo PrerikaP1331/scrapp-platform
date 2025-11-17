@@ -8,7 +8,7 @@ const User = require('./models/User');
 const RecyclerProfile = require('./models/RecyclerProfile');
 const Pickup = require('./models/Pickup');
 
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/scrapp', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -21,10 +21,8 @@ const seedTestPickups = async () => {
     try {
         console.log('\n=== Starting Test Pickups Seeding ===\n');
 
-        // Get all recycler users and profiles
-        const recyclerUsers = await User.find({ role: 'recycler' }).limit(5);
-        const recyclerProfiles = await RecyclerProfile.find().limit(5);
-        const individualUsers = await User.find({ role: 'individual' }).limit(15);
+        const recyclerUsers = await User.find({ role: 'recycler' }).limit(50);
+        const individualUsers = await User.find({ role: 'individual' }).limit(50);
 
         if (recyclerUsers.length === 0) {
             console.log('❌ No recycler users found. Run main seedDatabase.js first.');
@@ -36,9 +34,19 @@ const seedTestPickups = async () => {
             process.exit(1);
         }
 
-        // Get first recycler for all test pickups
-        const testRecycler = recyclerUsers[0];
-        const testRecyclerProfile = recyclerProfiles[0];
+        const email = process.env.RECYCLER_EMAIL;
+        const testRecycler = email
+          ? await User.findOne({ email, role: 'recycler' })
+          : recyclerUsers[0];
+        if (!testRecycler) {
+            console.log('❌ Specified recycler not found');
+            process.exit(1);
+        }
+        const testRecyclerProfile = await RecyclerProfile.findOne({ user: testRecycler._id });
+        if (!testRecyclerProfile) {
+            console.log('❌ Recycler profile not found for the specified recycler');
+            process.exit(1);
+        }
 
         console.log(`Using Recycler: ${testRecycler.name} (${testRecycler.email})`);
         console.log(`Using RecyclerProfile: ${testRecyclerProfile.businessName}\n`);
@@ -103,22 +111,24 @@ const seedTestPickups = async () => {
         // Create 8 test pickups for today, scheduled across 3 time slots
         const createdPickups = [];
 
-        for (let i = 0; i < 8; i++) {
-            const coords = bangaloreCoordinates[i];
+        for (let i = 0; i < 12; i++) {
+            const coords = bangaloreCoordinates[i % bangaloreCoordinates.length];
             const timeSlot = timeSlots[i % 3];
             const userIndex = i % individualUsers.length;
+            const statusOptions = ['completed', 'scheduled', 'upcoming', 'in-transit'];
+            const status = statusOptions[i % statusOptions.length];
 
             const pickup = await Pickup.create({
                 user: individualUsers[userIndex]._id,
                 recycler: testRecycler._id,
                 recyclerProfile: testRecyclerProfile._id,
-                status: i < 3 ? 'scheduled' : i < 6 ? 'upcoming' : 'in-transit',
-                wasteTypes: wasteTypes[i],
+                status: status,
+                wasteTypes: wasteTypes[i % wasteTypes.length],
                 quantity: quantities[i % quantities.length],
-                notes: notes[i],
+                notes: notes[i % notes.length],
                 address: {
-                    addressLine1: addresses[i].line1,
-                    addressLine2: addresses[i].line2,
+                    addressLine1: addresses[i % addresses.length].line1,
+                    addressLine2: addresses[i % addresses.length].line2,
                     city: coords.city,
                     postalCode: `560${String(100 + i).padStart(3, '0')}`,
                     state: 'Karnataka',
@@ -137,7 +147,7 @@ const seedTestPickups = async () => {
             createdPickups.push(pickup);
             console.log(`✓ Created Pickup ${i + 1}: ${coords.name} - ${timeSlot}`);
             console.log(`  Customer: ${individualUsers[userIndex].name}`);
-            console.log(`  Waste Types: ${wasteTypes[i].join(', ')}`);
+            console.log(`  Waste Types: ${wasteTypes[i % wasteTypes.length].join(', ')}`);
             console.log(`  Coordinates: [${coords.lat}, ${coords.lng}]\n`);
         }
 

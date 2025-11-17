@@ -1,18 +1,18 @@
 /* Schedule & History Page Styles */
 
 .statCard {
-  background: linear-gradient(135deg, #f0f8f5 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #ecebe5 0%, #ffffff 100%);
   transition: all 0.3s ease;
 }
 
 .statCard:hover {
-  box-shadow: 0 8px 16px rgba(26, 83, 92, 0.1);
+  box-shadow: 0 8px 16px rgba(88, 129, 87, 0.15);
   transform: translateY(-2px);
 }
 
 .controlBar {
   background: #fafafa;
-  border: 1px solid #e9ecef;
+  border: 1px solid #a3b18a;
   transition: all 0.3s ease;
 }
 
@@ -25,7 +25,7 @@
 }
 
 .table tbody tr:hover {
-  background-color: #f5f8f7;
+  background-color: #ecebe5;
 }
 
 .tableRow {
@@ -34,12 +34,12 @@
 }
 
 .tableRow:hover {
-  border-left-color: #4ecdc4;
+  border-left-color: #588157;
 }
 
 .calendarCard {
   height: 100%;
-  background: linear-gradient(135deg, #f0f8f5 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #ecebe5 0%, #ffffff 100%);
 }
 
 .dayCell {
@@ -57,15 +57,15 @@
 }
 
 .dayCell:hover {
-  background-color: rgba(78, 205, 196, 0.15) !important;
-  border: 1px solid #4ecdc4;
+  background-color: rgba(88, 129, 87, 0.12) !important;
+  border: 1px solid #588157;
 }
 
 .daySelected {
-  background-color: #1a535c !important;
+  background-color: #344e41 !important;
   color: #ffffff;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(26, 83, 92, 0.3);
+  box-shadow: 0 2px 8px rgba(52, 78, 65, 0.3);
 }
 
 .dayWithPickups {
@@ -82,8 +82,8 @@
   justify-content: center;
   width: 18px;
   height: 18px;
-  background-color: #52c41a;
-  color: white;
+  background-color: #a3b18a;
+  color: #344e41;
   border-radius: 50%;
   font-size: 10px;
   font-weight: 700;
@@ -98,13 +98,13 @@
 
 .pickupCard {
   transition: all 0.3s ease;
-  border-left: 4px solid #4ecdc4;
+  border-left: 4px solid #588157;
 }
 
 .pickupCard:hover {
-  box-shadow: 0 6px 12px rgba(26, 83, 92, 0.12);
+  box-shadow: 0 6px 12px rgba(52, 78, 65, 0.12);
   transform: translateX(4px);
-  border-left-color: #1a535c;
+  border-left-color: #344e41;
 }
 
 .pickupCard.pending {
@@ -117,7 +117,7 @@
 }
 
 .pickupCard.inTransit {
-  border-left-color: #4ecdc4;
+  border-left-color: #588157;
 }
 
 /* Responsive Adjustments */

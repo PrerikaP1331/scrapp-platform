@@ -98,7 +98,11 @@ const SendAnnouncement = ({ customerCount, onSend, isLoading }) => {
               onClick={handleSendClick}
               disabled={!isValid || customerCount === 0 || isLoading || isSending}
               loading={isSending}
-              color="blue"
+              style={{
+                background: 'linear-gradient(135deg, #588157 0%, #3a5a40 100%)',
+                color: '#ffffff',
+                border: 'none'
+              }}
             >
               Send Announcement {customerCount > 0 && `to ${customerCount} Customer${customerCount !== 1 ? 's' : ''}`}
             </Button>
@@ -131,7 +135,11 @@ const SendAnnouncement = ({ customerCount, onSend, isLoading }) => {
             <Button
               onClick={handleConfirmSend}
               loading={isSending}
-              color="green"
+              style={{
+                background: 'linear-gradient(135deg, #588157 0%, #3a5a40 100%)',
+                color: '#ffffff',
+                border: 'none'
+              }}
             >
               Confirm & Send
             </Button>

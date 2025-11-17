@@ -95,13 +95,7 @@ const MyCustomerList = ({ customers, isLoading, onViewHistory }) => {
                       <Badge
                         size="sm"
                         variant="light"
-                        color={
-                          customer.customerType === 'individual'
-                            ? 'blue'
-                            : customer.customerType === 'community'
-                            ? 'green'
-                            : 'purple'
-                        }
+                        styles={{root:{backgroundColor:'#dad7cd', color:'#344e41'}}}
                       >
                         {customer.customerType === 'individual'
                           ? 'Individual'
@@ -121,7 +115,7 @@ const MyCustomerList = ({ customers, isLoading, onViewHistory }) => {
                     <Table.Td>
                       <Menu position="bottom-end" shadow="md">
                         <Menu.Target>
-                          <ActionIcon variant="subtle" color="gray" size="sm">
+                          <ActionIcon variant="subtle" color="forest" size="sm">
                             <IconDots size={16} />
                           </ActionIcon>
                         </Menu.Target>

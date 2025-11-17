@@ -22,7 +22,7 @@
 
 .pickupCard {
   background: white;
-  border-left: 4px solid #4ecdc4;
+  border-left: 4px solid #588157;
 }
 
 .widget {
@@ -41,5 +41,5 @@
 
 .ctaButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+  box-shadow: 0 4px 12px rgba(88, 129, 87, 0.3);
 }

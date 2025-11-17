@@ -1,17 +1,15 @@
 // /client/src/pages/CommunitySignUpPage/CommunitySignUpPage.js (Corrected)
 
 import React, { useContext } from 'react';
-import { Button, Title, Checkbox, Grid, Box } from '@mantine/core';
+import { Button, Title, Checkbox, Grid, Box, Paper, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { AuthContext } from '../../context/AuthContext';
-import { IconBuildingCommunity } from '@tabler/icons-react';
+import { IconBuildingCommunity, IconCheck, IconSparkles, IconRecycle } from '@tabler/icons-react';
 import apiClient from '../../api/axios';
+import styles from './CommunitySignUpPage.module.css';
 
-// Import Layouts and Components
-import RegistrationLayout from '../../layouts/RegistrationLayout/RegistrationLayout';
-import RoleBenefitCard from '../../components/RoleBenefitCard/RoleBenefitCard';
 import PersonalInformation from '../../components/formSections/PersonalInformation';
 import AccountSecurity from '../../components/formSections/AccountSecurity';
 import CommunityDetails from '../../components/formSections/CommunityDetails';
@@ -88,36 +86,90 @@ function CommunitySignUpPage() {
     }
   };
 
-  const benefitCard = (
-    <RoleBenefitCard
-      icon={<IconBuildingCommunity size={48} color="#a3b18a" />}
-      title="Community Account"
-      description="Empower your residents and build a greener neighborhood together."
-      features={[
-        "Organize large-scale recycling drives",
-        "Track your community's collective impact",
-        "Manage resident participation easily",
-        "Access detailed sustainability reports"
-      ]}
-    />
-  );
+  const benefits = [
+    "Organize large-scale recycling drives",
+    "Track your community's collective impact",
+    "Manage resident participation easily",
+    "Access detailed sustainability reports"
+  ];
 
-  const registrationForm = (
-    <Box p={30}>
-      <Title order={3} style={{ color: '#3a5a40' }}>Register Your Community</Title>
-      <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Grid mt="xl" gutter="md">
-          <PersonalInformation form={form} />
-          <CommunityDetails form={form} />
-          <AccountSecurity form={form} />
-          <Grid.Col span={12}><Checkbox mt="md" label="I agree to the Scrapp Terms of Service and Privacy Policy." {...form.getInputProps('terms', { type: 'checkbox' })} /></Grid.Col>
-          <Grid.Col span={12}><Button fullWidth mt="xl" type="submit" style={{ backgroundColor: '#588157' }}>Register Our Community</Button></Grid.Col>
+  const inputClassNames = { input: styles.input, label: styles.label };
+  const sectionTitleClass = styles.sectionTitle;
+
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.container}>
+        <div style={{ textAlign: 'center', marginBottom: 12 }}>
+          <Link to="/landing" style={{ textDecoration: 'none', display: 'inline-block' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#344e41', textShadow: '0 2px 8px rgba(88,129,87,0.15)' }}>
+              <span>SCR</span>
+              <IconRecycle size={32} style={{ color: '#588157', margin: '0 -2px', strokeWidth: 2.5 }} />
+              <span>PP</span>
+            </div>
+          </Link>
+        </div>
+
+        <Grid gutter="xl" align="stretch">
+          <Grid.Col span={{ base: 12, md: 5 }}>
+            <Paper className={styles.benefitCard} p="xl" radius="lg">
+              <div className={styles.benefitIconWrapper}>
+                <IconBuildingCommunity size={48} />
+              </div>
+              <Title order={2} className={styles.benefitTitle} mt="lg">Community Account</Title>
+              <Text className={styles.benefitDescription} mt="md" size="lg">
+                Empower your residents and build a greener neighborhood together.
+              </Text>
+              <div className={styles.benefitsList} style={{ marginTop: '32px' }}>
+                {benefits.map((benefit, idx) => (
+                  <div key={idx} className={styles.benefitItem}>
+                    <div className={styles.checkIconWrapper}>
+                      <IconCheck size={20} stroke={2.5} />
+                    </div>
+                    <Text className={styles.benefitText}>{benefit}</Text>
+                  </div>
+                ))}
+              </div>
+              <div className={styles.badgeWrapper}>
+                <div className={styles.badge}>
+                  <IconSparkles size={16} />
+                  <span>Join 50+ communities</span>
+                </div>
+              </div>
+            </Paper>
+          </Grid.Col>
+
+          <Grid.Col span={{ base: 12, md: 7 }}>
+            <Paper className={styles.formCard} p="xl" radius="lg">
+              <Title order={2} className={styles.formTitle}>Register Your Community</Title>
+              <Text className={styles.formSubtitle} mt="xs">Enable sustainable living for your residents</Text>
+              <form onSubmit={form.onSubmit(handleSubmit)}>
+                <div className={styles.formSection}>
+                  <PersonalInformation form={form} inputClassNames={inputClassNames} />
+                </div>
+                <div className={styles.formSection}>
+                  <CommunityDetails form={form} inputClassNames={inputClassNames} sectionTitleClass={sectionTitleClass} />
+                </div>
+                <div className={styles.formSection}>
+                  <AccountSecurity form={form} inputClassNames={inputClassNames} sectionTitleClass={sectionTitleClass} />
+                </div>
+
+                <Checkbox
+                  mt="xl"
+                  label={<Text size="sm" className={styles.checkboxLabel}>I agree to the Scrapp Terms of Service and Privacy Policy.</Text>}
+                  classNames={{ input: styles.checkbox }}
+                  {...form.getInputProps('terms', { type: 'checkbox' })}
+                />
+
+                <Button fullWidth size="lg" mt="xl" type="submit" className={styles.submitButton}>
+                  Register Our Community
+                </Button>
+              </form>
+            </Paper>
+          </Grid.Col>
         </Grid>
-      </form>
-    </Box>
+      </div>
+    </div>
   );
-
-  return <RegistrationLayout benefitCard={benefitCard} form={registrationForm} />;
 }
 
 export default CommunitySignUpPage;
