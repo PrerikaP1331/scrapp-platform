@@ -25,7 +25,16 @@ const CouponSummary = ({ totalValue, activeCoupons }) => (
           <IconGift size={32} />
         </ThemeIcon>
       </Group>
-      <Button fullWidth size="lg" color="green" leftSection={<IconShoppingCart size={18} />}>
+      <Button
+        fullWidth
+        size="lg"
+        color="green"
+        leftSection={<IconShoppingCart size={18} />}
+        component="a"
+        href="https://recraft-frontend-deploy.vercel.app/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         Shop on Recraft & Redeem
       </Button>
     </Stack>
@@ -169,7 +178,7 @@ const Coupons = () => {
       <CouponSummary totalValue={totalValue} activeCoupons={availableCoupons.length} />
 
       {/* Filter Tabs */}
-      <Tabs value={status} onTabChange={setStatus} mt="lg">
+      <Tabs value={status} onChange={setStatus} mt="lg">
         <Tabs.List>
           <Tabs.Tab value="available" leftSection={<IconGift size={14} />}>
             Available ({availableCoupons.length})
