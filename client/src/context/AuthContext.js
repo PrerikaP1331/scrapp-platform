@@ -31,6 +31,9 @@ export const AuthProvider = ({ children }) => {
     if (userData?.communityName) {
       localStorage.setItem("communityName", userData.communityName);
     }
+    if (userData?.communityId) {
+      localStorage.setItem("communityId", userData.communityId);
+    }
     if (userData?.businessName) {
       localStorage.setItem("businessName", userData.businessName);
     }
@@ -63,6 +66,7 @@ export const AuthProvider = ({ children }) => {
     const storedOrganizationId = localStorage.getItem("organizationId");
     const storedOrganizationName = localStorage.getItem("organizationName");
     const storedCommunityName = localStorage.getItem("communityName");
+    const storedCommunityId = localStorage.getItem("communityId");
     const storedBusinessName = localStorage.getItem("businessName");
 
     if (storedRole) {
@@ -83,6 +87,9 @@ export const AuthProvider = ({ children }) => {
       }
       if (storedCommunityName) {
         userData.communityName = storedCommunityName;
+      }
+      if (storedCommunityId) {
+        userData.communityId = storedCommunityId;
       }
       if (storedBusinessName) {
         userData.businessName = storedBusinessName;

@@ -111,10 +111,61 @@ export const likePost = async (postId) => {
  */
 export const getCommunityDashboard = async (communityId) => {
   try {
-    const response = await axios.get(`/api/community/${communityId}/dashboard`);
+    const response = await axios.get(`${API_BASE}/${communityId}/dashboard`);
     return response.data;
   } catch (error) {
     throw error.response?.data || { msg: 'Error fetching dashboard' };
+  }
+};
+
+/**
+ * Get community impact report within date range
+ */
+export const getCommunityImpactReport = async (communityId, { startDate, endDate }) => {
+  try {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', new Date(startDate).toISOString());
+    if (endDate) params.append('endDate', new Date(endDate).toISOString());
+    const response = await axios.get(`${API_BASE}/${communityId}/report?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { msg: 'Error fetching community report' };
+  }
+};
+
+export const getCommunityBilling = async (communityId) => {
+  try {
+    const response = await axios.get(`${API_BASE}/${communityId}/billing`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { msg: 'Error fetching billing' };
+  }
+};
+
+export const getCommunityInvoices = async (communityId) => {
+  try {
+    const response = await axios.get(`${API_BASE}/${communityId}/invoices`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { msg: 'Error fetching invoices' };
+  }
+};
+
+export const getCommunityDetails = async (communityId) => {
+  try {
+    const response = await axios.get(`${API_BASE}/${communityId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { msg: 'Error fetching community details' };
+  }
+};
+
+export const updateCommunityDetails = async (communityId, payload) => {
+  try {
+    const response = await axios.put(`${API_BASE}/${communityId}`, payload);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { msg: 'Error updating community details' };
   }
 };
 
@@ -123,7 +174,7 @@ export const getCommunityDashboard = async (communityId) => {
  */
 export const getCommunityMembers = async (communityId) => {
   try {
-    const response = await axios.get(`/api/community/${communityId}/members`);
+    const response = await axios.get(`${API_BASE}/${communityId}/members`);
     return response.data;
   } catch (error) {
     throw error.response?.data || { msg: 'Error fetching members' };
@@ -136,7 +187,7 @@ export const getCommunityMembers = async (communityId) => {
 export const approveMemberRequest = async (communityId, userId) => {
   try {
     const response = await axios.post(
-      `/api/community/${communityId}/members/${userId}/approve`
+      `${API_BASE}/${communityId}/members/${userId}/approve`
     );
     return response.data;
   } catch (error) {
@@ -150,7 +201,7 @@ export const approveMemberRequest = async (communityId, userId) => {
 export const rejectMemberRequest = async (communityId, userId) => {
   try {
     const response = await axios.post(
-      `/api/community/${communityId}/members/${userId}/reject`
+      `${API_BASE}/${communityId}/members/${userId}/reject`
     );
     return response.data;
   } catch (error) {
@@ -164,7 +215,7 @@ export const rejectMemberRequest = async (communityId, userId) => {
 export const inviteResident = async (communityId, email, message = '') => {
   try {
     const response = await axios.post(
-      `/api/community/${communityId}/invite`,
+      `${API_BASE}/${communityId}/invite`,
       { email, message }
     );
     return response.data;
@@ -179,7 +230,7 @@ export const inviteResident = async (communityId, email, message = '') => {
 export const schedulePickup = async (communityId, pickupData) => {
   try {
     const response = await axios.post(
-      `/api/community/${communityId}/pickups`,
+      `${API_BASE}/${communityId}/schedule-pickup`,
       pickupData
     );
     return response.data;
@@ -193,7 +244,7 @@ export const schedulePickup = async (communityId, pickupData) => {
  */
 export const getUpcomingPickups = async (communityId) => {
   try {
-    const response = await axios.get(`/api/community/${communityId}/pickups`);
+    const response = await axios.get(`${API_BASE}/${communityId}/pickups`);
     return response.data;
   } catch (error) {
     throw error.response?.data || { msg: 'Error fetching pickups' };

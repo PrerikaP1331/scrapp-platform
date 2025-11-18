@@ -29,13 +29,12 @@ import {
   IconMailPlus,
   IconAlertCircle,
 } from '@tabler/icons-react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import * as communityService from '../../api/communityService';
 
 function CommunityDashboardHome() {
-  const { communityId } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [dashboardData, setDashboardData] = useState(null);
@@ -50,12 +49,14 @@ function CommunityDashboardHome() {
   // Fetch dashboard data
   useEffect(() => {
     fetchDashboardData();
-  }, [communityId]);
+  }, [user?.communityId]);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await communityService.getCommunityDashboard(communityId);
+      const cid = user?.communityId;
+      if (!cid) throw { msg: 'Community ID not found for admin' };
+      const response = await communityService.getCommunityDashboard(cid);
       setDashboardData(response);
       setError(null);
     } catch (err) {

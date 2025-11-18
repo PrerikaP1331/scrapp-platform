@@ -1,320 +1,228 @@
-import React, { useState } from "react";
-import {
-  Container,
-  Paper,
-  Title,
-  Table,
-  Badge,
-  Stack,
-  Group,
-  Button,
-  Card,
-  Grid,
-  Modal,
-  SimpleGrid,
-} from "@mantine/core";
-import { Text } from "@mantine/core";
-import { IconDownload, IconCheck } from "@tabler/icons-react";
+import { useEffect, useState, useContext } from 'react';
+import { Container, Stack, Group, Title, Card, Text, Button, Grid, Table, Badge, Modal } from '@mantine/core';
+import { IconCreditCard, IconDownload } from '@tabler/icons-react';
+import { AuthContext } from '../../context/AuthContext';
+import { getCommunityBilling, getCommunityInvoices } from '../../api/communityService';
 
 function CommunityBilling() {
-  const [billingInfo, setBillingInfo] = useState({
-    planName: "Community Pro",
-    monthlyFee: 2499,
-    billingCycle: "Monthly",
-    nextBillingDate: "Dec 16, 2025",
-    status: "Active",
-  });
+  const { user } = useContext(AuthContext);
+  const [billing, setBilling] = useState(null);
+  const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  const [planModal, setPlanModal] = useState(false);
-  const [changingPlan, setChangingPlan] = useState(false);
+  useEffect(() => {
+    if (!user?.communityId) return;
+    setLoading(true);
+    Promise.all([
+      getCommunityBilling(user.communityId),
+      getCommunityInvoices(user.communityId)
+    ])
+      .then(([billingData, invoicesData]) => {
+        setBilling(billingData);
+        setInvoices(invoicesData || []);
+      })
+      .finally(() => setLoading(false));
+  }, [user?.communityId]);
 
-  const plans = [
-    {
-      name: "Starter",
-      price: 999,
-      features: ["Up to 50 members", "Basic analytics", "Email support"],
-    },
-    {
-      name: "Community Pro",
-      price: 2499,
-      features: [
-        "Up to 500 members",
-        "Advanced analytics",
-        "Phone support",
-        "Event management",
-      ],
-    },
-    {
-      name: "Elite",
-      price: 4999,
-      features: [
-        "Unlimited members",
-        "Real-time analytics",
-        "24/7 support",
-        "API access",
-        "Dedicated manager",
-      ],
-    },
-  ];
-
-  const handlePlanChange = (planName) => {
-    const selectedPlanData = plans.find((p) => p.name === planName);
-    if (selectedPlanData && planName !== billingInfo.planName) {
-      setChangingPlan(true);
-      // Simulate API call
-      setTimeout(() => {
-        setBillingInfo({
-          ...billingInfo,
-          planName: planName,
-          monthlyFee: selectedPlanData.price,
-          nextBillingDate: new Date(
-            new Date().setMonth(new Date().getMonth() + 1)
-          ).toLocaleDateString("en-IN", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
-        });
-        setChangingPlan(false);
-        setPlanModal(false);
-      }, 1000);
+  const formatCurrency = (amount, currency = 'INR') => {
+    try {
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(amount);
+    } catch (_) {
+      return `₹${amount}`;
     }
   };
 
-  const paymentHistory = [
-    {
-      id: 1,
-      date: "Nov 16, 2025",
-      amount: "₹2,499",
-      status: "Paid",
-      method: "Credit Card",
-    },
-    {
-      id: 2,
-      date: "Oct 16, 2025",
-      amount: "₹2,499",
-      status: "Paid",
-      method: "Bank Transfer",
-    },
-    {
-      id: 3,
-      date: "Sep 16, 2025",
-      amount: "₹2,499",
-      status: "Paid",
-      method: "Credit Card",
-    },
-  ];
+  const formatDate = (iso) => new Date(iso).toLocaleDateString();
 
-  const invoices = [
-    { id: "INV-001", date: "Nov 16, 2025", amount: "₹2,499", status: "Paid" },
-    { id: "INV-002", date: "Oct 16, 2025", amount: "₹2,499", status: "Paid" },
-    { id: "INV-003", date: "Sep 16, 2025", amount: "₹2,499", status: "Paid" },
-  ];
+  const handleDownloadInvoice = async (invoice) => {
+    try {
+      const pdfUrl = `/invoices/${invoice.id}.pdf`;
+      const res = await fetch(pdfUrl, { method: 'HEAD' });
+      if (res.ok) {
+        const a = document.createElement('a');
+        a.href = pdfUrl;
+        a.download = `${invoice.id}.pdf`;
+        a.click();
+        return;
+      }
+    } catch (_) {}
+
+    const html = `
+      <!doctype html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Invoice ${invoice.id}</title>
+        <style>
+          @page { size: A4; margin: 16mm; }
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif; color: #222; }
+          .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+          .brand { color: #344e41; font-weight: 700; font-size: 22px; }
+          .meta { text-align: right; font-size: 14px; color: #666; }
+          .section { margin: 18px 0; }
+          .title { font-weight: 600; color: #344e41; margin-bottom: 8px; }
+          .box { border: 1px solid #dad7cd; border-radius: 8px; padding: 12px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+          th, td { border-bottom: 1px solid #ecebe5; padding: 10px; text-align: left; font-size: 14px; }
+          th { background: #f4f3ef; color: #344e41; }
+          .total { font-weight: 700; color: #588157; }
+          .status { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #e6f4ea; color: #1b5e20; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="brand">Scrapp • Invoice</div>
+          <div class="meta">
+            <div>Invoice ID: ${invoice.id}</div>
+            <div>Date: ${formatDate(invoice.date)}</div>
+            <div>Status: <span class="status">${invoice.status}</span></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="title">Billed To</div>
+          <div class="box">
+            <div>${billing?.plan || 'Community Plan'}</div>
+            <div>${billing?.status || 'Active'} Subscription</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="title">Summary</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${billing?.plan || 'Community Pro'} — Monthly Subscription</td>
+                <td>1</td>
+                <td>${formatCurrency(billing?.price ?? invoice.amount, billing?.currency ?? invoice.currency)}</td>
+                <td>${formatCurrency(invoice.amount, invoice.currency)}</td>
+              </tr>
+              <tr>
+                <td colspan="3" style="text-align:right">Total</td>
+                <td class="total">${formatCurrency(invoice.amount, invoice.currency)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section" style="font-size:12px;color:#666">
+          <div>Payment Method: ${billing?.paymentMethod ? `${billing.paymentMethod.brand} •••• ${billing.paymentMethod.last4}` : '—'}</div>
+          <div>Thank you for being part of the Scrapp community.</div>
+        </div>
+
+        <script>
+          window.onload = () => window.print();
+        </script>
+      </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(html);
+      printWindow.document.close();
+    }
+  };
 
   return (
     <Container size="xl">
       <Stack gap="lg">
-        <div>
-          <Title order={2} style={{ color: "#344e41" }} mb="xs">
-            Community Billing
-          </Title>
-          <p style={{ color: "#666" }}>
-            Manage your community's platform subscription and payments
-          </p>
-        </div>
+        <Group justify="space-between" align="center">
+          <div>
+            <Title order={2} style={{ color: '#344e41' }} mb="xs">Billing & Subscription</Title>
+            <Text c="dimmed">Manage your plan and view invoice history</Text>
+          </div>
+        </Group>
 
-        {/* Current Plan */}
-        <Paper p="lg" radius="md" withBorder>
-          <Title order={4} style={{ color: "#344e41" }} mb="lg">
-            Current Subscription
-          </Title>
-          <Grid>
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Card withBorder p="md" radius="md">
-                <Text size="sm" color="dimmed" fw={500} mb="xs">
-                  Plan Name
-                </Text>
-                <Text fw={600}>{billingInfo.planName}</Text>
-              </Card>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Card withBorder p="md" radius="md">
-                <Text size="sm" color="dimmed" fw={500} mb="xs">
-                  Monthly Fee
-                </Text>
-                <Text fw={600} style={{ color: "#588157" }}>
-                  ₹{billingInfo.monthlyFee.toLocaleString()}
-                </Text>
-              </Card>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Card withBorder p="md" radius="md">
-                <Text size="sm" color="dimmed" fw={500} mb="xs">
-                  Billing Cycle
-                </Text>
-                <Text fw={600}>{billingInfo.billingCycle}</Text>
-              </Card>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Card withBorder p="md" radius="md">
-                <Text size="sm" color="dimmed" fw={500} mb="xs">
-                  Next Billing
-                </Text>
-                <Text fw={600}>{billingInfo.nextBillingDate}</Text>
-              </Card>
-            </Grid.Col>
-          </Grid>
-          <Group justify="flex-end" mt="lg" gap="md">
-            <Button variant="default" onClick={() => setPlanModal(true)}>
-              Change Plan
-            </Button>
-            <Button style={{ backgroundColor: "#588157" }}>
-              Update Payment Method
-            </Button>
-          </Group>
-        </Paper>
+        <Grid>
+          <Grid.Col span={{ base: 12, md: 6 }}>
+            <Card withBorder p="lg" radius="md">
+              <Group justify="space-between" mb="md">
+                <Text fw={600}>Current Plan</Text>
+                {billing?.status && (
+                  <Badge color={billing.status === 'Active' ? 'green' : 'gray'}>{billing.status}</Badge>
+                )}
+              </Group>
+              <Stack gap="xs">
+                <Text fw={500}>{billing?.plan || '—'}</Text>
+                <Text c="dimmed">{billing ? `${formatCurrency(billing.price, billing.currency)} / month` : '—'}</Text>
+                {billing?.nextBillingDate && (
+                  <Text size="sm" c="dimmed">Your plan will renew on {new Date(billing.nextBillingDate).toLocaleDateString()}</Text>
+                )}
+              </Stack>
+              <Group mt="md">
+                <Button onClick={() => setModalOpen(true)}>Manage Subscription</Button>
+              </Group>
+            </Card>
+          </Grid.Col>
 
-        {/* Payment History */}
-        <Paper p="lg" radius="md" withBorder>
-          <Title order={4} style={{ color: "#344e41" }} mb="lg">
-            Payment History
-          </Title>
+          <Grid.Col span={{ base: 12, md: 6 }}>
+            <Card withBorder p="lg" radius="md">
+              <Group justify="space-between" mb="md">
+                <Text fw={600}>Payment Method</Text>
+              </Group>
+              <Group>
+                <IconCreditCard size={18} />
+                <Text>{billing?.paymentMethod ? `${billing.paymentMethod.brand} ending in •••• ${billing.paymentMethod.last4}` : '—'}</Text>
+              </Group>
+              {billing?.paymentMethod && (
+                <Text size="sm" c="dimmed">Expires: {String(billing.paymentMethod.expMonth).padStart(2, '0')}/{billing.paymentMethod.expYear}</Text>
+              )}
+              <Group mt="md">
+                <Button variant="light" onClick={() => setModalOpen(true)}>Update Payment Method</Button>
+              </Group>
+            </Card>
+          </Grid.Col>
+        </Grid>
+
+        <Card withBorder p="lg" radius="md">
+          <Text fw={600} mb="md">Invoice History</Text>
           <Table>
             <Table.Thead>
-              <Table.Tr style={{ backgroundColor: "#f8f9fa" }}>
+              <Table.Tr>
                 <Table.Th>Date</Table.Th>
-                <Table.Th>Amount</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Payment Method</Table.Th>
-                <Table.Th>Actions</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {paymentHistory.map((payment) => (
-                <Table.Tr key={payment.id}>
-                  <Table.Td>{payment.date}</Table.Td>
-                  <Table.Td fw={500}>{payment.amount}</Table.Td>
-                  <Table.Td>
-                    <Badge color="green">{payment.status}</Badge>
-                  </Table.Td>
-                  <Table.Td>{payment.method}</Table.Td>
-                  <Table.Td>
-                    <Button variant="subtle" size="xs">
-                      View Receipt
-                    </Button>
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        </Paper>
-
-        {/* Invoices */}
-        <Paper p="lg" radius="md" withBorder>
-          <Group justify="space-between" mb="lg">
-            <Title order={4} style={{ color: "#344e41" }}>
-              Invoices
-            </Title>
-            <Button
-              leftSection={<IconDownload size={18} />}
-              variant="default"
-              size="sm"
-            >
-              Download All
-            </Button>
-          </Group>
-          <Table>
-            <Table.Thead>
-              <Table.Tr style={{ backgroundColor: "#f8f9fa" }}>
                 <Table.Th>Invoice ID</Table.Th>
-                <Table.Th>Date</Table.Th>
                 <Table.Th>Amount</Table.Th>
                 <Table.Th>Status</Table.Th>
-                <Table.Th>Actions</Table.Th>
+                <Table.Th>Action</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {invoices.map((invoice) => (
-                <Table.Tr key={invoice.id}>
-                  <Table.Td fw={500}>{invoice.id}</Table.Td>
-                  <Table.Td>{invoice.date}</Table.Td>
-                  <Table.Td>{invoice.amount}</Table.Td>
+              {invoices.map((inv) => (
+                <Table.Tr key={inv.id}>
+                  <Table.Td>{formatDate(inv.date)}</Table.Td>
+                  <Table.Td>{inv.id}</Table.Td>
+                  <Table.Td>{formatCurrency(inv.amount, inv.currency)}</Table.Td>
                   <Table.Td>
-                    <Badge color="green">{invoice.status}</Badge>
+                    <Badge color={inv.status === 'Paid' ? 'green' : 'gray'}>{inv.status}</Badge>
                   </Table.Td>
                   <Table.Td>
-                    <Button
-                      variant="subtle"
-                      size="xs"
-                      leftSection={<IconDownload size={14} />}
-                    >
-                      Download
-                    </Button>
+                    <Button size="xs" variant="subtle" leftSection={<IconDownload size={14} />} onClick={() => handleDownloadInvoice(inv)}>Download</Button>
                   </Table.Td>
                 </Table.Tr>
               ))}
             </Table.Tbody>
           </Table>
-        </Paper>
+        </Card>
 
-        {/* Plan Change Modal */}
-        <Modal
-          opened={planModal}
-          onClose={() => setPlanModal(false)}
-          title="Choose Your Plan"
-          size="lg"
-          centered
-        >
-          <SimpleGrid cols={{ base: 1, md: 3 }} gap="lg">
-            {plans.map((plan) => (
-              <Paper
-                key={plan.name}
-                p="lg"
-                radius="md"
-                withBorder
-                style={{
-                  border:
-                    plan.name === billingInfo.planName
-                      ? "2px solid #588157"
-                      : "1px solid #ddd",
-                }}
-              >
-                <Text fw={600} style={{ color: "#344e41" }} mb="xs">
-                  {plan.name}
-                </Text>
-                <Text size="xl" fw={700} style={{ color: "#588157" }} mb="md">
-                  ₹{plan.price}/mo
-                </Text>
-                <Stack gap="xs" mb="lg">
-                  {plan.features.map((feature) => (
-                    <Group key={feature} gap="xs">
-                      <IconCheck size={16} color="#588157" />
-                      <Text size="sm">{feature}</Text>
-                    </Group>
-                  ))}
-                </Stack>
-                <Button
-                  fullWidth
-                  variant={
-                    plan.name === billingInfo.planName ? "filled" : "light"
-                  }
-                  style={{
-                    backgroundColor:
-                      plan.name === billingInfo.planName
-                        ? "#588157"
-                        : "transparent",
-                  }}
-                  onClick={() => handlePlanChange(plan.name)}
-                  disabled={plan.name === billingInfo.planName}
-                  loading={changingPlan}
-                >
-                  {plan.name === billingInfo.planName
-                    ? "Current Plan"
-                    : "Switch to " + plan.name}
-                </Button>
-              </Paper>
-            ))}
-          </SimpleGrid>
+        <Modal opened={modalOpen} onClose={() => setModalOpen(false)} title="Subscription Management">
+          <Stack gap="md">
+            <Text>
+              This feature will be fully enabled upon launch. Here, you will be able to upgrade, downgrade, or cancel your plan through our secure payment partner.
+            </Text>
+            <Group justify="flex-end">
+              <Button onClick={() => setModalOpen(false)}>Close</Button>
+            </Group>
+          </Stack>
         </Modal>
       </Stack>
     </Container>

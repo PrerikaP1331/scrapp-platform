@@ -40,6 +40,7 @@ import ManageResidents from './pages/CommunityDashboard/ManageResidents';
 import CommunityImpactReport from './pages/CommunityDashboard/CommunityImpactReport';
 import CommunityBilling from './pages/CommunityDashboard/CommunityBilling';
 import CommunitySettings from './pages/CommunityDashboard/CommunitySettings';
+import ScheduleCommunityPickup from './pages/CommunityDashboard/ScheduleCommunityPickup';
 
 // Organization Dashboard Pages
 import OrganizationDashboardHome from './pages/OrganizationDashboard/OrganizationDashboardHome';
@@ -118,6 +119,7 @@ function App() {
             {/* --- Protected Community Admin Dashboard Routes --- */}
             <Route element={<ProtectedRoute allowedRoles={['community_admin']} />}>
               <Route path="/community-dashboard" element={<CommunityDashboardLayout><CommunityDashboardHome /></CommunityDashboardLayout>} />
+              <Route path="/community-dashboard/schedule" element={<CommunityDashboardLayout><ScheduleCommunityPickup /></CommunityDashboardLayout>} />
               <Route path="/community-dashboard/drives" element={<CommunityDashboardLayout><DriveManagement /></CommunityDashboardLayout>} />
               <Route path="/community-dashboard/drives/new" element={<CommunityDashboardLayout><CreateDrive /></CommunityDashboardLayout>} />
               <Route path="/community-dashboard/drives/:id/edit" element={<CommunityDashboardLayout><EditDrive /></CommunityDashboardLayout>} />

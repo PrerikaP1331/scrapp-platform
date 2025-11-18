@@ -1,46 +1,162 @@
-import React, { useState } from 'react';
-import { Container, Paper, Title, Button, Stack, Group, Tabs, Table, Badge, ActionIcon, Modal, Tooltip, Grid, Card, Text } from '@mantine/core';
-import { IconEdit, IconTrash, IconEye, IconPlus } from '@tabler/icons-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Container, 
+  Paper, 
+  Title, 
+  Button, 
+  Stack, 
+  Group, 
+  Tabs, 
+  Table, 
+  Badge, 
+  ActionIcon, 
+  Modal, 
+  Tooltip, 
+  Grid, 
+  Card, 
+  Text,
+  Select,
+  LoadingOverlay,
+  Alert,
+  Menu,
+  TextInput
+} from '@mantine/core';
+import { 
+  IconEdit, 
+  IconTrash, 
+  IconEye, 
+  IconPlus, 
+  IconChartBar, 
+  IconCalendar, 
+  IconUsers, 
+  IconWorld, 
+  IconLock,
+  IconSearch,
+  IconFilter
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
+import { getCommunityDrives, createDrive, updateDrive, deleteDrive } from '../../api/driveService';
+import { useContext } from 'react';
+import { AuthContext } from '../../context/AuthContext';
+import styles from './DriveManagement.module.css';
 
 function DriveManagement() {
   const navigate = useNavigate();
-  const [activeDrives] = useState([
-    {
-      id: 1,
-      title: 'E-waste Drive',
-      date: 'Nov 20, 2025',
-      visibility: 'Public',
-      status: 'Upcoming',
-      participants: 24,
-    },
-    {
-      id: 2,
-      title: 'Plastic Bottle Collection',
-      date: 'Nov 18, 2025',
-      visibility: 'Private',
-      status: 'Active',
-      participants: 45,
-    },
-  ]);
-
-  const [completedDrives] = useState([
-    {
-      id: 3,
-      title: 'Monthly Recycling Drive',
-      date: 'Nov 10, 2025',
-      visibility: 'Public',
-      totalCollected: '450 kg',
-      participants: 67,
-    },
-  ]);
-
+  const { user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
+  const [drives, setDrives] = useState([]);
+  const [filteredDrives, setFilteredDrives] = useState([]);
+  const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedDrive, setSelectedDrive] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [statsModalOpen, setStatsModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [driveToDelete, setDriveToDelete] = useState(null);
+
+  // Calculate active and completed drives
+  const activeDrives = filteredDrives.filter(drive => 
+    new Date(drive.date) > new Date() && drive.status !== 'completed'
+  );
+  const completedDrives = filteredDrives.filter(drive => drive.status === 'completed');
+
+  useEffect(() => {
+    fetchDrives();
+  }, []);
+
+  useEffect(() => {
+    applyFilters();
+  }, [drives, filter, searchTerm]);
+
+  const fetchDrives = async () => {
+    try {
+      setLoading(true);
+      const communityId = user?.communityId;
+      if (!communityId) {
+        notifications.show({
+          title: 'Error',
+          message: 'Community ID not found',
+          color: 'red'
+        });
+        return;
+      }
+      
+      const response = await getCommunityDrives(communityId);
+      setDrives(response);
+    } catch (error) {
+      notifications.show({
+        title: 'Error loading drives',
+        message: error.response?.data?.msg || 'Failed to load drives',
+        color: 'red'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const applyFilters = () => {
+    let filtered = drives;
+    
+    if (searchTerm) {
+      filtered = filtered.filter(drive => 
+        drive.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        drive.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    if (filter === 'upcoming') {
+      filtered = filtered.filter(drive => new Date(drive.date) > new Date() && drive.status !== 'completed');
+    } else if (filter === 'completed') {
+      filtered = filtered.filter(drive => drive.status === 'completed');
+    }
+    
+    setFilteredDrives(filtered);
+  };
 
   const handleViewStats = (drive) => {
     setSelectedDrive(drive);
-    setModalOpen(true);
+    setStatsModalOpen(true);
+  };
+
+  const handleDeleteDrive = (drive) => {
+    setDriveToDelete(drive);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDeleteDrive = async () => {
+    try {
+      const cid = user?.communityId;
+      await deleteDrive(cid, driveToDelete._id);
+      notifications.show({
+        title: 'Success',
+        message: 'Drive deleted successfully',
+        color: 'green'
+      });
+      fetchDrives();
+      setDeleteModalOpen(false);
+      setDriveToDelete(null);
+    } catch (error) {
+      notifications.show({
+        title: 'Error',
+        message: error.response?.data?.msg || 'Failed to delete drive',
+        color: 'red'
+      });
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'upcoming': return 'blue';
+      case 'active': return 'green';
+      case 'completed': return 'gray';
+      case 'cancelled': return 'red';
+      default: return 'gray';
+    }
+  };
+
+  const getVisibilityIcon = (visibility) => {
+    return visibility === 'public' ? <IconWorld size={16} /> : <IconLock size={16} />;
   };
 
   return (
@@ -60,112 +176,131 @@ function DriveManagement() {
           </Button>
         </Group>
 
-        <Tabs defaultValue="active">
-          <Tabs.List>
-            <Tabs.Tab value="active">Active & Upcoming ({activeDrives.length})</Tabs.Tab>
-            <Tabs.Tab value="completed">Completed ({completedDrives.length})</Tabs.Tab>
-          </Tabs.List>
+        {/* Search and Filter Bar */}
+        <Group justify="space-between" align="center">
+          <TextInput
+            placeholder="Search drives..."
+            leftSection={<IconSearch size={16} />}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ width: 300 }}
+          />
+          <Select
+            placeholder="Filter drives"
+            leftSection={<IconFilter size={16} />}
+            value={filter}
+            onChange={setFilter}
+            data={[
+              { value: 'all', label: 'All Drives' },
+              { value: 'upcoming', label: 'Upcoming' },
+              { value: 'completed', label: 'Completed' }
+            ]}
+            style={{ width: 200 }}
+          />
+        </Group>
 
-          <Tabs.Panel value="active" pt="md">
-            <Paper withBorder radius="md" p={0} className="overflow-x-auto">
-              <Table>
-                <Table.Thead>
-                  <Table.Tr style={{ backgroundColor: '#f8f9fa' }}>
-                    <Table.Th>Drive Title</Table.Th>
-                    <Table.Th>Date</Table.Th>
-                    <Table.Th>Visibility</Table.Th>
-                    <Table.Th>Status</Table.Th>
-                    <Table.Th>Participants</Table.Th>
-                    <Table.Th>Actions</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {activeDrives.map((drive) => (
-                    <Table.Tr key={drive.id}>
-                      <Table.Td fw={500}>{drive.title}</Table.Td>
-                      <Table.Td>{drive.date}</Table.Td>
-                      <Table.Td>
-                        <Badge variant="light" color={drive.visibility === 'Public' ? 'blue' : 'gray'}>
-                          {drive.visibility}
-                        </Badge>
-                      </Table.Td>
-                      <Table.Td>
-                        <Badge color={drive.status === 'Active' ? 'green' : 'yellow'}>
-                          {drive.status}
-                        </Badge>
-                      </Table.Td>
-                      <Table.Td>{drive.participants}</Table.Td>
-                      <Table.Td>
-                        <Group gap={0}>
-                          <Tooltip label="View Details">
-                            <ActionIcon variant="subtle" color="blue" onClick={() => handleViewStats(drive)}>
-                              <IconEye size={16} />
-                            </ActionIcon>
-                          </Tooltip>
-                          <Tooltip label="Edit">
-                            <ActionIcon variant="subtle" color="gray" onClick={() => navigate(`/community-dashboard/drives/${drive.id}/edit`)}>
-                              <IconEdit size={16} />
-                            </ActionIcon>
-                          </Tooltip>
-                          <Tooltip label="Delete">
-                            <ActionIcon variant="subtle" color="red">
-                              <IconTrash size={16} />
-                            </ActionIcon>
-                          </Tooltip>
-                        </Group>
-                      </Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </Paper>
-          </Tabs.Panel>
+        {/* No Drives State */}
+        {filteredDrives.length === 0 && (
+          <Paper withBorder radius="md" p="xl" style={{ textAlign: 'center' }}>
+            <Stack align="center" gap="md">
+              <IconCalendar size={48} style={{ color: '#999' }} />
+              <Title order={3} style={{ color: '#666' }}>No drives found</Title>
+              <Text style={{ color: '#666' }}>
+                {searchTerm || filter !== 'all' 
+                  ? "Try adjusting your search or filter criteria."
+                  : "You haven't created any drives yet. Click 'Create New Drive' to get started!"
+                }
+              </Text>
+            </Stack>
+          </Paper>
+        )}
 
-          <Tabs.Panel value="completed" pt="md">
-            <Paper withBorder radius="md" p={0} className="overflow-x-auto">
-              <Table>
-                <Table.Thead>
-                  <Table.Tr style={{ backgroundColor: '#f8f9fa' }}>
-                    <Table.Th>Drive Title</Table.Th>
-                    <Table.Th>Date</Table.Th>
-                    <Table.Th>Visibility</Table.Th>
-                    <Table.Th>Total Collected</Table.Th>
-                    <Table.Th>Participants</Table.Th>
-                    <Table.Th>Actions</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {completedDrives.map((drive) => (
-                    <Table.Tr key={drive.id}>
-                      <Table.Td fw={500}>{drive.title}</Table.Td>
-                      <Table.Td>{drive.date}</Table.Td>
-                      <Table.Td>
-                        <Badge variant="light" color={drive.visibility === 'Public' ? 'blue' : 'gray'}>
-                          {drive.visibility}
+        {/* Drives Table */}
+        {filteredDrives.length > 0 && (
+          <Paper withBorder radius="md" p={0} className="overflow-x-auto">
+            <Table>
+              <Table.Thead>
+                <Table.Tr style={{ backgroundColor: '#f8f9fa' }}>
+                  <Table.Th>Drive Title</Table.Th>
+                  <Table.Th>Date & Time</Table.Th>
+                  <Table.Th>Location</Table.Th>
+                  <Table.Th>Visibility</Table.Th>
+                  <Table.Th>Status</Table.Th>
+                  <Table.Th>Participants</Table.Th>
+                  <Table.Th>Actions</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {filteredDrives.map((drive) => (
+                  <Table.Tr key={drive._id}>
+                    <Table.Td fw={500}>{drive.title}</Table.Td>
+                    <Table.Td>{new Date(drive.date).toLocaleDateString()} {drive.time && new Date(drive.time).toLocaleTimeString()}</Table.Td>
+                    <Table.Td>{drive.location}</Table.Td>
+                    <Table.Td>
+                      <Group gap={4}>
+                        {getVisibilityIcon(drive.visibility)}
+                        <Badge variant="light" color={drive.visibility === 'public' ? 'blue' : 'gray'}>
+                          {drive.visibility === 'public' ? 'Public' : 'Private'}
                         </Badge>
-                      </Table.Td>
-                      <Table.Td style={{ color: '#588157', fontWeight: 600 }}>{drive.totalCollected}</Table.Td>
-                      <Table.Td>{drive.participants}</Table.Td>
-                      <Table.Td>
-                        <Tooltip label="View Statistics">
-                          <ActionIcon variant="subtle" color="blue" onClick={() => handleViewStats(drive)}>
-                            <IconEye size={16} />
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge color={getStatusColor(drive.status)}>
+                        {drive.status.charAt(0).toUpperCase() + drive.status.slice(1)}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>{drive.participants || 0}</Table.Td>
+                    <Table.Td>
+                      <Menu shadow="md" width={200}>
+                        <Menu.Target>
+                          <ActionIcon variant="subtle" color="gray">
+                            <IconEdit size={16} />
                           </ActionIcon>
-                        </Tooltip>
-                      </Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </Paper>
-          </Tabs.Panel>
-        </Tabs>
+                        </Menu.Target>
+                        <Menu.Dropdown>
+                          <Menu.Item
+                            leftSection={<IconEye size={14} />}
+                            onClick={() => handleViewStats(drive)}
+                          >
+                            View Details
+                          </Menu.Item>
+                          <Menu.Item
+                            leftSection={<IconEdit size={14} />}
+                            onClick={() => navigate(`/community-dashboard/drives/${drive._id}/edit`)}
+                          >
+                            Edit Drive
+                          </Menu.Item>
+                          {drive.status === 'completed' && (
+                            <Menu.Item
+                              leftSection={<IconChartBar size={14} />}
+                              onClick={() => handleViewStats(drive)}
+                            >
+                              View Stats
+                            </Menu.Item>
+                          )}
+                          <Menu.Divider />
+                          <Menu.Item
+                            leftSection={<IconTrash size={14} />}
+                            color="red"
+                            onClick={() => handleDeleteDrive(drive)}
+                          >
+                            Delete
+                          </Menu.Item>
+                        </Menu.Dropdown>
+                      </Menu>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Paper>
+        )}
       </Stack>
 
       {/* View Drive Statistics Modal */}
       <Modal
-        opened={modalOpen}
-        onClose={() => setModalOpen(false)}
+        opened={statsModalOpen}
+        onClose={() => setStatsModalOpen(false)}
         title="Drive Statistics"
         size="lg"
       >
@@ -181,7 +316,7 @@ function DriveManagement() {
               <Grid.Col span={{ base: 6 }}>
                 <Card withBorder p="md" radius="md">
                   <Title order={5} mb="xs">Total Participants</Title>
-                  <Text fw={600} size="lg" style={{ color: '#588157' }}>{selectedDrive.participants}</Text>
+                  <Text fw={600} size="lg" style={{ color: '#588157' }}>{selectedDrive.participants || 0}</Text>
                 </Card>
               </Grid.Col>
             </Grid>
@@ -195,11 +330,34 @@ function DriveManagement() {
                 </Grid.Col>
               </Grid>
             )}
-            <Button style={{ backgroundColor: '#588157' }} onClick={() => navigate(`/community-dashboard/drives/${selectedDrive.id}/stats`)}>
+            <Button style={{ backgroundColor: '#588157' }} onClick={() => navigate(`/community-dashboard/drives/${selectedDrive._id}/stats`)}>
               View Full Report
             </Button>
           </Stack>
         )}
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        opened={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        title="Delete Drive"
+        size="md"
+      >
+        <Stack gap="md">
+          <Text>Are you sure you want to permanently delete this drive?</Text>
+          <Text size="sm" style={{ color: '#666' }}>
+            This action cannot be undone. The drive "{driveToDelete?.title}" will be permanently removed.
+          </Text>
+          <Group justify="flex-end" gap="md">
+            <Button variant="subtle" onClick={() => setDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button color="red" onClick={confirmDeleteDrive}>
+              Delete Drive
+            </Button>
+          </Group>
+        </Stack>
       </Modal>
     </Container>
   );

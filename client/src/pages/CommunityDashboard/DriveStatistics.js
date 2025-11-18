@@ -1,123 +1,290 @@
-import React from 'react';
-import { Container, Paper, Title, Stack, Grid, Card, Text, Progress, Group, Button } from '@mantine/core';
-import { IconDownload } from '@tabler/icons-react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import {
+  Container,
+  Paper,
+  Title,
+  Button,
+  Stack,
+  Group,
+  Grid,
+  Card,
+  Text,
+  Progress,
+  Badge,
+  LoadingOverlay,
+  SimpleGrid,
+  Divider,
+  List,
+  ThemeIcon
+} from '@mantine/core';
+import {
+  IconChartBar,
+  IconUsers,
+  IconWeight,
+  IconRecycle,
+  IconCalendar,
+  IconTrendingUp,
+  IconAward,
+  IconDownload
+} from '@tabler/icons-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { getDriveStats } from '../../api/driveService';
+import { useContext } from 'react';
+import { AuthContext } from '../../context/AuthContext';
 
 function DriveStatistics() {
-  const { id } = useParams();
+  const navigate = useNavigate();
+  const { driveId } = useParams();
+  const { user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
 
-  // Mock data - replace with API call
-  const driveStats = {
-    title: 'E-waste Drive',
-    totalParticipants: 87,
-    totalCollected: '580 kg',
-    targetQuantity: 500,
-    wasteBreakdown: [
-      { category: 'Phones & Tablets', quantity: 245, color: '#588157' },
-      { category: 'Computers & Laptops', quantity: 180, color: '#a3b18a' },
-      { category: 'Cables & Accessories', quantity: 95, color: '#3a5a40' },
-      { category: 'Other Electronics', quantity: 60, color: '#d4d4a8' },
-    ],
-    dailyProgress: [
-      { date: 'Day 1', collected: 150 },
-      { date: 'Day 2', collected: 245 },
-      { date: 'Day 3', collected: 185 },
-    ],
+  useEffect(() => {
+    fetchDriveStats();
+  }, [driveId]);
+
+  const fetchDriveStats = async () => {
+    try {
+      setLoading(true);
+      const cid = user?.communityId;
+      const response = await getDriveStats(cid, driveId);
+      setStats(response.data);
+    } catch (error) {
+      console.error('Error fetching drive stats:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const percentageComplete = (driveStats.totalCollected.split(' ')[0] / driveStats.targetQuantity) * 100;
+  if (loading || !stats) {
+    return (
+      <Container size="lg">
+        <LoadingOverlay visible={true} />
+      </Container>
+    );
+  }
+
+  const { drive, participants, totalWeight, wasteBreakdown, topItems, participationRate } = stats;
 
   return (
-    <Container size="xl">
+    <Container size="lg">
       <Stack gap="lg">
+        {/* Header */}
         <Group justify="space-between" align="center">
           <div>
-            <Title order={2} style={{ color: '#344e41' }} mb="xs">{driveStats.title} - Statistics</Title>
-            <p style={{ color: '#666' }}>Detailed report of drive performance and results</p>
+            <Title order={2} style={{ color: '#344e41' }} mb="xs">
+              Drive Statistics
+            </Title>
+            <Text size="lg" fw={600}>{drive.title}</Text>
+            <Text size="sm" c="dimmed">
+              {new Date(drive.date).toLocaleDateString()} • {drive.location}
+            </Text>
           </div>
-          <Button leftSection={<IconDownload size={18} />} variant="default">
-            Download Report
-          </Button>
+          <Group gap="md">
+            <Button 
+              variant="subtle" 
+              onClick={() => navigate('/community-dashboard/drives')}
+            >
+              Back to Drives
+            </Button>
+            <Button 
+              leftSection={<IconDownload size={16} />}
+              style={{ backgroundColor: '#588157' }}
+            >
+              Export Report
+            </Button>
+          </Group>
         </Group>
 
         {/* Key Metrics */}
+        <SimpleGrid cols={{ base: 1, md: 2, lg: 4 }} spacing="lg">
+          <Card withBorder radius="md" p="lg">
+            <Group justify="space-between" align="center" mb="md">
+              <ThemeIcon size="lg" radius="md" style={{ backgroundColor: '#e8f5e8' }}>
+                <IconUsers style={{ color: '#588157' }} />
+              </ThemeIcon>
+              <Badge color="green" variant="light">
+                {participationRate}%
+              </Badge>
+            </Group>
+            <Text size="xl" fw={700} style={{ color: '#588157' }}>
+              {participants.total}
+            </Text>
+            <Text size="sm" c="dimmed">Total Participants</Text>
+            <Text size="xs" c="dimmed" mt={4}>
+              {participants.households} households participated
+            </Text>
+          </Card>
+
+          <Card withBorder radius="md" p="lg">
+            <Group justify="space-between" align="center" mb="md">
+              <ThemeIcon size="lg" radius="md" style={{ backgroundColor: '#e8f5e8' }}>
+                <IconWeight style={{ color: '#588157' }} />
+              </ThemeIcon>
+              <IconTrendingUp size={16} style={{ color: '#588157' }} />
+            </Group>
+            <Text size="xl" fw={700} style={{ color: '#588157' }}>
+              {totalWeight} kg
+            </Text>
+            <Text size="sm" c="dimmed">Total Weight Collected</Text>
+            <Text size="xs" c="dimmed" mt={4}>
+              Average {Math.round(totalWeight / participants.total)} kg per participant
+            </Text>
+          </Card>
+
+          <Card withBorder radius="md" p="lg">
+            <Group justify="space-between" align="center" mb="md">
+              <ThemeIcon size="lg" radius="md" style={{ backgroundColor: '#e8f5e8' }}>
+                <IconRecycle style={{ color: '#588157' }} />
+              </ThemeIcon>
+              <IconAward size={16} style={{ color: '#588157' }} />
+            </Group>
+            <Text size="xl" fw={700} style={{ color: '#588157' }}>
+              {wasteBreakdown.length}
+            </Text>
+            <Text size="sm" c="dimmed">Waste Categories</Text>
+            <Text size="xs" c="dimmed" mt={4}>
+              Multiple types recycled
+            </Text>
+          </Card>
+
+          <Card withBorder radius="md" p="lg">
+            <Group justify="space-between" align="center" mb="md">
+              <ThemeIcon size="lg" radius="md" style={{ backgroundColor: '#e8f5e8' }}>
+                <IconChartBar style={{ color: '#588157' }} />
+              </ThemeIcon>
+              <Badge color="blue" variant="light">
+                Success
+              </Badge>
+            </Group>
+            <Text size="xl" fw={700} style={{ color: '#588157' }}>
+              {drive.status === 'completed' ? 'Completed' : 'Active'}
+            </Text>
+            <Text size="sm" c="dimmed">Drive Status</Text>
+            <Text size="xs" c="dimmed" mt={4}>
+              {drive.visibility} visibility
+            </Text>
+          </Card>
+        </SimpleGrid>
+
+        {/* Waste Breakdown */}
         <Grid>
-          <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-            <Card withBorder p="lg" radius="md">
-              <Text size="sm" color="dimmed" fw={500} mb="xs">Total Participants</Text>
-              <Title order={3} style={{ color: '#588157' }}>{driveStats.totalParticipants}</Title>
+          <Grid.Col span={{ base: 12, md: 8 }}>
+            <Card withBorder radius="md" p="lg">
+              <Title order={4} mb="md">Waste Collection Breakdown</Title>
+              
+              <Stack gap="md">
+                {wasteBreakdown.map((item, index) => (
+                  <div key={item.category}>
+                    <Group justify="space-between" mb={8}>
+                      <Text fw={500}>{item.category}</Text>
+                      <Text fw={600}>{item.weight} kg</Text>
+                    </Group>
+                    <Progress 
+                      value={(item.weight / totalWeight) * 100} 
+                      color={['green', 'blue', 'orange', 'red', 'purple', 'yellow'][index % 6]}
+                      size="lg"
+                    />
+                    <Text size="xs" c="dimmed" mt={4}>
+                      {Math.round((item.weight / totalWeight) * 100)}% of total collection
+                    </Text>
+                  </div>
+                ))}
+              </Stack>
             </Card>
           </Grid.Col>
-          <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-            <Card withBorder p="lg" radius="md">
-              <Text size="sm" color="dimmed" fw={500} mb="xs">Total Collected</Text>
-              <Title order={3} style={{ color: '#588157' }}>{driveStats.totalCollected}</Title>
-            </Card>
-          </Grid.Col>
-          <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-            <Card withBorder p="lg" radius="md">
-              <Text size="sm" color="dimmed" fw={500} mb="xs">Target Quantity</Text>
-              <Title order={3} style={{ color: '#344e41' }}>{driveStats.targetQuantity} kg</Title>
-            </Card>
-          </Grid.Col>
-          <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-            <Card withBorder p="lg" radius="md">
-              <Text size="sm" color="dimmed" fw={500} mb="xs">Goal Achievement</Text>
-              <Title order={3} style={{ color: '#588157' }}>{percentageComplete.toFixed(0)}%</Title>
+
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            <Card withBorder radius="md" p="lg">
+              <Title order={4} mb="md">Top Items Collected</Title>
+              
+              <List spacing="sm">
+                {topItems.map((item, index) => (
+                  <List.Item
+                    key={item.name}
+                    icon={
+                      <ThemeIcon size="sm" radius="xl" color={index === 0 ? 'yellow' : index === 1 ? 'gray' : 'orange'}>
+                        {index + 1}
+                      </ThemeIcon>
+                    }
+                  >
+                    <Group justify="space-between">
+                      <Text size="sm">{item.name}</Text>
+                      <Text size="sm" fw={600}>{item.count}</Text>
+                    </Group>
+                  </List.Item>
+                ))}
+              </List>
             </Card>
           </Grid.Col>
         </Grid>
 
-        {/* Progress Bar */}
-        <Paper p="lg" radius="md" withBorder>
-          <Text fw={600} mb="xs">Collection Progress</Text>
-          <Progress
-            value={percentageComplete}
-            color="#588157"
-            size="lg"
-            radius="md"
-            label={`${percentageComplete.toFixed(1)}% of target`}
-          />
-        </Paper>
+        {/* Participation Timeline */}
+        <Card withBorder radius="md" p="lg">
+          <Title order={4} mb="md">Participation Timeline</Title>
+          
+          <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg">
+            <div>
+              <Text fw={600} mb="xs">Peak Participation</Text>
+              <Text size="xl" style={{ color: '#588157' }}>
+                {participants.peakTime || '2:00 PM'}
+              </Text>
+              <Text size="sm" c="dimmed">Most active hour</Text>
+            </div>
+            
+            <div>
+              <Text fw={600} mb="xs">Average Stay</Text>
+              <Text size="xl" style={{ color: '#588157' }}>
+                {participants.avgStay || '15'} min
+              </Text>
+              <Text size="sm" c="dimmed">Per participant</Text>
+            </div>
+            
+            <div>
+              <Text fw={600} mb="xs">Completion Rate</Text>
+              <Text size="xl" style={{ color: '#588157' }}>
+                {participants.completionRate || '98'}%
+              </Text>
+              <Text size="sm" c="dimmed">Successful drop-offs</Text>
+            </div>
+          </SimpleGrid>
+        </Card>
 
-        {/* Waste Breakdown */}
-        <Paper p="lg" radius="md" withBorder>
-          <Title order={4} style={{ color: '#344e41' }} mb="lg">Waste Type Breakdown</Title>
-          <Grid>
-            {driveStats.wasteBreakdown.map((item, idx) => (
-              <Grid.Col span={{ base: 12, sm: 6 }} key={idx}>
-                <Card withBorder p="md" radius="md">
-                  <Group justify="space-between" mb="xs">
-                    <Text fw={500}>{item.category}</Text>
-                    <Text fw={600} style={{ color: item.color }}>{item.quantity} kg</Text>
-                  </Group>
-                  <Progress
-                    value={(item.quantity / parseInt(driveStats.totalCollected)) * 100}
-                    color={item.color}
-                    size="sm"
-                    radius="md"
-                  />
-                </Card>
-              </Grid.Col>
-            ))}
-          </Grid>
-        </Paper>
+        {/* Environmental Impact */}
+        <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg">
+          <Card withBorder radius="md" p="lg">
+            <ThemeIcon size="lg" radius="md" style={{ backgroundColor: '#e8f5e8' }} mb="md">
+              <IconRecycle style={{ color: '#588157' }} />
+            </ThemeIcon>
+            <Text fw={600} mb="xs">CO₂ Emissions Prevented</Text>
+            <Text size="xl" style={{ color: '#588157' }}>
+              {Math.round(totalWeight * 2.5)} kg
+            </Text>
+            <Text size="sm" c="dimmed">Equivalent to planting {Math.round(totalWeight * 0.1)} trees</Text>
+          </Card>
 
-        {/* Daily Collection Progress */}
-        <Paper p="lg" radius="md" withBorder>
-          <Title order={4} style={{ color: '#344e41' }} mb="lg">Daily Collection Progress</Title>
-          <Stack gap="md">
-            {driveStats.dailyProgress.map((item, idx) => (
-              <div key={idx}>
-                <Group justify="space-between" mb="xs">
-                  <Text fw={500}>{item.date}</Text>
-                  <Text fw={600} style={{ color: '#588157' }}>{item.collected} kg</Text>
-                </Group>
-                <Progress value={(item.collected / 250) * 100} color="#588157" size="md" radius="md" />
-              </div>
-            ))}
-          </Stack>
-        </Paper>
+          <Card withBorder radius="md" p="lg">
+            <ThemeIcon size="lg" radius="md" style={{ backgroundColor: '#e8f5e8' }} mb="md">
+              <IconTrendingUp style={{ color: '#588157' }} />
+            </ThemeIcon>
+            <Text fw={600} mb="xs">Landfill Space Saved</Text>
+            <Text size="xl" style={{ color: '#588157' }}>
+              {Math.round(totalWeight * 0.8)} m³
+            </Text>
+            <Text size="sm" c="dimmed">Waste diverted from landfills</Text>
+          </Card>
+
+          <Card withBorder radius="md" p="lg">
+            <ThemeIcon size="lg" radius="md" style={{ backgroundColor: '#e8f5e8' }} mb="md">
+              <IconAward style={{ color: '#588157' }} />
+            </ThemeIcon>
+            <Text fw={600} mb="xs">Community Impact Score</Text>
+            <Text size="xl" style={{ color: '#588157' }}>
+              {Math.min(100, Math.round(participants.total * 2 + totalWeight * 0.5))}
+            </Text>
+            <Text size="sm" c="dimmed">Based on participation and collection</Text>
+          </Card>
+        </SimpleGrid>
       </Stack>
     </Container>
   );
