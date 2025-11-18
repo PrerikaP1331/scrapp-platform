@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AppShell, Group, Button, Menu, Avatar, Text, Burger, Box } from '@mantine/core';
-import { IconLogout, IconSettings, IconUser } from '@tabler/icons-react';
+import { IconLogout, IconSettings, IconUser, IconRecycle } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
@@ -29,9 +29,6 @@ function CommunityDashboardLayout({ children }) {
         collapsed: { mobile: !mobileOpened, desktop: false } 
       }}
       padding="md"
-      styles={{
-        main: { backgroundColor: '#f8f9fa' }
-      }}
     >
       <AppShell.Header p="md" className={styles.header}>
         <Group justify="space-between" h="100%">
@@ -43,7 +40,11 @@ function CommunityDashboardLayout({ children }) {
               color="#344e41"
               hiddenFrom="sm"
             />
-            <Text fw={600} size="lg" ml="md" style={{ color: '#344e41' }}>Scrapp Communities</Text>
+            <Group gap={8} align="center" style={{ padding: '4px 10px', marginLeft: '12px' }}>
+              <Text fw={900} style={{ fontSize: '2rem', letterSpacing: '-0.02em', color: '#344e41' }}>SCR</Text>
+              <IconRecycle size={32} style={{ color: '#588157', margin: '0 -3px' }} />
+              <Text fw={900} style={{ fontSize: '2rem', letterSpacing: '-0.02em', color: '#344e41' }}>PP</Text>
+            </Group>
           </Group>
           
           <Menu shadow="md" width={200} position="bottom-end">
@@ -53,8 +54,7 @@ function CommunityDashboardLayout({ children }) {
                 alt={userName}
                 radius="xl"
                 size="40"
-                style={{ cursor: 'pointer' }}
-                color="teal"
+                style={{ cursor: 'pointer', backgroundColor: '#588157' }}
               >
                 {userInitial}
               </Avatar>
@@ -82,7 +82,7 @@ function CommunityDashboardLayout({ children }) {
         </Box>
       </AppShell.Navbar>
 
-      <AppShell.Main>
+      <AppShell.Main className={styles.main}>
         {children}
       </AppShell.Main>
     </AppShell>

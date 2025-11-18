@@ -1,41 +1,28 @@
 .header {
-  background-color: white;
-  border-bottom: 1px solid #e0e0e0;
-  display: flex;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background-color: #dad7cd;
+  border-bottom: 1px solid #a3b18a;
+  box-shadow: 0 1px 3px rgba(52, 78, 65, 0.2);
+  color: #344e41;
 }
 
 .navbar {
-  background-color: white;
-  border-right: 1px solid #e0e0e0;
-  overflow-y: auto;
+  background-color: #dad7cd;
+  border-right: 1px solid #a3b18a;
 }
 
 .main {
-  background-color: #f8f9fa;
-  padding: 24px;
+  background-color: #f6f7f4;
 }
 
 .card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  transition: all 0.2s ease;
 }
 
 .gridItem {
-  background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
 }
 
 .gridItem:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(88, 129, 87, 0.15);
 }

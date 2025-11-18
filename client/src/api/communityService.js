@@ -1,7 +1,7 @@
 // /client/src/api/communityService.js
 import axios from './axios';
 
-const API_BASE = '/api/communities';
+const API_BASE = '/communities';
 
 /**
  * Search communities
@@ -25,6 +25,15 @@ export const getUserCommunities = async () => {
     return response.data;
   } catch (error) {
     throw error.response?.data || { msg: 'Error fetching communities' };
+  }
+};
+
+export const getAdminCommunity = async () => {
+  try {
+    const response = await axios.get(`${API_BASE}/my-admin`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { msg: 'Error fetching admin community' };
   }
 };
 

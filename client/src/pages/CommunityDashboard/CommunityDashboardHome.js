@@ -54,7 +54,20 @@ function CommunityDashboardHome() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const cid = user?.communityId;
+      let cid = user?.communityId;
+      if (!cid) {
+        try {
+          const adminCommunity = await communityService.getAdminCommunity();
+          cid = adminCommunity?._id || adminCommunity?.id;
+        } catch (_) {}
+      }
+      if (!cid) {
+        try {
+          const my = await communityService.getUserCommunities();
+          const list = my?.data || my;
+          cid = (Array.isArray(list) && (list[0]?._id || list[0]?.id)) || cid;
+        } catch (_) {}
+      }
       if (!cid) throw { msg: 'Community ID not found for admin' };
       const response = await communityService.getCommunityDashboard(cid);
       setDashboardData(response);
@@ -76,11 +89,26 @@ function CommunityDashboardHome() {
       setInviteLoading(true);
       setInviteError('');
       
-      await communityService.inviteResident(
-        communityId,
-        inviteEmail,
-        invitingMessage
-      );
+      let cid = user?.communityId;
+      if (!cid) {
+        try {
+          const adminCommunity = await communityService.getAdminCommunity();
+          cid = adminCommunity?._id || adminCommunity?.id;
+        } catch (_) {}
+      }
+      if (!cid) {
+        try {
+          const my = await communityService.getUserCommunities();
+          const list = my?.data || my;
+          cid = (Array.isArray(list) && (list[0]?._id || list[0]?.id)) || cid;
+        } catch (_) {}
+      }
+      if (!cid) {
+        setInviteError('Community ID not found for admin');
+        setInviteLoading(false);
+        return;
+      }
+      await communityService.inviteResident(cid, inviteEmail, invitingMessage);
       
       setInviteEmail('');
       setInvitingMessage('');

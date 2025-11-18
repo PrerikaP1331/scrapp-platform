@@ -38,6 +38,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { getCommunityDrives, createDrive, updateDrive, deleteDrive } from '../../api/driveService';
+import { getAdminCommunity, getUserCommunities } from '../../api/communityService';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import styles from './DriveManagement.module.css';
@@ -72,13 +73,24 @@ function DriveManagement() {
   const fetchDrives = async () => {
     try {
       setLoading(true);
-      const communityId = user?.communityId;
+      let communityId = user?.communityId || localStorage.getItem('communityId');
       if (!communityId) {
-        notifications.show({
-          title: 'Error',
-          message: 'Community ID not found',
-          color: 'red'
-        });
+        try {
+          const c = await getAdminCommunity();
+          communityId = c?._id || c?.id;
+          if (communityId) localStorage.setItem('communityId', communityId);
+        } catch (_) {}
+      }
+      if (!communityId) {
+        try {
+          const my = await getUserCommunities();
+          const list = Array.isArray(my?.data) ? my.data : my;
+          communityId = (Array.isArray(list) && (list[0]?._id || list[0]?.id)) || communityId;
+          if (communityId) localStorage.setItem('communityId', communityId);
+        } catch (_) {}
+      }
+      if (!communityId) {
+        notifications.show({ title: 'Error', message: 'Community ID not found', color: 'red' });
         return;
       }
       
@@ -99,16 +111,16 @@ function DriveManagement() {
     let filtered = drives;
     
     if (searchTerm) {
-      filtered = filtered.filter(drive => 
+      filtered = filtered.filter((drive) => 
         drive.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         drive.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
     if (filter === 'upcoming') {
-      filtered = filtered.filter(drive => new Date(drive.date) > new Date() && drive.status !== 'completed');
+      filtered = filtered.filter((drive) => drive.status === 'upcoming' || drive.status === 'active');
     } else if (filter === 'completed') {
-      filtered = filtered.filter(drive => drive.status === 'completed');
+      filtered = filtered.filter((drive) => drive.status === 'completed');
     }
     
     setFilteredDrives(filtered);
@@ -126,7 +138,14 @@ function DriveManagement() {
 
   const confirmDeleteDrive = async () => {
     try {
-      const cid = user?.communityId;
+      let cid = user?.communityId || localStorage.getItem('communityId');
+      if (!cid) {
+        try {
+          const c = await getAdminCommunity();
+          cid = c?._id || c?.id;
+          if (cid) localStorage.setItem('communityId', cid);
+        } catch (_) {}
+      }
       await deleteDrive(cid, driveToDelete._id);
       notifications.show({
         title: 'Success',
@@ -235,7 +254,7 @@ function DriveManagement() {
                   <Table.Tr key={drive._id}>
                     <Table.Td fw={500}>{drive.title}</Table.Td>
                     <Table.Td>{new Date(drive.date).toLocaleDateString()} {drive.time && new Date(drive.time).toLocaleTimeString()}</Table.Td>
-                    <Table.Td>{drive.location}</Table.Td>
+                    <Table.Td>{typeof drive.location === 'string' ? drive.location : (drive.location?.venue || '')}</Table.Td>
                     <Table.Td>
                       <Group gap={4}>
                         {getVisibilityIcon(drive.visibility)}

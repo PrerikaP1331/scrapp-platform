@@ -16,7 +16,9 @@ const impactRoutes = require('./routes/impactRoutes');
 const migrationRoutes = require('./routes/migrationRoutes');
 
 dotenv.config();
-connectDB();
+if (process.env.SKIP_DB !== '1') {
+  connectDB();
+}
 
 const app = express();
 

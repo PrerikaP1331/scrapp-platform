@@ -48,7 +48,7 @@ function DriveStatistics() {
       setLoading(true);
       const cid = user?.communityId;
       const response = await getDriveStats(cid, driveId);
-      setStats(response.data);
+      setStats(response);
     } catch (error) {
       console.error('Error fetching drive stats:', error);
     } finally {
@@ -77,7 +77,7 @@ function DriveStatistics() {
             </Title>
             <Text size="lg" fw={600}>{drive.title}</Text>
             <Text size="sm" c="dimmed">
-              {new Date(drive.date).toLocaleDateString()} • {drive.location}
+              {new Date(drive.date).toLocaleDateString()} • {typeof drive.location === 'string' ? drive.location : (drive.location?.venue || '')}
             </Text>
           </div>
           <Group gap="md">

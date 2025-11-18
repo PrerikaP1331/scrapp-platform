@@ -23,6 +23,7 @@ const {
   updateDrive,
   deleteDrive,
   getDriveStats,
+  getAdminCommunity,
 } = require('../controllers/communityController');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -40,6 +41,8 @@ router.get('/search', authMiddleware, searchCommunities);
 // @desc    Get user's communities
 // @access  Private
 router.get('/my-communities', authMiddleware, getUserCommunities);
+
+router.get('/my-admin', authMiddleware, getAdminCommunity);
 
 // @route   POST /api/communities/:communityId/join
 // @desc    Request to join a community

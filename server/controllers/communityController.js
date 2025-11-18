@@ -79,6 +79,18 @@ exports.registerCommunity = async (req, res) => {
   }
 };
 
+exports.getAdminCommunity = async (req, res) => {
+  try {
+    const community = await Community.findOne({ admin: req.user.id });
+    if (!community) {
+      return res.status(404).json({ msg: 'Community not found' });
+    }
+    res.json(community);
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+};
+
 /**
  * Search communities by name or postal code
  */

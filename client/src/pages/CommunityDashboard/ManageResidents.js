@@ -36,6 +36,7 @@ import { notifications } from '@mantine/notifications';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { memberService } from '../../api/memberService';
+import { getAdminCommunity, getUserCommunities } from '../../api/communityService';
 
 function ManageResidents() {
   // const navigate = useNavigate();
@@ -60,26 +61,40 @@ function ManageResidents() {
   }, [activeTab]);
 
   const fetchData = async () => {
-    if (!user?.communityId) return;
-    
     setLoading(true);
     try {
+      let cid = user?.communityId || localStorage.getItem('communityId');
+      if (!cid) {
+        try {
+          const c = await getAdminCommunity();
+          cid = c?._id || c?.id;
+          if (cid) localStorage.setItem('communityId', cid);
+        } catch (_) {}
+      }
+      if (!cid) {
+        try {
+          const my = await getUserCommunities();
+          const list = Array.isArray(my?.data) ? my.data : my;
+          cid = (Array.isArray(list) && (list[0]?._id || list[0]?.id)) || cid;
+          if (cid) localStorage.setItem('communityId', cid);
+        } catch (_) {}
+      }
+      if (!cid) {
+        notifications.show({ title: 'Error', message: 'Community ID not found', color: 'red' });
+        return;
+      }
       if (activeTab === 'active') {
-        const residents = await memberService.getActiveResidents(user.communityId);
+        const residents = await memberService.getActiveResidents(cid);
         setActiveResidents(residents);
       } else if (activeTab === 'pending') {
-        const requests = await memberService.getPendingRequests(user.communityId);
+        const requests = await memberService.getPendingRequests(cid);
         setPendingRequests(requests);
       } else if (activeTab === 'invitations') {
-        const invitations = await memberService.getInvitations(user.communityId);
+        const invitations = await memberService.getInvitations(cid);
         setInvitationsSent(invitations);
       }
     } catch (error) {
-      notifications.show({
-        title: 'Error',
-        message: 'Failed to load data',
-        color: 'red'
-      });
+      notifications.show({ title: 'Error', message: 'Failed to load data', color: 'red' });
     } finally {
       setLoading(false);
     }
@@ -95,14 +110,31 @@ function ManageResidents() {
       return;
     }
 
-    if (!user?.communityId) return;
-
     setLoading(true);
     try {
       // Parse emails and send invitations
-      const emailList = inviteEmails.split(/[,\n]/).map(email => email.trim()).filter(email => email);
-      
-      await memberService.inviteResidents(user.communityId, emailList, inviteMessage);
+      const emailList = inviteEmails.split(/[,\n]/).map((email) => email.trim()).filter((email) => email);
+      let cid = user?.communityId || localStorage.getItem('communityId');
+      if (!cid) {
+        try {
+          const c = await getAdminCommunity();
+          cid = c?._id || c?.id;
+          if (cid) localStorage.setItem('communityId', cid);
+        } catch (_) {}
+      }
+      if (!cid) {
+        try {
+          const my = await getUserCommunities();
+          const list = Array.isArray(my?.data) ? my.data : my;
+          cid = (Array.isArray(list) && (list[0]?._id || list[0]?.id)) || cid;
+          if (cid) localStorage.setItem('communityId', cid);
+        } catch (_) {}
+      }
+      if (!cid) {
+        notifications.show({ title: 'Error', message: 'Community ID not found', color: 'red' });
+        return;
+      }
+      await memberService.inviteResidents(cid, emailList, inviteMessage);
       
       notifications.show({
         title: 'Success',

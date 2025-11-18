@@ -86,6 +86,14 @@ exports.registerUser = async (req, res) => {
                 responseUser.recyclerProfileId = recyclerProfile.id;
             }
         }
+        if (user.role === 'community_admin') {
+            const Community = require('../models/Community');
+            const community = await Community.findOne({ admin: user.id });
+            if (community) {
+                responseUser.communityId = community.id;
+                responseUser.communityName = community.name;
+            }
+        }
 
         jwt.sign(
             payload,
@@ -146,6 +154,14 @@ exports.loginUser = async (req, res) => {
             const recyclerProfile = await RecyclerProfile.findOne({ user: user.id });
             if (recyclerProfile) {
                 responseUser.recyclerProfileId = recyclerProfile.id;
+            }
+        }
+        if (user.role === 'community_admin') {
+            const Community = require('../models/Community');
+            const community = await Community.findOne({ admin: user.id });
+            if (community) {
+                responseUser.communityId = community.id;
+                responseUser.communityName = community.name;
             }
         }
 

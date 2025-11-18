@@ -1,5 +1,7 @@
 // /client/src/context/AuthContext.js
 import React, { createContext, useState } from "react";
+import * as communityService from "../api/communityService";
+import apiClient from "../api/axios";
 
 export const AuthContext = createContext(null);
 
@@ -97,6 +99,36 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
     }
   }, []);
+
+  React.useEffect(() => {
+    const authToken = localStorage.getItem("token");
+    if (!authToken) return;
+    (async () => {
+      try {
+        const me = await apiClient.get("/auth/me");
+        const role = me?.data?.role;
+        const name = me?.data?.name;
+        const email = me?.data?.email;
+        const phone = me?.data?.phone;
+        const baseUser = { role, name, email, phone };
+        if (role) localStorage.setItem("userRole", role);
+        if (name) localStorage.setItem("userName", name);
+        if (email) localStorage.setItem("userEmail", email);
+        if (phone) localStorage.setItem("userPhone", phone);
+        setUser({ ...(user || {}), ...baseUser });
+      } catch (_) {}
+      try {
+        if ((user?.role || localStorage.getItem("userRole")) === "community_admin" && !localStorage.getItem("communityId")) {
+          const c = await communityService.getAdminCommunity();
+          const cid = c?._id || c?.id;
+          if (cid) {
+            localStorage.setItem("communityId", cid);
+            setUser({ ...(user || {}), communityId: cid, communityName: c?.name || localStorage.getItem("communityName") || "" });
+          }
+        }
+      } catch (_) {}
+    })();
+  }, [user?.role, user?.communityId]);
 
   const value = { user, token, login, logout };
 

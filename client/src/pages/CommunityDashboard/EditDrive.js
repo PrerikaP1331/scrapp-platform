@@ -104,7 +104,7 @@ function EditDrive() {
       setLoading(true);
       const cid = user?.communityId;
       const response = await getDriveById(cid, driveId);
-      const drive = response.data;
+      const drive = response;
       setOriginalDrive(drive);
       
       // Populate form with existing drive data
@@ -112,9 +112,9 @@ function EditDrive() {
         title: drive.title,
         date: new Date(drive.date).toISOString().split('T')[0],
         time: drive.time ? new Date(drive.time).toTimeString().slice(0, 5) : '',
-        location: drive.location,
+        location: drive.location?.venue || '',
         description: drive.description,
-        wasteTypes: drive.wasteTypes || [],
+        wasteTypes: drive.acceptedWasteTypes || [],
         visibility: drive.visibility || 'public',
         maxParticipants: drive.maxParticipants ? drive.maxParticipants.toString() : ''
       });

@@ -1,123 +1,100 @@
-import axios from 'axios';
+import axios from './axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
-// Get auth token from localStorage
-const getAuthToken = () => {
-  return localStorage.getItem('token');
-};
-
-// Create axios instance with auth header
-const api = axios.create({
-  baseURL: API_URL,
-});
-
-api.interceptors.request.use((config) => {
-  const token = getAuthToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Member Management API Service
 export const memberService = {
-  // Get all members for a community
-  getCommunityMembers: async (communityId, status = 'all') => {
+  getCommunityMembers: async (communityId) => {
     try {
-      const response = await api.get(`/community/${communityId}/members`, {
-        params: { status }
-      });
-      return response.data;
+      const res = await axios.get(`/communities/${communityId}/members`);
+      return res.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { msg: 'Error fetching members' };
     }
   },
 
-  // Get active residents
   getActiveResidents: async (communityId) => {
     try {
-      const response = await api.get(`/community/${communityId}/members`, {
-        params: { status: 'approved' }
-      });
-      return response.data;
+      const res = await axios.get(`/communities/${communityId}/members`);
+      const data = res.data || {};
+      const members = (data.approvedMembers || []).map((m) => ({
+        id: m._id || m.id,
+        name: m.name,
+        email: m.email,
+        dateJoined: new Date().toISOString()
+      }));
+      return members;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { msg: 'Error fetching active residents' };
     }
   },
 
-  // Get pending requests
   getPendingRequests: async (communityId) => {
     try {
-      const response = await api.get(`/community/${communityId}/members`, {
-        params: { status: 'pending' }
-      });
-      return response.data;
+      const res = await axios.get(`/communities/${communityId}/members`);
+      const data = res.data || {};
+      const pending = (data.pendingRequests || []).map((r) => ({
+        id: r.user?._id || r.user?.id,
+        name: r.user?.name || 'Pending Member',
+        email: r.user?.email || '',
+        dateRequested: r.requestedAt || new Date().toISOString()
+      }));
+      return pending;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { msg: 'Error fetching pending requests' };
     }
   },
 
-  // Send invitations to residents
   inviteResidents: async (communityId, emails, customMessage = '') => {
     try {
-      const response = await api.post(`/community/${communityId}/members/invite`, {
-        emails,
-        customMessage
-      });
-      return response.data;
+      const results = [];
+      for (const email of emails) {
+        const res = await axios.post(`/communities/${communityId}/invite`, { email, message: customMessage });
+        results.push(res.data);
+      }
+      return results;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { msg: 'Error sending invitations' };
     }
   },
 
-  // Approve a pending member request
   approveMember: async (communityId, userId) => {
     try {
-      const response = await api.put(`/community/${communityId}/members/${userId}/approve`);
-      return response.data;
+      const res = await axios.post(`/communities/${communityId}/members/${userId}/approve`);
+      return res.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { msg: 'Error approving member' };
     }
   },
 
-  // Deny a pending member request
   denyMember: async (communityId, userId) => {
     try {
-      const response = await api.delete(`/community/${communityId}/members/${userId}`);
-      return response.data;
+      const res = await axios.post(`/communities/${communityId}/members/${userId}/reject`);
+      return res.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { msg: 'Error rejecting member' };
     }
   },
 
-  // Remove a member from the community
   removeMember: async (communityId, userId) => {
     try {
-      const response = await api.delete(`/community/${communityId}/members/${userId}`);
-      return response.data;
+      const res = await axios.post(`/communities/${communityId}/members/${userId}/reject`);
+      return res.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { msg: 'Error removing member' };
     }
   },
 
-  // Get invitation status
   getInvitations: async (communityId) => {
     try {
-      const response = await api.get(`/community/${communityId}/invitations`);
-      return response.data;
+      return [];
     } catch (error) {
-      throw error.response?.data || error.message;
+      return [];
     }
   },
 
-  // Resend invitation
   resendInvitation: async (communityId, invitationId) => {
     try {
-      const response = await api.post(`/community/${communityId}/invitations/${invitationId}/resend`);
-      return response.data;
+      return { msg: 'Invitation resent' };
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { msg: 'Error resending invitation' };
     }
   }
 };

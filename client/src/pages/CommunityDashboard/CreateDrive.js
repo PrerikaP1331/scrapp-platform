@@ -32,6 +32,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { createDrive } from '../../api/driveService';
+import { getAdminCommunity, getUserCommunities } from '../../api/communityService';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import ReactQuill from 'react-quill';
@@ -104,14 +105,24 @@ function CreateDrive() {
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
-      const communityId = user?.communityId;
-      
+      let communityId = user?.communityId || localStorage.getItem('communityId');
       if (!communityId) {
-        notifications.show({
-          title: 'Error',
-          message: 'Community ID not found',
-          color: 'red'
-        });
+        try {
+          const c = await getAdminCommunity();
+          communityId = c?._id || c?.id;
+          if (communityId) localStorage.setItem('communityId', communityId);
+        } catch (_) {}
+      }
+      if (!communityId) {
+        try {
+          const my = await getUserCommunities();
+          const list = Array.isArray(my?.data) ? my.data : my;
+          communityId = (Array.isArray(list) && (list[0]?._id || list[0]?.id)) || communityId;
+          if (communityId) localStorage.setItem('communityId', communityId);
+        } catch (_) {}
+      }
+      if (!communityId) {
+        notifications.show({ title: 'Error', message: 'Community ID not found', color: 'red' });
         return;
       }
 
@@ -119,7 +130,7 @@ function CreateDrive() {
         ...values,
         communityId,
         date: new Date(values.date).toISOString(),
-        time: new Date(values.time).toISOString(),
+        time: values.time ? new Date(`2000-01-01T${values.time}`).toISOString() : undefined,
         maxParticipants: values.maxParticipants ? parseInt(values.maxParticipants) : undefined
       };
 
