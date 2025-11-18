@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AppShell, Group, Button, Menu, Avatar, Text, Burger, Box } from '@mantine/core';
-import { IconLogout, IconSettings, IconUser } from '@tabler/icons-react';
+import { IconLogout, IconSettings, IconUser, IconRecycle } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
@@ -36,7 +36,7 @@ function DashboardLayout({ children }) {
     >
       {/* Header */}
       <AppShell.Header p="md" className={styles.header}>
-        <Group justify="space-between" h="100%">
+        <Group justify="space-between" h="100%" style={{ width: '100%' }}>
           <Group gap={0}>
             <Burger
               opened={mobileOpened}
@@ -45,7 +45,11 @@ function DashboardLayout({ children }) {
               color="#344e41"
               hiddenFrom="sm"
             />
-            <Text fw={600} size="lg" ml="md" style={{ color: '#344e41' }}>Scrapp</Text>
+            <Group ml="md" gap={0} style={{ cursor: 'pointer' }} onClick={() => navigate('/dashboard')}>
+              <Text fw={800} style={{ fontSize: 28, lineHeight: 1, letterSpacing: '-0.03em', color: '#344e41' }}>SCR</Text>
+              <IconRecycle size={30} style={{ color: '#588157', margin: '0 -2px' }} />
+              <Text fw={800} style={{ fontSize: 28, lineHeight: 1, letterSpacing: '-0.03em', color: '#344e41' }}>PP</Text>
+            </Group>
           </Group>
           
           {/* User Menu - Top Right */}

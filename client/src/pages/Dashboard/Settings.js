@@ -36,7 +36,7 @@ const Settings = () => {
 
   const loadProfile = async () => {
     try {
-      const res = await axios.get('/user/profile');
+      const res = await axios.get('/api/user/profile');
       console.log('Full API Response:', res.data);
       console.log('Address object:', res.data.address);
       
@@ -92,7 +92,7 @@ const Settings = () => {
         }
       };
       console.log('Sending payload:', payload);
-      const res = await axios.put('/user/profile', payload);
+      const res = await axios.put('/api/user/profile', payload);
       console.log('Save response:', res.data);
       showMessage('✓ Profile updated successfully!', 'success');
       setProfileChanged(false);
@@ -126,7 +126,7 @@ const Settings = () => {
 
     setPasswordSaving(true);
     try {
-      await axios.put('/user/password', {
+      await axios.put('/api/user/password', {
         currentPassword: passwords.currentPassword,
         newPassword: passwords.newPassword,
         confirmPassword: passwords.confirmPassword
@@ -152,7 +152,7 @@ const Settings = () => {
   const handleNotificationsSave = async () => {
     setNotificationsSaving(true);
     try {
-      await axios.put('/user/notifications', { notifications });
+      await axios.put('/api/user/notifications', { notifications });
       showMessage('Notification preferences saved!', 'success');
       setNotificationsChanged(false);
     } catch (err) {
@@ -192,7 +192,7 @@ const Settings = () => {
         )}
 
         {/* Tabs */}
-        <Tabs value={activeTab} onTabChange={setActiveTab}>
+        <Tabs value={activeTab} onChange={setActiveTab}>
           <Tabs.List>
             <Tabs.Tab value="profile" leftSection={<IconUser size={14} />}>
               Profile
