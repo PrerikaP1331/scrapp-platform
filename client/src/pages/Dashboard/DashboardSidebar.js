@@ -43,11 +43,12 @@ function DashboardSidebar() {
             onClick={() => navigate(item.path)}
             active={isActive(item.path)}
             color="teal"
+            styles={{ label: { fontWeight: 600, fontSize: '1rem' } }}
             style={{
-              color: isActive(item.path) ? '#588157' : '#666',
+              color: isActive(item.path) ? '#588157' : '#333',
               backgroundColor: isActive(item.path) ? '#e8f5e9' : 'transparent',
               borderRadius: '8px',
-              marginBottom: '4px',
+              marginBottom: '6px',
               paddingLeft: '12px',
             }}
           />
@@ -65,11 +66,12 @@ function DashboardSidebar() {
             onClick={() => navigate(item.path)}
             active={isActive(item.path)}
             color="teal"
+            styles={{ label: { fontWeight: 600, fontSize: '1rem' } }}
             style={{
-              color: isActive(item.path) ? '#588157' : '#666',
+              color: isActive(item.path) ? '#588157' : '#333',
               backgroundColor: isActive(item.path) ? '#e8f5e9' : 'transparent',
               borderRadius: '8px',
-              marginBottom: '4px',
+              marginBottom: '6px',
               paddingLeft: '12px',
             }}
           />

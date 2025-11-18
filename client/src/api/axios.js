@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:5001/api', // Sets the base path for all requests
+  baseURL: 'http://localhost:5001',
 });
 
 // Add request interceptor to include authorization token

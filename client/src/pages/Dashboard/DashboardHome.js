@@ -46,9 +46,7 @@ function DashboardHome() {
           <Title order={2}>Welcome back, {userName}</Title>
           <Text c="dimmed">What do you want to do today?</Text>
         </div>
-        <ThemeIcon size="xl" radius="xl" variant="light" color="green">
-          👤
-        </ThemeIcon>
+        
       </Group>
 
       {/* Quick Actions */}
