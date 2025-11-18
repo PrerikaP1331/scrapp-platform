@@ -64,8 +64,12 @@ function IndividualSignUpPage() {
       }
     };
 
+    console.log('Signup payload being sent:', payload);
+    console.log('Address in payload:', payload.address);
+
     try {
       const response = await apiClient.post('/auth/register', payload);
+      console.log('Signup response:', response.data);
       const { token, user } = response.data;
       
       login(user, token);

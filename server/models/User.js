@@ -28,10 +28,21 @@ const userSchema = new Schema({
         default: 'individual'
     },
     address: {
-        street: { type: String },
-        city: { type: String },
-        state: { type: String },
-        postalCode: { type: String }
+        type: {
+            addressLine1: { type: String, default: '' },
+            addressLine2: { type: String, default: '' },
+            city: { type: String, default: '' },
+            state: { type: String, default: '' },
+            postalCode: { type: String, default: '' }
+        },
+        _id: false,
+        default: () => ({
+            addressLine1: '',
+            addressLine2: '',
+            city: '',
+            state: '',
+            postalCode: ''
+        })
     },
     notifications: {
         pickupReminders: { email: { type: Boolean, default: true }, push: { type: Boolean, default: false } },

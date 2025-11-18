@@ -2,6 +2,7 @@
 const User = require('../models/User');
 const Pickup = require('../models/Pickup');
 const Coupon = require('../models/Coupon');
+const bcrypt = require('bcryptjs');
 
 /**
  * Get user's transaction history with filtering, searching, and pagination
@@ -161,41 +162,98 @@ exports.getUserHistory = async (req, res) => {
  */
 exports.getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    let user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({ msg: 'User not found' });
     }
 
-    res.json(user);
+    // Remove password from response
+    const userData = user.toObject();
+    delete userData.password;
+
+    // Ensure address is always an object with all fields
+    if (!userData.address) {
+      userData.address = {
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: '',
+        postalCode: ''
+      };
+    } else {
+      // Ensure all fields exist in address
+      userData.address = {
+        addressLine1: userData.address.addressLine1 || '',
+        addressLine2: userData.address.addressLine2 || '',
+        city: userData.address.city || '',
+        state: userData.address.state || '',
+        postalCode: userData.address.postalCode || ''
+      };
+    }
+
+    res.json(userData);
   } catch (err) {
-    console.error(err.message);
+    console.error('getUserProfile error:', err.message);
     res.status(500).send('Server Error');
   }
 };
 
 /**
  * Update user profile
+ * Note: name and email cannot be changed
  */
 exports.updateUserProfile = async (req, res) => {
   try {
-    const { name, phone, address } = req.body;
-    const user = await User.findById(req.user.id);
+    const { phone, address } = req.body;
+    let user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({ msg: 'User not found' });
     }
 
-    if (name) user.name = name;
-    if (phone) user.phone = phone;
-    if (address) user.address = address;
+    // Update phone if provided
+    if (phone && phone.trim()) {
+      user.phone = phone;
+    }
 
+    // Update address if provided
+    if (address) {
+      // Mark the address subdocument as modified so Mongoose saves it
+      const addressData = {
+        addressLine1: String(address.addressLine1 || '').trim(),
+        addressLine2: String(address.addressLine2 || '').trim(),
+        city: String(address.city || '').trim(),
+        state: String(address.state || '').trim(),
+        postalCode: String(address.postalCode || '').trim()
+      };
+      user.address = addressData;
+      user.markModified('address'); // Force Mongoose to recognize the change
+      console.log('Address being updated:', addressData);
+    }
+
+    // Save to database
     await user.save();
+    console.log('Profile updated successfully. Address saved:', user.address);
 
-    res.json(user);
+    // Fetch updated user to return complete data
+    let updatedUser = await User.findById(req.user.id);
+    const userData = updatedUser.toObject();
+    delete userData.password;
+
+    // Ensure address format
+    userData.address = {
+      addressLine1: userData.address?.addressLine1 || '',
+      addressLine2: userData.address?.addressLine2 || '',
+      city: userData.address?.city || '',
+      state: userData.address?.state || '',
+      postalCode: userData.address?.postalCode || ''
+    };
+
+    res.json(userData);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('updateUserProfile error:', err.message);
+    res.status(500).json({ msg: 'Error updating profile: ' + err.message });
   }
 };
 
@@ -222,17 +280,20 @@ exports.changePassword = async (req, res) => {
     }
 
     // Check minimum length
-    if (newPassword.length < 6) {
-      return res.status(400).json({ msg: 'Password must be at least 6 characters' });
+    if (newPassword.length < 8) {
+      return res.status(400).json({ msg: 'Password must be at least 8 characters' });
     }
 
-    // Verify current password (simplified - in production use bcrypt)
-    if (user.password !== currentPassword) {
+    // Verify current password using bcrypt
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
       return res.status(401).json({ msg: 'Current password is incorrect' });
     }
 
-    // Update password
-    user.password = newPassword;
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    
     await user.save();
 
     res.json({ msg: 'Password changed successfully' });

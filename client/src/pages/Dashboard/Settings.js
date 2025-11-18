@@ -12,7 +12,7 @@ const Settings = () => {
   const [messageType, setMessageType] = useState('');
 
   // Profile tab state
-  const [profileData, setProfileData] = useState({ name: '', email: '', phone: '', street: '', city: '', state: '', postalCode: '' });
+  const [profileData, setProfileData] = useState({ name: '', email: '', phone: '', addressLine1: '', addressLine2: '', city: '', state: '', postalCode: '' });
   const [profileChanged, setProfileChanged] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
 
@@ -36,17 +36,24 @@ const Settings = () => {
 
   const loadProfile = async () => {
     try {
-      const res = await axios.get('/api/user/profile');
+      const res = await axios.get('/user/profile');
+      console.log('Full API Response:', res.data);
+      console.log('Address object:', res.data.address);
+      
       if (res.data) {
-        setProfileData({
+        const addr = res.data.address || {};
+        const newProfileData = {
           name: res.data.name || '',
           email: res.data.email || '',
           phone: res.data.phone || '',
-          street: res.data.address?.street || '',
-          city: res.data.address?.city || '',
-          state: res.data.address?.state || '',
-          postalCode: res.data.address?.postalCode || ''
-        });
+          addressLine1: addr.addressLine1 || '',
+          addressLine2: addr.addressLine2 || '',
+          city: addr.city || '',
+          state: addr.state || '',
+          postalCode: addr.postalCode || ''
+        };
+        console.log('Loaded profile data:', newProfileData);
+        setProfileData(newProfileData);
         if (res.data.notifications) {
           setNotifications(res.data.notifications);
         }
@@ -74,19 +81,25 @@ const Settings = () => {
     setProfileSaving(true);
     setMessage('');
     try {
-      await axios.put('/api/user/profile', {
-        name: profileData.name,
+      const payload = {
         phone: profileData.phone,
         address: {
-          street: profileData.street,
+          addressLine1: profileData.addressLine1,
+          addressLine2: profileData.addressLine2,
           city: profileData.city,
           state: profileData.state,
           postalCode: profileData.postalCode
         }
-      });
-      showMessage('Profile updated successfully!', 'success');
+      };
+      console.log('Sending payload:', payload);
+      const res = await axios.put('/user/profile', payload);
+      console.log('Save response:', res.data);
+      showMessage('✓ Profile updated successfully!', 'success');
       setProfileChanged(false);
+      // Reload to verify
+      loadProfile();
     } catch (err) {
+      console.error('Save error:', err);
       showMessage(err.response?.data?.msg || 'Error updating profile', 'error');
     } finally {
       setProfileSaving(false);
@@ -113,7 +126,7 @@ const Settings = () => {
 
     setPasswordSaving(true);
     try {
-      await axios.put('/api/user/password', {
+      await axios.put('/user/password', {
         currentPassword: passwords.currentPassword,
         newPassword: passwords.newPassword,
         confirmPassword: passwords.confirmPassword
@@ -139,7 +152,7 @@ const Settings = () => {
   const handleNotificationsSave = async () => {
     setNotificationsSaving(true);
     try {
-      await axios.put('/api/user/notifications', { notifications });
+      await axios.put('/user/notifications', { notifications });
       showMessage('Notification preferences saved!', 'success');
       setNotificationsChanged(false);
     } catch (err) {
@@ -207,7 +220,8 @@ const Settings = () => {
                     label="Full Name"
                     placeholder="Your name"
                     value={profileData.name}
-                    onChange={(e) => handleProfileChange('name', e.currentTarget.value)}
+                    disabled
+                    description="Name cannot be changed. Please contact support if you need to update it."
                   />
 
                   <TextInput
@@ -238,8 +252,15 @@ const Settings = () => {
                   <TextInput
                     label="Address Line 1"
                     placeholder="Building/house number, street"
-                    value={profileData.street}
-                    onChange={(e) => handleProfileChange('street', e.currentTarget.value)}
+                    value={profileData.addressLine1}
+                    onChange={(e) => handleProfileChange('addressLine1', e.currentTarget.value)}
+                  />
+
+                  <TextInput
+                    label="Address Line 2 (Optional)"
+                    placeholder="Apt, Suite, etc."
+                    value={profileData.addressLine2}
+                    onChange={(e) => handleProfileChange('addressLine2', e.currentTarget.value)}
                   />
 
                   <Group grow>
