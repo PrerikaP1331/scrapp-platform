@@ -1,7 +1,7 @@
 // /client/src/api/impactService.js
 import axios from './axios';
 
-const API_BASE = '/api/impact';
+const API_BASE = '/impact';
 
 /**
  * Get user's impact statistics

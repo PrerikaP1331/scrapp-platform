@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavLink, Stack, Divider, Text, Box } from '@mantine/core';
 import {
   IconHome,
@@ -9,12 +9,15 @@ import {
   IconTicket,
   IconUser,
   IconSettings,
+  IconLogout,
 } from '@tabler/icons-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 
 function DashboardSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useContext(AuthContext);
 
   const navItems = [
     { label: 'Dashboard', icon: IconHome, path: '/dashboard' },
@@ -76,6 +79,19 @@ function DashboardSidebar() {
             }}
           />
         ))}
+        <NavLink
+          label="Logout"
+          icon={<IconLogout size={20} stroke={1.5} />}
+          onClick={() => { logout(); navigate('/login'); }}
+          color="red"
+          styles={{ label: { fontWeight: 600, fontSize: '1rem' } }}
+          style={{
+            color: '#b00020',
+            borderRadius: '8px',
+            marginTop: '8px',
+            paddingLeft: '12px',
+          }}
+        />
       </Stack>
     </Box>
   );

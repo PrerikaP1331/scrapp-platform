@@ -94,6 +94,14 @@ exports.registerUser = async (req, res) => {
                 responseUser.communityName = community.name;
             }
         }
+        if (user.role === 'org_admin') {
+            const Organisation = require('../models/Organisation');
+            const organisation = await Organisation.findOne({ admin: user.id });
+            if (organisation) {
+                responseUser.organizationId = organisation.id;
+                responseUser.organizationName = organisation.name;
+            }
+        }
 
         jwt.sign(
             payload,

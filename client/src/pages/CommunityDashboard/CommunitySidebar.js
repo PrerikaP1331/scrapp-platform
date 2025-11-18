@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavLink, Stack, Divider, Box, Text } from '@mantine/core';
 import {
   IconHome,
@@ -8,12 +8,15 @@ import {
   IconTrendingUp,
   IconCreditCard,
   IconSettings,
+  IconLogout,
 } from '@tabler/icons-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 
 function CommunitySidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useContext(AuthContext);
 
   const navItems = [
     { label: 'Dashboard', icon: IconHome, path: '/community-dashboard' },
@@ -72,6 +75,17 @@ function CommunitySidebar() {
             }}
           />
         ))}
+        <NavLink
+          label={<Text size="md" fw={600} style={{ color: 'inherit' }}>Logout</Text>}
+          icon={<IconLogout size={20} stroke={1.5} color="#3a5a40" />}
+          onClick={() => { logout(); navigate('/login'); }}
+          color="red"
+          style={{
+            borderRadius: '8px',
+            marginTop: '8px',
+            paddingLeft: '12px',
+          }}
+        />
       </Stack>
     </Box>
   );

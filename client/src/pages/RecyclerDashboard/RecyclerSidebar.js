@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavLink, Stack, Divider, Box } from '@mantine/core';
 import {
   IconHome,
@@ -8,13 +8,15 @@ import {
   IconUsers,
   IconWorld,
   IconCreditCard,
-  IconSettings,
+  IconLogout,
 } from '@tabler/icons-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 
 function RecyclerSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useContext(AuthContext);
 
   const navItems = [
     { label: 'Dashboard', icon: IconHome, path: '/recycler-dashboard' },
@@ -26,9 +28,7 @@ function RecyclerSidebar() {
     { label: 'Billing', icon: IconCreditCard, path: '/recycler-dashboard/billing' },
   ];
 
-  const settingsItems = [
-    { label: 'Settings', icon: IconSettings, path: '/recycler-dashboard/settings' },
-  ];
+  const settingsItems = [];
 
   const isActive = (path) => location.pathname === path;
 
@@ -57,23 +57,18 @@ function RecyclerSidebar() {
       <Divider my="lg" />
 
       <Stack gap={0}>
-        {settingsItems.map((item) => (
-          <NavLink
-            key={item.path}
-            label={item.label}
-            icon={<item.icon size={20} stroke={1.5} />}
-            onClick={() => navigate(item.path)}
-            active={isActive(item.path)}
-            color="#588157"
-            style={{
-              color: isActive(item.path) ? '#344e41' : '#3a5a40',
-              backgroundColor: isActive(item.path) ? '#dad7cd' : 'transparent',
-              borderRadius: '8px',
-              marginBottom: '4px',
-              paddingLeft: '12px',
-            }}
-          />
-        ))}
+        <NavLink
+          label="Logout"
+          icon={<IconLogout size={20} stroke={1.5} />}
+          onClick={() => { logout(); navigate('/login'); }}
+          color="red"
+          style={{
+            color: '#b00020',
+            borderRadius: '8px',
+            marginTop: '8px',
+            paddingLeft: '12px',
+          }}
+        />
       </Stack>
     </Box>
   );

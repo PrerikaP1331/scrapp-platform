@@ -26,7 +26,7 @@ const Profile = () => {
 
   const loadProfile = async () => {
     try {
-      const res = await axios.get('/api/user/profile');
+      const res = await axios.get('/user/profile');
       console.log('Full API Response:', res.data);
       console.log('Address object:', res.data.address);
       
@@ -74,7 +74,7 @@ const Profile = () => {
         }
       };
       console.log('Sending payload:', payload);
-      const res = await axios.put('/api/user/profile', payload);
+      const res = await axios.put('/user/profile', payload);
       console.log('Save response:', res.data);
       setMessage('✓ Profile saved successfully!');
       // Reload the form with latest data

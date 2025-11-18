@@ -92,7 +92,7 @@ function RecyclerSettings() {
 
     try {
       setSaved(true);
-      await axios.put("/api/user/password", {
+      await axios.put("/user/password", {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });

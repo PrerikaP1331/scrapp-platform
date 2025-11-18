@@ -14,6 +14,7 @@ const recyclerDashboardRoutes = require('./routes/recyclerDashboardRoutes');
 const userRoutes = require('./routes/userRoutes');
 const impactRoutes = require('./routes/impactRoutes');
 const migrationRoutes = require('./routes/migrationRoutes');
+const initiativeRoutes = require('./routes/initiativeRoutes');
 
 dotenv.config();
 if (process.env.SKIP_DB !== '1') {
@@ -35,6 +36,7 @@ app.use('/api/recycler', recyclerDashboardRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/impact', impactRoutes);
 app.use('/api/migration', migrationRoutes);
+app.use('/api/initiatives', initiativeRoutes);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, console.log(`Server running in development mode on port ${PORT}`));

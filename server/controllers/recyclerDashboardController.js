@@ -367,6 +367,72 @@ exports.updatePickupStatus = async (req, res) => {
   }
 };
 
+exports.seedTodayPickups = async (req, res) => {
+  try {
+    const recyclerId = req.user.id;
+
+    const city = 'Bangalore';
+    const state = 'Karnataka';
+    const addresses = [
+      {
+        addressLine1: 'Green Meadows, Block A',
+        addressLine2: 'MG Road',
+        city,
+        postalCode: '560001',
+        state,
+        coordinates: { latitude: 12.9716, longitude: 77.5946 }
+      },
+      {
+        addressLine1: 'Lakeview Residency, Tower 3',
+        addressLine2: 'Indiranagar',
+        city,
+        postalCode: '560038',
+        state,
+        coordinates: { latitude: 12.9784, longitude: 77.6408 }
+      },
+      {
+        addressLine1: 'Sunshine Apartments, Wing B',
+        addressLine2: 'Koramangala',
+        city,
+        postalCode: '560095',
+        state,
+        coordinates: { latitude: 12.9352, longitude: 77.6245 }
+      }
+    ];
+
+    const timeSlots = ['09:00 - 12:00', '12:00 - 15:00', '15:00 - 18:00'];
+    const wasteTypesList = [
+      ['Paper & Cardboard'],
+      ['Plastics', 'Glass'],
+      ['Metal']
+    ];
+    const quantities = ['A Medium Box', 'Multiple Large Bags', '1-2 Small Bags'];
+
+    const created = [];
+    for (let i = 0; i < 3; i++) {
+      const pickup = await Pickup.create({
+        user: recyclerId,
+        recycler: recyclerId,
+        status: 'scheduled',
+        pickupType: 'individual',
+        wasteTypes: wasteTypesList[i],
+        quantity: quantities[i],
+        notes: 'Auto-generated test pickup',
+        address: addresses[i],
+        scheduledDate: new Date(),
+        timeSlot: timeSlots[i],
+        estimatedWeight: 10 + i * 5
+      });
+      created.push(pickup._id);
+    }
+
+    res.json({ msg: 'Seeded today pickups', count: created.length, ids: created });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
 /**
  * Get filtered pickups with search, status, and date range
  * GET /api/recycler/pickups?status=[status]&startDate=[date]&endDate=[date]&search=[query]

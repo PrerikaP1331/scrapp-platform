@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink, Stack, Divider, Box } from '@mantine/core';
+import React, { useContext } from 'react';
+import { NavLink, Stack, Divider, Box, Text } from '@mantine/core';
 import {
   IconHome,
   IconTruck,
@@ -9,12 +9,15 @@ import {
   IconLeaf,
   IconCreditCard,
   IconSettings,
+  IconLogout,
 } from '@tabler/icons-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 
 function OrganizationSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useContext(AuthContext);
 
   const navItems = [
     { label: 'Dashboard', icon: IconHome, path: '/org-dashboard' },
@@ -38,16 +41,15 @@ function OrganizationSidebar() {
         {navItems.map((item) => (
           <NavLink
             key={item.path}
-            label={item.label}
-            icon={<item.icon size={20} stroke={1.5} />}
+            label={<Text size="md" fw={600} style={{ color: 'inherit' }}>{item.label}</Text>}
+            icon={<item.icon size={20} stroke={1.5} color={isActive(item.path) ? '#344e41' : '#3a5a40'} />}
             onClick={() => navigate(item.path)}
             active={isActive(item.path)}
-            color="teal"
             style={{
-              color: isActive(item.path) ? '#588157' : '#666',
-              backgroundColor: isActive(item.path) ? '#e8f5e9' : 'transparent',
               borderRadius: '8px',
-              marginBottom: '4px',
+              color: isActive(item.path) ? '#344e41' : '#3a5a40',
+              backgroundColor: isActive(item.path) ? '#dad7cd' : 'transparent',
+              marginBottom: '6px',
               paddingLeft: '12px',
             }}
           />
@@ -60,20 +62,30 @@ function OrganizationSidebar() {
         {settingsItems.map((item) => (
           <NavLink
             key={item.path}
-            label={item.label}
-            icon={<item.icon size={20} stroke={1.5} />}
+            label={<Text size="md" fw={600} style={{ color: 'inherit' }}>{item.label}</Text>}
+            icon={<item.icon size={20} stroke={1.5} color={isActive(item.path) ? '#344e41' : '#3a5a40'} />}
             onClick={() => navigate(item.path)}
             active={isActive(item.path)}
-            color="teal"
             style={{
-              color: isActive(item.path) ? '#588157' : '#666',
-              backgroundColor: isActive(item.path) ? '#e8f5e9' : 'transparent',
               borderRadius: '8px',
-              marginBottom: '4px',
+              color: isActive(item.path) ? '#344e41' : '#3a5a40',
+              backgroundColor: isActive(item.path) ? '#dad7cd' : 'transparent',
               paddingLeft: '12px',
             }}
           />
         ))}
+        <NavLink
+          label="Logout"
+          icon={<IconLogout size={20} stroke={1.5} />}
+          onClick={() => { logout(); navigate('/login'); }}
+          color="red"
+          style={{
+            color: '#b00020',
+            borderRadius: '8px',
+            marginTop: '8px',
+            paddingLeft: '12px',
+          }}
+        />
       </Stack>
     </Box>
   );

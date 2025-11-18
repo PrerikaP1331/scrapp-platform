@@ -2,7 +2,7 @@ import axios from './axios';
 
 export const getMe = async () => {
   try {
-    const res = await axios.get('/api/user/me');
+    const res = await axios.get('/auth/me');
     return res.data;
   } catch (error) {
     throw error.response?.data || { msg: 'Error fetching user profile' };
@@ -11,7 +11,7 @@ export const getMe = async () => {
 
 export const updateProfileName = async (name) => {
   try {
-    const res = await axios.put('/api/user/me', { name });
+    const res = await axios.put('/user/profile', { phone: '', address: {}, name });
     return res.data;
   } catch (error) {
     throw error.response?.data || { msg: 'Error updating profile' };
@@ -20,7 +20,7 @@ export const updateProfileName = async (name) => {
 
 export const changePassword = async ({ currentPassword, newPassword }) => {
   try {
-    const res = await axios.put('/api/user/password', { currentPassword, newPassword });
+    const res = await axios.put('/user/password', { currentPassword, newPassword, confirmPassword: newPassword });
     return res.data;
   } catch (error) {
     throw error.response?.data || { msg: 'Error updating password' };

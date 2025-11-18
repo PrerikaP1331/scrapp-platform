@@ -107,7 +107,7 @@ function OrganizationSettings() {
     try {
       setPasswordLoading(true);
       const axios = require("../../api/axios").default;
-      await axios.put("/api/user/password", {
+      await axios.put("/user/password", {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
@@ -171,7 +171,7 @@ function OrganizationSettings() {
           </p>
         </div>
 
-        <Tabs value={activeTab} onTabChange={setActiveTab}>
+        <Tabs value={activeTab} onChange={setActiveTab}>
           <Tabs.List>
             <Tabs.Tab value="admin">Admin Profile</Tabs.Tab>
             <Tabs.Tab value="organization">Organization Details</Tabs.Tab>

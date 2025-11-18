@@ -1,7 +1,7 @@
 // /client/src/api/historyService.js
 import axios from './axios';
 
-const API_BASE = '/api/user';
+const API_BASE = '/user';
 
 /**
  * Get user's transaction history

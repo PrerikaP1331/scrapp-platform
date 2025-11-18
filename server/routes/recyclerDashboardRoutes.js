@@ -7,7 +7,8 @@ const {
   declinePickup,
   getTodayRoute,
   updatePickupStatus,
-  getPickupsFiltered
+  getPickupsFiltered,
+  seedTodayPickups
 } = require('../controllers/recyclerDashboardController');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -40,5 +41,7 @@ router.post('/pickup/:pickupId/decline', authMiddleware, declinePickup);
 // @desc    Update pickup status (scheduled, upcoming, in-transit, completed)
 // @access  Private
 router.put('/pickup/:pickupId/status', authMiddleware, updatePickupStatus);
+
+router.post('/seed/today', authMiddleware, seedTodayPickups);
 
 module.exports = router;
