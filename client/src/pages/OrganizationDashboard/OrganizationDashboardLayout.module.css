@@ -1,0 +1,42 @@
+.header {
+  background-color: #344e41;
+  border-bottom: 1px solid #3a5a40;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(52, 78, 65, 0.2);
+  color: #ffffff;
+}
+
+.navbar {
+  background-color: #dad7cd;
+  border-right: 1px solid #a3b18a;
+  overflow-y: auto;
+}
+
+.main {
+  background-color: #f6f7f4;
+  padding: 24px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.gridItem {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gridItem:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}

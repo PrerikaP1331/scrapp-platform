@@ -1,0 +1,298 @@
+/* Color palette */
+:root {
+  --linen: #dad7cd;
+  --sage: #a3b18a;
+  --fern: #588157;
+  --pine: #3a5a40;
+  --forest: #344e41;
+}
+
+.wrapper {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #dad7cd 50%, #a3b18a 100%);
+}
+
+/* Animated background pattern */
+.wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(163, 177, 138, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(88, 129, 87, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(58, 90, 64, 0.15) 0%, transparent 50%);
+  animation: float 20s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(218, 215, 205, 0.1);
+  z-index: 2;
+}
+
+.formContainer {
+  position: relative;
+  z-index: 3;
+  padding: 20px;
+}
+
+/* Logo */
+.logoWrapper {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logoLink {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.logo {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #344e41;
+  text-shadow: 0 2px 8px rgba(88, 129, 87, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.logoLink:hover .logo {
+  transform: scale(1.05);
+}
+
+/* Form Card */
+.formCard {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(163, 177, 138, 0.3);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.title {
+  color: #588157;
+  font-weight: 700;
+  font-size: 2rem;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.subtitle {
+  color: #3a5a40;
+  opacity: 0.8;
+  text-align: center;
+  font-size: 1rem;
+}
+
+/* Form Inputs */
+.label {
+  color: #344e41;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.input {
+  border: 2px solid rgba(163, 177, 138, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  background: rgba(218, 215, 205, 0.05);
+}
+
+.input:focus {
+  border-color: #588157;
+  box-shadow: 0 0 0 3px rgba(88, 129, 87, 0.1);
+  background: white;
+}
+
+.input::placeholder {
+  color: rgba(58, 90, 64, 0.4);
+}
+
+/* Links */
+.forgotLink {
+  color: #588157;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.forgotLink:hover {
+  color: #3a5a40;
+  text-decoration: underline;
+}
+
+/* Submit Button */
+.submitButton {
+  background: linear-gradient(135deg, #588157 0%, #3a5a40 100%);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  height: 48px;
+  box-shadow: 0 4px 12px rgba(88, 129, 87, 0.3);
+  transition: all 0.3s ease;
+}
+
+.submitButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(88, 129, 87, 0.4);
+  background: linear-gradient(135deg, #3a5a40 0%, #344e41 100%);
+}
+
+.submitButton:active {
+  transform: translateY(0);
+}
+
+/* Divider */
+.dividerLabel {
+  color: #3a5a40;
+  opacity: 0.6;
+  font-size: 0.85rem;
+}
+
+/* Sign Up Link */
+.signupText {
+  color: #3a5a40;
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
+.signupLink {
+  color: #588157;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.signupLink:hover {
+  color: #3a5a40;
+  text-decoration: underline;
+}
+
+/* Benefits Box */
+.benefitsBox {
+  background: linear-gradient(135deg, rgba(88, 129, 87, 0.1) 0%, rgba(58, 90, 64, 0.1) 100%);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.benefitsText {
+  color: #344e41;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+/* Back Link */
+.backLink {
+  opacity: 0;
+  animation: fadeIn 0.5s ease 0.3s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.backToHome {
+  color: #344e41;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.backToHome:hover {
+  color: #588157;
+  transform: translateX(-4px);
+  display: inline-block;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .formCard {
+    padding: 32px 24px;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .logo {
+    font-size: 1.75rem;
+  }
+}
+
+/* Loading States */
+.input:disabled {
+  background: rgba(218, 215, 205, 0.2);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Error States */
+.input[aria-invalid="true"] {
+  border-color: #e03131;
+  background: rgba(224, 49, 49, 0.05);
+}
+
+.input[aria-invalid="true"]:focus {
+  border-color: #e03131;
+  box-shadow: 0 0 0 3px rgba(224, 49, 49, 0.1);
+}
+
+/* Success Animation */
+@keyframes successPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.submitButton:focus {
+  animation: successPulse 0.3s ease;
+}

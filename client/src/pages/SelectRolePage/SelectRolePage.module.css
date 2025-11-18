@@ -1,0 +1,29 @@
+/* /client/src/pages/SelectRolePage/SelectRolePage.module.css (Updated) */
+
+.wrapper {
+  background-color: #dad7cd;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.roleCard {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  background-color: #ffffff; /* Pure white cards */
+  display: flex; /* Enable flexbox for alignment */
+  flex-direction: column; /* Stack items vertically */
+  justify-content: center; /* Center items vertically */
+  height: 250px; /* Give the card a fixed height */
+}
+
+.roleCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); /* A slightly stronger shadow */
+  border-color: #588157;
+}

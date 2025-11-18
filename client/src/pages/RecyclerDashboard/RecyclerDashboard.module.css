@@ -1,0 +1,51 @@
+/* /client/src/pages/RecyclerDashboard/RecyclerDashboard.module.css */
+
+.kpiCard {
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.kpiCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.requestCard {
+  background: #f9f9f9;
+  transition: all 0.2s ease;
+}
+
+.requestCard:hover {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pickupCard {
+  background: white;
+  border-left: 4px solid #588157;
+}
+
+.widget {
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.ctaButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(88, 129, 87, 0.3);
+}
+
+.ctaLabel {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.2;
+}

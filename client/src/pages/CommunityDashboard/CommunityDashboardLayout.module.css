@@ -1,0 +1,28 @@
+.header {
+  background-color: #dad7cd;
+  border-bottom: 1px solid #a3b18a;
+  box-shadow: 0 1px 3px rgba(52, 78, 65, 0.2);
+  color: #344e41;
+}
+
+.navbar {
+  background-color: #dad7cd;
+  border-right: 1px solid #a3b18a;
+}
+
+.main {
+  background-color: #f6f7f4;
+}
+
+.card {
+  transition: all 0.2s ease;
+}
+
+.gridItem {
+  transition: all 0.3s ease;
+}
+
+.gridItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(88, 129, 87, 0.15);
+}

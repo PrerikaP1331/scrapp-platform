@@ -1,0 +1,247 @@
+/* RecyclerBilling.module.css */
+
+/* Plan Card Styling */
+.planCard {
+  background: linear-gradient(135deg, #f8fafb 0%, #ecebe5 100%);
+  border: 2px solid #588157;
+  transition: all 0.3s ease;
+}
+
+.planCard:hover {
+  box-shadow: 0 8px 24px rgba(88, 129, 87, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Invoice Table Styling */
+.invoiceTable {
+  width: 100%;
+}
+
+.invoiceTable tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+
+.invoiceTable tbody tr:hover {
+  background-color: #ecebe5;
+}
+
+.invoiceTable tbody tr td {
+  padding: 12px;
+  vertical-align: middle;
+}
+
+.invoiceTable thead tr {
+  background-color: #ecebe5;
+  border-bottom: 2px solid #588157;
+}
+
+.invoiceTable thead tr th {
+  color: #344e41;
+  font-weight: 600;
+  padding: 12px;
+  text-align: left;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .planCard {
+    padding: 16px;
+  }
+
+  .invoiceTable {
+    font-size: 0.875rem;
+  }
+
+  .invoiceTable tbody tr td {
+    padding: 8px;
+  }
+
+  .invoiceTable thead tr th {
+    padding: 8px;
+  }
+}
+
+/* Status Badges */
+.statusBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.statusPaid {
+  background-color: #d3f9d8;
+  color: #2b8a3e;
+}
+
+.statusPending {
+  background-color: #fff3bf;
+  color: #9c6d00;
+}
+
+.statusOverdue {
+  background-color: #ffe0e0;
+  color: #c92a2a;
+}
+
+/* Button Styles */
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #588157 0%, #3a5a40 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(88, 129, 87, 0.25);
+}
+
+.actionButton:active {
+  transform: translateY(0);
+}
+
+/* Modal Content */
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalAlert {
+  border-left: 4px solid #588157;
+  background-color: #ecebe5;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+/* Card Details */
+.cardDetails {
+  background-color: #f9f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.cardDetail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.cardDetail:last-child {
+  border-bottom: none;
+}
+
+.cardDetailLabel {
+  color: #666;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.cardDetailValue {
+  color: #344e41;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+/* Plan Features List */
+.planFeatures {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.planFeature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.planFeatureIcon {
+  color: #588157;
+  flex-shrink: 0;
+}
+
+/* Billing History Section */
+.billingHistorySection {
+  margin-top: 2rem;
+}
+
+.billingHistoryTitle {
+  color: #344e41;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Alert Styles */
+.taxAlert {
+  background-color: #ecebe5;
+  border-left: 4px solid #588157;
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+.taxAlertTitle {
+  color: #1971c2;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.taxAlertText {
+  color: #1971c2;
+  font-size: 0.875rem;
+}
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  color: #666;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+}
+
+.emptyStateIcon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animatedCard {
+  animation: slideIn 0.3s ease-out;
+}

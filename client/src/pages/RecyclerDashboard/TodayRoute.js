@@ -1,0 +1,605 @@
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Container, Paper, Title, Text, Stack, Group, Button, Badge, Card, Grid,
+  Modal, Loader, Center, Alert, SimpleGrid, ActionIcon, Tooltip, ThemeIcon
+} from '@mantine/core';
+import { IconMapPin, IconClock, IconPhone, IconAlertCircle, IconPrinter, IconMapSearch, IconCheck } from '@tabler/icons-react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import styles from './TodayRoute.module.css';
+import { getRouteToday, updatePickupStatus } from '../../api/recyclerService';
+
+// Fix Leaflet marker icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
+
+function TodayRoute() {
+  const [pickups, setPickups] = useState([]);
+  const [routeGeometry, setRouteGeometry] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedStop, setSelectedStop] = useState(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [completedStops, setCompletedStops] = useState({});
+  const [currentStopIndex, setCurrentStopIndex] = useState(0);
+  const stopListRef = useRef(null);
+  const mapRef = useRef(null);
+
+  // Fetch today's route data
+  useEffect(() => {
+    fetchTodayRoute();
+  }, []);
+
+  const fetchTodayRoute = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getRouteToday();
+      
+      if (data.pickups && data.pickups.length > 0) {
+        setPickups(data.pickups);
+        
+        // Set route geometry for polyline
+        if (data.route && data.route.geometry && data.route.geometry.length > 0) {
+          setRouteGeometry(data.route.geometry.map(coord => [coord[1], coord[0]])); // Convert from [lon,lat] to [lat,lon]
+        }
+        
+        // Initialize completed stops based on status
+        const completed = {};
+        data.pickups.forEach(p => {
+          if (p.status === 'completed') {
+            completed[p._id] = true;
+          }
+        });
+        setCompletedStops(completed);
+      } else {
+        // Gracefully handle empty data
+        setPickups([]);
+        setRouteGeometry([]);
+      }
+    } catch (err) {
+      console.error('Error fetching route:', err);
+      const status = err?.response?.status;
+      const errorMessage = err?.response?.data?.msg || err?.message || 'Failed to load today\'s route';
+      // Show error only for authorization issues; otherwise show empty state
+      if (status === 401) {
+        setError(errorMessage);
+      } else {
+        setError(null);
+        setPickups([]);
+        setRouteGeometry([]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Mark pickup as completed
+  const handleMarkCompleted = async (pickupId, isCompleting) => {
+    try {
+      setUpdatingId(pickupId);
+      const newStatus = isCompleting ? 'completed' : 'scheduled';
+      await updatePickupStatus(pickupId, newStatus);
+      
+      setCompletedStops(prev => ({
+        ...prev,
+        [pickupId]: isCompleting
+      }));
+
+      // Update pickup status in state
+      setPickups(prev => 
+        prev.map(p => p._id === pickupId ? { ...p, status: newStatus } : p)
+      );
+    } catch (err) {
+      console.error('Error updating status:', err);
+      setError(err.msg || 'Failed to update pickup status');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  // Open details modal
+  const handleViewDetails = (stop) => {
+    setSelectedStop(stop);
+    setDetailsModalOpen(true);
+  };
+
+  // Scroll stop into view when map marker is clicked
+  const scrollToStop = (index) => {
+    setCurrentStopIndex(index);
+    if (stopListRef.current?.children[index]) {
+      stopListRef.current.children[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  };
+
+  // Pan map to marker when clicked
+  const handleMarkerClick = (index) => {
+    scrollToStop(index);
+    if (mapRef.current && pickups[index]) {
+      const coords = [pickups[index].coordinates.latitude, pickups[index].coordinates.longitude];
+      mapRef.current.setView(coords, 15);
+    }
+  };
+
+  // Open in native maps app
+  const handleOpenMaps = (stop) => {
+    const address = `${stop.address}, ${stop.city}`;
+    const encodedAddress = encodeURIComponent(address);
+    
+    // Detect mobile device
+    const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      const mapsUrl = /iPhone|iPad/.test(navigator.userAgent)
+        ? `maps://maps.apple.com/?address=${encodedAddress}&q=${encodedAddress}`
+        : `geo:${stop.coordinates.latitude},${stop.coordinates.longitude}?q=${encodedAddress}`;
+      window.location.href = mapsUrl;
+    } else {
+      // Desktop - open Google Maps in new tab
+      const googleMapsUrl = `https://www.google.com/maps/search/${encodedAddress}`;
+      window.open(googleMapsUrl, '_blank');
+    }
+  };
+
+  // Print route
+  const handlePrintRoute = () => {
+    const printContent = `
+      <html>
+        <head>
+          <title>Today's Route - Scrapp</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #344e41; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            th { background-color: #344e41; color: white; }
+            tr:nth-child(even) { background-color: #f9f9f9; }
+          </style>
+        </head>
+        <body>
+          <h1>Today's Optimized Route</h1>
+          <p>Date: ${new Date().toLocaleDateString()}</p>
+          <p>Total Stops: ${pickups.length}</p>
+          <table>
+            <tr>
+              <th>Stop #</th>
+              <th>Customer Name</th>
+              <th>Address</th>
+              <th>Time Slot</th>
+              <th>Waste Types</th>
+              <th>Phone</th>
+            </tr>
+            ${pickups.map(p => `
+              <tr>
+                <td>${p.position}</td>
+                <td>${p.customerName}</td>
+                <td>${p.address}, ${p.city}</td>
+                <td>${p.timeSlot}</td>
+                <td>${p.wasteTypes.join(', ')}</td>
+                <td>${p.customerPhone}</td>
+              </tr>
+            `).join('')}
+          </table>
+        </body>
+      </html>
+    `;
+    
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  if (loading) {
+    return (
+      <Center style={{ height: '400px' }}>
+        <Stack align="center" gap="md">
+          <Loader size="lg" color="#344e41" />
+          <Text>Loading today's route...</Text>
+        </Stack>
+      </Center>
+    );
+  }
+
+  if (error && pickups.length === 0) {
+    return (
+      <Container size="xl" py="xl">
+        <Alert icon={<IconAlertCircle />} title="Error" color="red" mb="xl">
+          {error}
+        </Alert>
+        <Button onClick={fetchTodayRoute}>Retry</Button>
+      </Container>
+    );
+  }
+
+  const completedCount = Object.values(completedStops).filter(Boolean).length;
+  const currentStop = pickups[currentStopIndex];
+
+  return (
+    <Container size="xl" py="xl">
+      <Stack gap="lg">
+        {/* Header */}
+        <Group justify="space-between" align="flex-start">
+          <div>
+            <Title order={2} style={{ color: '#344e41' }}>
+              Today's Optimized Route
+            </Title>
+            <Text size="sm" color="dimmed">
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })} • {pickups.length} stops
+            </Text>
+          </div>
+
+          {/* Utility Buttons */}
+          <Group gap="xs">
+            <Tooltip label="Print Route">
+              <ActionIcon 
+                variant="light" 
+                color="#344e41"
+                onClick={handlePrintRoute}
+                size="lg"
+              >
+                <IconPrinter size={20} />
+              </ActionIcon>
+            </Tooltip>
+            {currentStop && (
+              <Tooltip label="Open in Maps">
+                <ActionIcon 
+                  variant="light" 
+                  color="#588157"
+                  onClick={() => handleOpenMaps(currentStop)}
+                  size="lg"
+                >
+                  <IconMapSearch size={20} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+          </Group>
+        </Group>
+
+        {pickups.length === 0 ? (
+          <Alert icon={<IconAlertCircle />} title="No Pickups" color="#588157">
+            There are no pickups scheduled for today.
+          </Alert>
+        ) : (
+          <Grid gutter="lg">
+            {/* Left Panel: Stop List */}
+            <Grid.Col span={{ base: 12, md: 5 }}>
+              <Paper p="lg" radius="md" withBorder style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                <Group justify="space-between" mb="lg">
+                  <Title order={4} style={{ color: '#344e41' }}>Route Checklist</Title>
+                  <Badge size="lg" variant="light" color="#588157">
+                    {completedCount} / {pickups.length}
+                  </Badge>
+                </Group>
+
+                <Stack gap="md" ref={stopListRef}>
+                  {pickups.map((stop, idx) => (
+                    <Card
+                      key={stop._id}
+                      withBorder
+                      p="md"
+                      radius="md"
+                      className={`${styles.stopCard} ${completedStops[stop._id] ? styles.completed : ''} ${currentStopIndex === idx ? styles.current : ''}`}
+                      onClick={() => scrollToStop(idx)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <Group justify="space-between" mb="sm">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <ThemeIcon
+                            size={36}
+                            radius="50%"
+                            style={{
+                              backgroundColor: completedStops[stop._id] ? '#a3b18a' : '#588157',
+                              color: 'white'
+                            }}
+                            fw={700}
+                          >
+                            {completedStops[stop._id] ? <IconCheck size={20} /> : stop.position}
+                          </ThemeIcon>
+                          <div style={{ flex: 1 }}>
+                            <Text
+                              fw={600}
+                              style={{
+                                color: '#344e41',
+                                textDecoration: completedStops[stop._id] ? 'line-through' : 'none',
+                                opacity: completedStops[stop._id] ? 0.6 : 1
+                              }}
+                            >
+                              {stop.customerName}
+                            </Text>
+                            <Text size="xs" color="dimmed">{stop.city}</Text>
+                          </div>
+                        </div>
+                        {currentStopIndex === idx && (
+                          <Badge size="sm" color="#588157">Current</Badge>
+                        )}
+                      </Group>
+
+                      <Group gap="xs" mb="sm">
+                        <Group gap={4}>
+                          <IconClock size={14} color="#344e41" />
+                          <Text size="sm">{stop.timeSlot}</Text>
+                        </Group>
+                      </Group>
+
+                      {stop.wasteTypes.length > 0 && (
+                        <Group gap={4} mb="md">
+                          {stop.wasteTypes.map(type => (
+                            <Badge key={type} size="xs" variant="light">
+                              {type}
+                            </Badge>
+                          ))}
+                        </Group>
+                      )}
+
+                      <Group gap="xs">
+                        <Button
+                          size="xs"
+                          variant="light"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDetails(stop);
+                          }}
+                        >
+                          View Details
+                        </Button>
+                        <Button
+                          size="xs"
+                          color={completedStops[stop._id] ? 'gray' : '#588157'}
+                          loading={updatingId === stop._id}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMarkCompleted(stop._id, !completedStops[stop._id]);
+                          }}
+                        >
+                          {completedStops[stop._id] ? 'Mark Pending' : 'Mark Complete'}
+                        </Button>
+                      </Group>
+                    </Card>
+                  ))}
+                </Stack>
+              </Paper>
+            </Grid.Col>
+
+            {/* Right Panel: Map & Summary */}
+            <Grid.Col span={{ base: 12, md: 7 }}>
+              <Stack gap="lg">
+                {/* Interactive Map */}
+                <Paper p={0} radius="md" withBorder style={{ overflow: 'hidden', minHeight: '400px' }}>
+                  {pickups.length > 0 ? (
+                    <MapContainer
+                      ref={mapRef}
+                      center={[pickups[0].coordinates.latitude, pickups[0].coordinates.longitude]}
+                      zoom={13}
+                      style={{ height: '400px', width: '100%' }}
+                    >
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      
+                      {/* Route polyline */}
+                      {routeGeometry.length > 0 && (
+                        <Polyline
+                          positions={routeGeometry}
+                          color="#588157"
+                          weight={3}
+                          opacity={0.7}
+                          dashArray="5, 5"
+                        />
+                      )}
+                      
+                      {/* Markers for each stop */}
+                      {pickups.map((stop, idx) => {
+                        const isCompleted = completedStops[stop._id];
+                        const isCurrent = idx === currentStopIndex;
+                        
+                        // Create custom icon based on stop status
+                        const markerColor = isCompleted ? '#588157' : isCurrent ? '#a3b18a' : '#344e41';
+                        const customIcon = L.divIcon({
+                          html: `
+                            <div style="
+                              background-color: ${markerColor};
+                              color: white;
+                              border-radius: 50%;
+                              width: 40px;
+                              height: 40px;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              font-weight: bold;
+                              font-size: 16px;
+                              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                              border: 3px solid white;
+                              cursor: pointer;
+                            ">
+                              ${isCompleted ? '✓' : stop.position}
+                            </div>
+                          `,
+                          iconSize: [40, 40],
+                          iconAnchor: [20, 20],
+                          className: 'custom-marker'
+                        });
+                        
+                        return (
+                          <Marker
+                            key={stop._id}
+                            position={[stop.coordinates.latitude, stop.coordinates.longitude]}
+                            icon={customIcon}
+                            eventHandlers={{
+                              click: () => handleMarkerClick(idx)
+                            }}
+                          >
+                            <Popup>
+                              <div style={{ padding: '8px' }}>
+                                <strong>{stop.position}. {stop.customerName}</strong><br />
+                                {stop.address}<br />
+                                {stop.city}<br />
+                                <small>{stop.timeSlot}</small>
+                              </div>
+                            </Popup>
+                          </Marker>
+                        );
+                      })}
+                    </MapContainer>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px' }}>
+                      <Text color="dimmed">No pickups to display on map</Text>
+                    </div>
+                  )}
+                </Paper>
+
+                {/* Route Summary */}
+                <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#f0f8f5' }}>
+                  <Title order={4} style={{ color: '#344e41' }} mb="lg">Today's Summary</Title>
+                  <SimpleGrid cols={{ base: 2, sm: 3 }} gap="md">
+                    <div>
+                      <Text fw={500} size="sm" color="dimmed">Total Stops</Text>
+                      <Text size="lg" fw={700} style={{ color: '#344e41' }}>{pickups.length}</Text>
+                    </div>
+                    <div>
+                      <Text fw={500} size="sm" color="dimmed">Completed</Text>
+                      <Text size="lg" fw={700} style={{ color: '#588157' }}>{completedCount}</Text>
+                    </div>
+                    <div>
+                      <Text fw={500} size="sm" color="dimmed">Remaining</Text>
+                      <Text size="lg" fw={700} style={{ color: '#344e41' }}>{pickups.length - completedCount}</Text>
+                    </div>
+                  </SimpleGrid>
+
+                  {completedCount === pickups.length && pickups.length > 0 && (
+                    <Alert icon={<IconCheck />} title="Great Job!" color="#588157" mt="lg">
+                      You've completed all pickups for today!
+                    </Alert>
+                  )}
+                </Paper>
+
+                {/* Current Stop Details */}
+                {currentStop && (
+                  <Paper p="lg" radius="md" withBorder style={{ borderLeft: '4px solid #588157' }}>
+                    <Title order={5} style={{ color: '#344e41' }} mb="md">Current Stop</Title>
+                    <Stack gap="sm">
+                      <Group justify="space-between">
+                        <Text fw={600} style={{ color: '#344e41' }}>{currentStop.customerName}</Text>
+                        <Badge size="sm" color="#588157">Stop {currentStop.position}</Badge>
+                      </Group>
+                      <Text size="sm">{currentStop.address}, {currentStop.city}</Text>
+                      <Group gap="xs">
+                        <IconClock size={16} color="#344e41" />
+                        <Text size="sm">{currentStop.timeSlot}</Text>
+                      </Group>
+                      {currentStop.customerPhone && (
+                        <Group gap="xs">
+                          <IconPhone size={16} color="#344e41" />
+                          <Text size="sm" component="a" href={`tel:${currentStop.customerPhone}`} style={{ color: '#588157', textDecoration: 'none' }}>
+                            {currentStop.customerPhone}
+                          </Text>
+                        </Group>
+                      )}
+                      {currentStop.notes && (
+                        <Alert icon={<IconAlertCircle />} title="Special Instructions" color="yellow" size="sm">
+                          {currentStop.notes}
+                        </Alert>
+                      )}
+                      <Button
+                        size="sm"
+                        style={{ backgroundColor: '#588157' }}
+                        onClick={() => handleOpenMaps(currentStop)}
+                        fullWidth
+                      >
+                        Navigate to This Stop
+                      </Button>
+                    </Stack>
+                  </Paper>
+                )}
+              </Stack>
+            </Grid.Col>
+          </Grid>
+        )}
+      </Stack>
+
+      {/* Details Modal */}
+      <Modal
+        opened={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        title={`Pickup Details: ${selectedStop?.customerName}`}
+        size="md"
+      >
+        {selectedStop && (
+          <Stack gap="md">
+            <div>
+              <Text fw={500} size="sm" color="dimmed" mb={4}>Customer Name</Text>
+              <Text fw={600}>{selectedStop.customerName}</Text>
+            </div>
+
+            <div>
+              <Text fw={500} size="sm" color="dimmed" mb={4}>Phone Number</Text>
+              <Text component="a" href={`tel:${selectedStop.customerPhone}`} style={{ color: '#588157', textDecoration: 'none' }}>
+                {selectedStop.customerPhone}
+              </Text>
+            </div>
+
+            <div>
+              <Text fw={500} size="sm" color="dimmed" mb={4}>Address</Text>
+              <Text>{selectedStop.address}, {selectedStop.city} {selectedStop.postalCode}</Text>
+            </div>
+
+            <div>
+              <Text fw={500} size="sm" color="dimmed" mb={4}>Time Slot</Text>
+              <Text>{selectedStop.timeSlot}</Text>
+            </div>
+
+            <div>
+              <Text fw={500} size="sm" color="dimmed" mb={4}>Waste Types</Text>
+              <Group gap="xs">
+                {selectedStop.wasteTypes.map(type => (
+                  <Badge key={type} variant="light">{type}</Badge>
+                ))}
+              </Group>
+            </div>
+
+            <div>
+              <Text fw={500} size="sm" color="dimmed" mb={4}>Quantity</Text>
+              <Text>{selectedStop.quantity}</Text>
+            </div>
+
+            {selectedStop.notes && (
+              <div>
+                <Text fw={500} size="sm" color="dimmed" mb={4}>Special Instructions</Text>
+                <Alert icon={<IconAlertCircle />} color="yellow">
+                  {selectedStop.notes}
+                </Alert>
+              </div>
+            )}
+
+            <Group justify="flex-end" mt="lg">
+              <Button
+                variant="light"
+                onClick={() => setDetailsModalOpen(false)}
+              >
+                Close
+              </Button>
+              <Button
+                style={{ backgroundColor: '#588157' }}
+                onClick={() => {
+                  handleOpenMaps(selectedStop);
+                  setDetailsModalOpen(false);
+                }}
+              >
+                Navigate
+              </Button>
+            </Group>
+          </Stack>
+        )}
+      </Modal>
+    </Container>
+  );
+}
+
+export default TodayRoute;

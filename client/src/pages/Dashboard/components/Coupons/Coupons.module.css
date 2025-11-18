@@ -1,0 +1,45 @@
+/* Coupons.module.css */
+
+.summaryCard {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 2px solid #86efac;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.couponCard {
+  transition: all 0.3s ease;
+  border: 2px solid #e5e7eb;
+  position: relative;
+  background: white;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.couponCard:hover {
+  border-color: #51cf66;
+  box-shadow: 0 8px 24px rgba(81, 207, 102, 0.15);
+  transform: translateY(-2px);
+}
+
+.couponCardInactive {
+  opacity: 0.7;
+  background: #f9fafb;
+}
+
+.couponCardInactive:hover {
+  border-color: #e5e7eb;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .couponCard {
+    margin-bottom: 1rem;
+  }
+
+  .summaryCard {
+    margin-bottom: 1rem;
+  }
+}
